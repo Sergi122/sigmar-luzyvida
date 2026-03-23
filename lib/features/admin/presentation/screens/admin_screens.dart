@@ -4,9 +4,6 @@ import '../../../../core/session.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
 import 'admin_miembros_screen.dart';
 
-// ══════════════════════════════════════════════════════
-//  WIDGET BASE para pantallas de modulo
-// ══════════════════════════════════════════════════════
 class _PantallaModulo extends StatelessWidget {
   final String ruta, titulo, subtitulo;
   final IconData icono;
@@ -26,52 +23,52 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final movil = MediaQuery.of(context).size.width < 600;
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(movil ? 16 : 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icono, color: color, size: 26),
+                  child: Icon(icono, color: color, size: 24),
                 ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: const TextStyle(
-                        color: kWhite,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: TextStyle(
+                          color: kWhite,
+                          fontSize: movil ? 18 : 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      subtitulo,
-                      style: const TextStyle(color: kGrey, fontSize: 13),
-                    ),
-                  ],
+                      Text(
+                        subtitulo,
+                        style: const TextStyle(color: kGrey, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Container(width: 50, height: 3, color: color),
-            const SizedBox(height: 32),
-
-            // Quien esta usando esto
+            const SizedBox(height: 24),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
@@ -81,20 +78,21 @@ class _PantallaModulo extends StatelessWidget {
                 children: [
                   Icon(Icons.person_outline, color: color, size: 16),
                   const SizedBox(width: 8),
-                  Text(
-                    '${AppSession.nombre} • ${AppSession.rol.toUpperCase()}',
-                    style: TextStyle(
-                      color: color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      '${AppSession.nombre} • ${AppSession.rol.toUpperCase()}',
+                      style: TextStyle(
+                        color: color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 28),
-
-            // Acciones
+            const SizedBox(height: 24),
             if (acciones.isNotEmpty) ...[
               const Text(
                 'ACCIONES DISPONIBLES',
@@ -102,8 +100,8 @@ class _PantallaModulo extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Wrap(
-                spacing: 10,
-                runSpacing: 10,
+                spacing: 8,
+                runSpacing: 8,
                 children: List.generate(acciones.length, (i) {
                   final cb = i < onAcciones.length ? onAcciones[i] : null;
                   return OutlinedButton.icon(
@@ -111,9 +109,9 @@ class _PantallaModulo extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: color,
                       side: BorderSide(color: color.withValues(alpha: 0.4)),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: movil ? 12 : 18,
+                        vertical: 10,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -122,17 +120,15 @@ class _PantallaModulo extends StatelessWidget {
                     icon: const Icon(Icons.chevron_right, size: 15),
                     label: Text(
                       acciones[i],
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: movil ? 12 : 13),
                     ),
                   );
                 }),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
             ],
-
-            // En construccion
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: kBgCard,
                 borderRadius: BorderRadius.circular(10),
@@ -175,9 +171,6 @@ class _PantallaModulo extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  MIEMBRO
-// ══════════════════════════════════════════════════════
 class InscripcionScreen extends StatelessWidget {
   const InscripcionScreen({super.key});
   @override
@@ -192,9 +185,6 @@ class InscripcionScreen extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  LIDER
-// ══════════════════════════════════════════════════════
 class MiGrupoScreen extends StatelessWidget {
   const MiGrupoScreen({super.key});
   @override
@@ -214,9 +204,6 @@ class MiGrupoScreen extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  PASTOR
-// ══════════════════════════════════════════════════════
 class ReportesScreen extends StatelessWidget {
   const ReportesScreen({super.key});
   @override
@@ -254,10 +241,6 @@ class GuiasScreen extends StatelessWidget {
     onAcciones: [null, null, null],
   );
 }
-
-// ══════════════════════════════════════════════════════
-//  ADMIN
-// ══════════════════════════════════════════════════════
 
 class AdminGruposScreen extends StatelessWidget {
   const AdminGruposScreen({super.key});
@@ -299,7 +282,6 @@ class AdminCursosScreen extends StatelessWidget {
       null,
       null,
       null,
-      // ✅ UNICO botón que navega a AdminMiembrosScreen
       () => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const AdminMiembrosScreen()),
@@ -348,9 +330,6 @@ class AdminAportesScreen extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  PERFIL — compartido todos los roles
-// ══════════════════════════════════════════════════════
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
   @override

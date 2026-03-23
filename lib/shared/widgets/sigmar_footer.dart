@@ -11,11 +11,12 @@ class SigmarFooter extends StatelessWidget {
       color: const Color(0xFF111111),
       child: Column(
         children: [
-          // Barra dorada superior
           Container(height: 5, color: kGold),
-
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 40),
+            padding: EdgeInsets.symmetric(
+              vertical: 48,
+              horizontal: movil ? 20 : 40,
+            ),
             child: movil
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,23 +43,46 @@ class SigmarFooter extends StatelessWidget {
                     ],
                   ),
           ),
-
           Container(height: 1, color: kDivider),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'Derechos Reservados | somosluzyvida.net® | El Alto - La Paz - Bolivia',
-                  style: TextStyle(color: kGrey, fontSize: 11),
-                ),
-                Text(
-                  'SIGMAR v1.0',
-                  style: TextStyle(color: kGrey, fontSize: 11),
-                ),
-              ],
+            padding: EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: movil ? 20 : 40,
             ),
+            child: movil
+                ? const Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Derechos Reservados | somosluzyvida.net®',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: kGrey, fontSize: 11),
+                      ),
+                      Text(
+                        'El Alto - La Paz - Bolivia',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: kGrey, fontSize: 11),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'SIGMAR v1.0',
+                        style: TextStyle(color: kGrey, fontSize: 11),
+                      ),
+                    ],
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Derechos Reservados | somosluzyvida.net® | El Alto - La Paz - Bolivia',
+                        style: TextStyle(color: kGrey, fontSize: 11),
+                      ),
+                      Text(
+                        'SIGMAR v1.0',
+                        style: TextStyle(color: kGrey, fontSize: 11),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

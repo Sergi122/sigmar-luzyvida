@@ -122,55 +122,57 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
     return SigmarPage(
       rutaActual: '/admin/miembros',
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(movil ? 16 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: _kColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+            if (movil) ...[
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _kColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.people_outlined,
+                      color: _kColor,
+                      size: 22,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.people_outlined,
-                    color: _kColor,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Gestion de Miembros',
-                        style: TextStyle(
-                          color: kWhite,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gestion de Miembros',
+                          style: TextStyle(
+                            color: kWhite,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Administrar todos los miembros de la iglesia',
-                        style: TextStyle(color: kGrey, fontSize: 13),
-                      ),
-                    ],
+                        Text(
+                          'Administrar miembros de la iglesia',
+                          style: TextStyle(color: kGrey, fontSize: 11),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ElevatedButton.icon(
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
                   onPressed: () => _abrirFormulario(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -182,13 +184,69 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: _kColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.people_outlined,
+                      color: _kColor,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gestion de Miembros',
+                          style: TextStyle(
+                            color: kWhite,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Administrar todos los miembros de la iglesia',
+                          style: TextStyle(color: kGrey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _abrirFormulario(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text(
+                      'Nuevo Miembro',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 8),
             Container(width: 50, height: 3, color: _kColor),
-            const SizedBox(height: 24),
-
-            // Barra de busqueda y filtros
+            const SizedBox(height: 20),
             movil
                 ? Column(
                     children: [
@@ -198,7 +256,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                           _filtrar();
                         }),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       _FiltroEstado(
                         valor: _filtroEstado,
                         onChanged: (v) => setState(() {
@@ -230,15 +288,11 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                     ],
                   ),
             const SizedBox(height: 8),
-
-            // Contador
             Text(
               '${_filtrados.length} miembro${_filtrados.length != 1 ? 's' : ''}',
               style: const TextStyle(color: kGrey, fontSize: 12),
             ),
             const SizedBox(height: 16),
-
-            // Lista
             if (_cargando)
               const Center(
                 child: Padding(
