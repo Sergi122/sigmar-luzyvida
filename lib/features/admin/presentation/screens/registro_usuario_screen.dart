@@ -141,7 +141,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: _kColor.withOpacity(0.15),
+                        color: _kColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
@@ -170,7 +170,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
 
                 if (!_esEdicion && _miembrosSinUsuario.isNotEmpty) ...[
                   DropdownButtonFormField<String>(
-                    value: _miembroSeleccionadoId,
+                    initialValue: _miembroSeleccionadoId,
                     dropdownColor: kBgCard,
                     style: const TextStyle(color: kWhite),
                     decoration: _deco(
@@ -229,7 +229,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                 const SizedBox(height: 16),
 
                 DropdownButtonFormField<String>(
-                  value: _rolSeleccionado,
+                  initialValue: _rolSeleccionado,
                   dropdownColor: kBgCard,
                   style: const TextStyle(color: kWhite),
                   decoration: _deco('Rol', Icons.admin_panel_settings_outlined),

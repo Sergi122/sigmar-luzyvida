@@ -3,17 +3,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
 import '../../../../shared/widgets/sigmar_footer.dart';
-import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:html' as html;
-import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 
 void _abrir(String url) async {
   final uri = Uri.parse(url);
-  if (await canLaunchUrl(uri))
+  if (await canLaunchUrl(uri)) {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
 }
 
 class SobreScreen extends StatelessWidget {
@@ -31,10 +26,10 @@ class SobreScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _HeroSobre(),
+                  const _HeroSobre(),
                   _SeccionHistoria(movil: movil),
                   _SeccionVisionMision(movil: movil),
-                  _SeccionLineasTiempo(),
+                  const _SeccionLineasTiempo(),
                   _SeccionPastores(movil: movil),
                   _SeccionValores(movil: movil),
                   _SeccionUbicacion(movil: movil),
@@ -50,6 +45,7 @@ class SobreScreen extends StatelessWidget {
 }
 
 class _HeroSobre extends StatelessWidget {
+  const _HeroSobre();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,7 +60,11 @@ class _HeroSobre extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(height: 3, width: 60, color: Colors.black.withOpacity(0.3)),
+          Container(
+            height: 3,
+            width: 60,
+            color: Colors.black.withValues(alpha: 0.3),
+          ),
           const SizedBox(height: 20),
           const Text(
             '¿QUIÉNES SOMOS?',
@@ -103,21 +103,21 @@ class _SeccionHistoria extends StatelessWidget {
       color: kBgMid,
       child: Column(
         children: [
-          _TituloSeccion('NUESTRA HISTORIA'),
+          const _TituloSeccion('NUESTRA HISTORIA'),
           const SizedBox(height: 40),
           movil
               ? Column(
                   children: [
-                    _FotoIglesia(),
+                    const _FotoIglesia(),
                     const SizedBox(height: 32),
-                    _TextoHistoria(),
+                    const _TextoHistoria(),
                   ],
                 )
-              : Row(
+              : const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 2, child: _FotoIglesia()),
-                    const SizedBox(width: 40),
+                    SizedBox(width: 40),
                     Expanded(flex: 3, child: _TextoHistoria()),
                   ],
                 ),
@@ -128,12 +128,13 @@ class _SeccionHistoria extends StatelessWidget {
 }
 
 class _FotoIglesia extends StatelessWidget {
+  const _FotoIglesia();
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Image.asset(
-        'assets/images/equipo_pastoral.png', // ✅ foto real
+        'assets/images/equipo_pastoral.png',
         fit: BoxFit.cover,
         height: 320,
         width: double.infinity,
@@ -142,7 +143,7 @@ class _FotoIglesia extends StatelessWidget {
           decoration: BoxDecoration(
             color: kBgCard,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: kGold.withOpacity(0.3)),
+            border: Border.all(color: kGold.withValues(alpha: 0.3)),
           ),
           child: const Center(
             child: Column(
@@ -168,6 +169,7 @@ class _FotoIglesia extends StatelessWidget {
 }
 
 class _TextoHistoria extends StatelessWidget {
+  const _TextoHistoria();
   @override
   Widget build(BuildContext context) {
     const parrafos = [
@@ -215,17 +217,17 @@ class _SeccionVisionMision extends StatelessWidget {
       color: kBg,
       child: Column(
         children: [
-          _TituloSeccion('VISIÓN Y MISIÓN'),
+          const _TituloSeccion('VISIÓN Y MISIÓN'),
           const SizedBox(height: 40),
           movil
-              ? Column(
+              ? const Column(
                   children: [
                     _VMCard(
                       'VISIÓN',
                       Icons.visibility_outlined,
                       'Expandir el reino de Dios desde la ciudad de El Alto, por toda Bolivia y hasta lo último de la tierra.',
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     _VMCard(
                       'MISIÓN',
                       Icons.flag_outlined,
@@ -233,7 +235,7 @@ class _SeccionVisionMision extends StatelessWidget {
                     ),
                   ],
                 )
-              : Row(
+              : const Row(
                   children: [
                     Expanded(
                       child: _VMCard(
@@ -242,7 +244,7 @@ class _SeccionVisionMision extends StatelessWidget {
                         'Expandir el reino de Dios desde la ciudad de El Alto, por toda Bolivia y hasta lo último de la tierra.',
                       ),
                     ),
-                    const SizedBox(width: 24),
+                    SizedBox(width: 24),
                     Expanded(
                       child: _VMCard(
                         'MISIÓN',
@@ -268,7 +270,7 @@ class _VMCard extends StatelessWidget {
     decoration: BoxDecoration(
       color: kBgCard,
       borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: kGold.withOpacity(0.35)),
+      border: Border.all(color: kGold.withValues(alpha: 0.35)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,6 +303,7 @@ class _VMCard extends StatelessWidget {
 }
 
 class _SeccionLineasTiempo extends StatelessWidget {
+  const _SeccionLineasTiempo();
   @override
   Widget build(BuildContext context) {
     const hitos = [
@@ -324,18 +327,13 @@ class _SeccionLineasTiempo extends StatelessWidget {
         'Consolidación',
         'La iglesia consolida sus ministerios de jóvenes, matrimonios y niños.',
       ),
-      _Hito(
-        '2025',
-        'SIGMAR',
-        'Implementación del sistema digital de gestión de miembros y grupos.',
-      ),
     ];
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 40),
       color: kBgMid,
       child: Column(
         children: [
-          _TituloSeccion('NUESTRA LÍNEA DE TIEMPO'),
+          const _TituloSeccion('NUESTRA LÍNEA DE TIEMPO'),
           const SizedBox(height: 40),
           ...hitos.map((h) => _HitoItem(h)),
         ],
@@ -365,7 +363,7 @@ class _HitoItem extends StatelessWidget {
               height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: kGold.withOpacity(0.1),
+                color: kGold.withValues(alpha: 0.1),
                 border: Border.all(color: kGold, width: 2),
               ),
               child: Center(
@@ -415,7 +413,6 @@ class _HitoItem extends StatelessWidget {
   );
 }
 
-// ── Pastores ──────────────────────────────────────────
 class _PastorInfo {
   final String nombre, rol, desc, foto;
   const _PastorInfo(this.nombre, this.rol, this.desc, this.foto);
@@ -432,7 +429,7 @@ class _SeccionPastores extends StatelessWidget {
         'Pastor Rogelio Calle Chavez',
         'Pastor Fundador',
         'Co-fundador de la iglesia Luz y Vida. Desde 1987 guiando la congregación con amor, sabiduría y visión del Reino de Dios.',
-        'assets/images/pastor_rogelio.jpg', // ← agrega la foto cuando la tengas
+        'assets/images/pastor_rogelio.jpg',
       ),
       _PastorInfo(
         'John Felix Apaza Apasa',
@@ -453,7 +450,7 @@ class _SeccionPastores extends StatelessWidget {
       color: kBg,
       child: Column(
         children: [
-          _TituloSeccion('NUESTRO LIDERAZGO'),
+          const _TituloSeccion('NUESTRO LIDERAZGO'),
           const SizedBox(height: 40),
           movil
               ? Column(
@@ -497,7 +494,6 @@ class _PastorCard extends StatelessWidget {
     ),
     child: Column(
       children: [
-        // ✅ Foto circular real
         ClipOval(
           child: Image.asset(
             info.foto,
@@ -509,8 +505,11 @@ class _PastorCard extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: kGold.withOpacity(0.1),
-                border: Border.all(color: kGold.withOpacity(0.5), width: 2),
+                color: kGold.withValues(alpha: 0.1),
+                border: Border.all(
+                  color: kGold.withValues(alpha: 0.5),
+                  width: 2,
+                ),
               ),
               child: Center(
                 child: Text(
@@ -551,7 +550,6 @@ class _PastorCard extends StatelessWidget {
   );
 }
 
-// ── Valores ───────────────────────────────────────────
 class _SeccionValores extends StatelessWidget {
   final bool movil;
   const _SeccionValores({required this.movil});
@@ -596,7 +594,7 @@ class _SeccionValores extends StatelessWidget {
       color: kBgMid,
       child: Column(
         children: [
-          _TituloSeccion('NUESTROS VALORES'),
+          const _TituloSeccion('NUESTROS VALORES'),
           const SizedBox(height: 40),
           Wrap(
             spacing: 16,
@@ -640,7 +638,7 @@ class _ValCard extends StatelessWidget {
           width: 46,
           height: 46,
           decoration: BoxDecoration(
-            color: kGold.withOpacity(0.1),
+            color: kGold.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(v.icono, color: kGold, size: 22),
@@ -675,7 +673,6 @@ class _ValCard extends StatelessWidget {
   );
 }
 
-// ── Ubicación ─────────────────────────────────────────
 class _SeccionUbicacion extends StatelessWidget {
   final bool movil;
   const _SeccionUbicacion({required this.movil});
@@ -687,21 +684,21 @@ class _SeccionUbicacion extends StatelessWidget {
       color: kBg,
       child: Column(
         children: [
-          _TituloSeccion('ENCUÉNTRANOS'),
+          const _TituloSeccion('ENCUÉNTRANOS'),
           const SizedBox(height: 40),
           movil
               ? Column(
                   children: [
-                    _InfoContacto(),
+                    const _InfoContacto(),
                     const SizedBox(height: 28),
                     const _MapaWidget(),
                   ],
                 )
-              : Row(
+              : const Row(
                   children: [
                     Expanded(child: _InfoContacto()),
-                    const SizedBox(width: 40),
-                    const Expanded(child: _MapaWidget()),
+                    SizedBox(width: 40),
+                    Expanded(child: _MapaWidget()),
                   ],
                 ),
         ],
@@ -711,6 +708,7 @@ class _SeccionUbicacion extends StatelessWidget {
 }
 
 class _InfoContacto extends StatelessWidget {
+  const _InfoContacto();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -732,12 +730,12 @@ class _InfoContacto extends StatelessWidget {
           'El Alto, La Paz, Bolivia',
           'https://maps.app.goo.gl/a9MojcjXDnCtAN2d6',
         ),
-        _ContactoItem(
+        const _ContactoItem(
           Icons.access_time_outlined,
           'Domingo 9:00 AM y 6:00 PM',
           null,
         ),
-        _ContactoItem(
+        const _ContactoItem(
           Icons.access_time_outlined,
           'Miércoles — Estudio Bíblico',
           null,
@@ -803,41 +801,135 @@ class _ContactoItem extends StatelessWidget {
   );
 }
 
-// ✅ Mapa embebido multiplataforma
+// Mapa simple sin google_maps_flutter (evita dependencia problemática en web)
 class _MapaWidget extends StatelessWidget {
   const _MapaWidget();
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) {
-      // ignore: undefined_prefixed_name
-      ui.platformViewRegistry.registerViewFactory(
-        'mapa-html',
-        (int viewId) => html.IFrameElement()
-          ..src =
-              'https://www.google.com/maps?q=-16.524,-68.173&z=15&output=embed'
-          ..style.border = 'none',
-      );
-
-      return Container(
-        height: 260,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: kGold.withOpacity(0.3)),
+    return GestureDetector(
+      onTap: () => _abrir('https://maps.app.goo.gl/Ak5iU2Ca3M7LjrnGA'),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          height: 260,
+          decoration: BoxDecoration(
+            color: kBgCard,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: kGold.withValues(alpha: 0.3)),
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Fondo con gradiente simulando mapa
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [const Color(0xFF1a2a1a), const Color(0xFF0d1a0d)],
+                  ),
+                ),
+              ),
+              // Cuadrícula de calles simulada
+              CustomPaint(painter: _MapGridPainter()),
+              // Contenido central
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: kGold.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: kGold.withValues(alpha: 0.5),
+                          width: 2,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.location_on,
+                        color: kGold,
+                        size: 36,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Iglesia Luz y Vida',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'El Alto, La Paz, Bolivia',
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: kGold,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.map_outlined,
+                            color: Colors.black,
+                            size: 14,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'VER EN GOOGLE MAPS',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: const HtmlElementView(viewType: 'mapa-html'),
-        ),
-      );
-    }
-
-    // fallback (por si no es web)
-    return const Center(child: Text('Mapa solo disponible en web'));
+      ),
+    );
   }
 }
 
-// ── Widget auxiliar ───────────────────────────────────
+class _MapGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.green.withValues(alpha: 0.08)
+      ..strokeWidth = 1;
+
+    for (double x = 0; x < size.width; x += 40) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += 40) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
+}
+
 class _TituloSeccion extends StatelessWidget {
   final String texto;
   const _TituloSeccion(this.texto);

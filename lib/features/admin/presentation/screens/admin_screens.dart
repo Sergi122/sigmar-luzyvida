@@ -10,13 +10,12 @@ export 'admin_cursos_screen.dart';
 export 'admin_usuarios_screen.dart';
 export 'registro_usuario_screen.dart';
 export 'admin_aportes_screen.dart';
+export 'perfil_screen.dart';
 
-// WIDGET BASE para pantallas en desarrollo
 class _PantallaModulo extends StatelessWidget {
   final String ruta, titulo, subtitulo;
   final IconData icono;
   final Color color;
-  final List<String> acciones;
 
   const _PantallaModulo({
     required this.ruta,
@@ -24,14 +23,12 @@ class _PantallaModulo extends StatelessWidget {
     required this.subtitulo,
     required this.icono,
     required this.color,
-    this.acciones = const [],
   });
 
   @override
   Widget build(BuildContext context) {
-    // Manejo de nulos para evitar errores en tiempo de ejecución
-    final nombre = AppSession.nombre ?? 'Usuario';
-    final rol = (AppSession.rol ?? 'Invitado').toUpperCase();
+    final nombre = AppSession.nombre;
+    final rol = AppSession.rol.toUpperCase();
 
     return SigmarPage(
       rutaActual: ruta,
@@ -46,7 +43,6 @@ class _PantallaModulo extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    // ✅ CORRECCIÓN: withValues en lugar de withOpacity
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -76,7 +72,6 @@ class _PantallaModulo extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                // ✅ CORRECCIÓN: withValues
                 color: color.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: color.withValues(alpha: 0.25)),
@@ -99,31 +94,6 @@ class _PantallaModulo extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            if (acciones.isNotEmpty) ...[
-              const Text(
-                'ACCIONES DISPONIBLES',
-                style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
-              ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: acciones
-                    .map(
-                      (a) => OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: color,
-                          // ✅ CORRECCIÓN: withValues
-                          side: BorderSide(color: color.withValues(alpha: 0.4)),
-                        ),
-                        child: Text(a),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
             const Spacer(),
             const Center(
               child: Text(
@@ -138,8 +108,6 @@ class _PantallaModulo extends StatelessWidget {
   }
 }
 
-// --- PANTALLAS ESPECÍFICAS ---
-
 class InscripcionScreen extends StatelessWidget {
   const InscripcionScreen({super.key});
   @override
@@ -152,17 +120,7 @@ class InscripcionScreen extends StatelessWidget {
   );
 }
 
-class MiGrupoScreen extends StatelessWidget {
-  const MiGrupoScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const _PantallaModulo(
-    ruta: '/lider/grupo',
-    titulo: 'Mi Grupo',
-    subtitulo: 'Gestionar tu grupo de reunión',
-    icono: Icons.group,
-    color: Colors.blue,
-  );
-}
+// ← MiGrupoScreen ELIMINADA — ahora vive en lider/presentation/screens/mi_grupo_screen.dart
 
 class ReportesScreen extends StatelessWidget {
   const ReportesScreen({super.key});
@@ -185,17 +143,5 @@ class GuiasScreen extends StatelessWidget {
     subtitulo: 'Asignar guías a cursos',
     icono: Icons.assignment,
     color: Colors.orange,
-  );
-}
-
-class PerfilScreen extends StatelessWidget {
-  const PerfilScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const _PantallaModulo(
-    ruta: '/perfil',
-    titulo: 'Perfil',
-    subtitulo: 'Ver y editar mis datos',
-    icono: Icons.person,
-    color: kGold,
   );
 }

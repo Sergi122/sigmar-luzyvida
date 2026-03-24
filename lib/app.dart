@@ -3,11 +3,7 @@ import 'core/constants/app_colors.dart';
 import 'features/home/presentation/screens/inicio_screen.dart';
 import 'features/sobre/presentation/screens/sobre_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
-
-// Módulos
-import 'features/miembro/presentation/screens/miembro_screens.dart';
 import 'features/lider/presentation/screens/lider_screens.dart';
-import 'features/pastor/presentation/screens/pastor_screens.dart';
 import 'features/admin/presentation/screens/admin_screens.dart';
 
 class SigmarApp extends StatelessWidget {
@@ -32,21 +28,15 @@ class SigmarApp extends StatelessWidget {
         '/': (_) => const InicioScreen(),
         '/sobre': (_) => const SobreScreen(),
         '/login': (_) => const LoginScreen(),
-
         '/miembro/inscripcion': (_) => const InscripcionScreen(),
         '/lider/grupo': (_) => const MiGrupoScreen(),
         '/pastor/reportes': (_) => const ReportesScreen(),
         '/pastor/guias': (_) => const GuiasScreen(),
-
-        // Admin - Usando las clases definidas en admin_screens.dart
         '/admin/grupos': (_) => const AdminGruposScreen(),
         '/admin/cursos': (_) => const AdminCursosScreen(),
         '/admin/miembros': (_) => const AdminMiembrosScreen(),
-        '/admin/usuarios': (_) =>
-            const AdminUsuariosScreen(), // Carga RegistroUsuarioScreen
+        '/admin/usuarios': (_) => const AdminUsuariosScreen(),
         '/admin/aportes': (_) => const AdminAportesScreen(),
-        '/admin/usuarios/nuevo': (_) => const RegistroUsuarioScreen(),
-
         '/perfil': (_) => const PerfilScreen(),
       },
     );

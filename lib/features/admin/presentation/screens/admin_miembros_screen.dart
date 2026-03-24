@@ -5,11 +5,8 @@ import '../../../../shared/widgets/sigmar_page.dart';
 import 'registro_usuario_screen.dart';
 
 final _sb = Supabase.instance.client;
-const _kColor = Color(0xFF7F77DD); // purple admin
+const _kColor = Color(0xFF7F77DD);
 
-// ══════════════════════════════════════════════════════
-//  PANTALLA PRINCIPAL
-// ══════════════════════════════════════════════════════
 class AdminMiembrosScreen extends StatefulWidget {
   const AdminMiembrosScreen({super.key});
   @override
@@ -130,14 +127,12 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
       barrierDismissible: false,
       builder: (_) {
         if (miembro != null && miembro['tieneUsuario'] == true) {
-          // Buscar el usuario vinculado
           final usuarios = miembro['usuarios'] as List?;
           if (usuarios != null && usuarios.isNotEmpty) {
             return RegistroUsuarioScreen(usuarioParaEditar: usuarios[0]);
           }
         }
-        // Crear nuevo usuario vinculado al miembro
-        return RegistroUsuarioScreen(usuarioParaEditar: null);
+        return const RegistroUsuarioScreen(usuarioParaEditar: null);
       },
     );
     if (resultado == true) _cargar();
@@ -153,7 +148,6 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
                 Container(
@@ -215,57 +209,54 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
             Container(width: 50, height: 3, color: _kColor),
             const SizedBox(height: 24),
 
-            // Barra de busqueda y filtros
-            movil
-                ? Column(
-                    children: [
-                      _Buscador(
-                        onChanged: (v) => setState(() {
-                          _busqueda = v;
-                          _filtrar();
-                        }),
-                      ),
-                      const SizedBox(height: 12),
-                      _FiltroEstado(
-                        valor: _filtroEstado,
-                        onChanged: (v) => setState(() {
-                          _filtroEstado = v;
-                          _filtrar();
-                        }),
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _Buscador(
-                          onChanged: (v) => setState(() {
-                            _busqueda = v;
-                            _filtrar();
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      _FiltroEstado(
-                        valor: _filtroEstado,
-                        onChanged: (v) => setState(() {
-                          _filtroEstado = v;
-                          _filtrar();
-                        }),
-                      ),
-                    ],
+            if (movil)
+              Column(
+                children: [
+                  _Buscador(
+                    onChanged: (v) => setState(() {
+                      _busqueda = v;
+                      _filtrar();
+                    }),
                   ),
+                  const SizedBox(height: 12),
+                  _FiltroEstado(
+                    valor: _filtroEstado,
+                    onChanged: (v) => setState(() {
+                      _filtroEstado = v;
+                      _filtrar();
+                    }),
+                  ),
+                ],
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: _Buscador(
+                      onChanged: (v) => setState(() {
+                        _busqueda = v;
+                        _filtrar();
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _FiltroEstado(
+                    valor: _filtroEstado,
+                    onChanged: (v) => setState(() {
+                      _filtroEstado = v;
+                      _filtrar();
+                    }),
+                  ),
+                ],
+              ),
             const SizedBox(height: 8),
-
-            // Contador
             Text(
               '${_filtrados.length} miembro${_filtrados.length != 1 ? 's' : ''}',
               style: const TextStyle(color: kGrey, fontSize: 12),
             ),
             const SizedBox(height: 16),
 
-            // Lista
             if (_cargando)
               const Center(
                 child: Padding(
@@ -292,7 +283,6 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   }
 }
 
-// ── Buscador ──────────────────────────────────────────
 class _Buscador extends StatelessWidget {
   final ValueChanged<String> onChanged;
   const _Buscador({required this.onChanged});
@@ -323,7 +313,6 @@ class _Buscador extends StatelessWidget {
   );
 }
 
-// ── Filtro estado ─────────────────────────────────────
 class _FiltroEstado extends StatelessWidget {
   final String valor;
   final ValueChanged<String> onChanged;
@@ -352,17 +341,15 @@ class _FiltroEstado extends StatelessWidget {
   );
 }
 
-// ── Tarjeta de miembro ────────────────────────────────
 class _TarjetaMiembro extends StatefulWidget {
   final Map<String, dynamic> miembro;
-  final VoidCallback onEditar, onEstado, onEliminar;
-  final VoidCallback? onGestionarUsuario;
+  final VoidCallback onEditar, onEstado, onEliminar, onGestionarUsuario;
   const _TarjetaMiembro({
     required this.miembro,
     required this.onEditar,
     required this.onEstado,
     required this.onEliminar,
-    this.onGestionarUsuario,
+    required this.onGestionarUsuario,
   });
   @override
   State<_TarjetaMiembro> createState() => _TarjetaMiembroState();
@@ -376,7 +363,6 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
     final activo = m['estado'] == 'activo';
     final inicial = (m['nombre'] ?? 'M')[0].toUpperCase();
     final movil = MediaQuery.of(context).size.width < 700;
-
     return MouseRegion(
       onEnter: (_) => setState(() => _h = true),
       onExit: (_) => setState(() => _h = false),
@@ -404,6 +390,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                         onEditar: widget.onEditar,
                         onEstado: widget.onEstado,
                         onEliminar: widget.onEliminar,
+                        onGestionarUsuario: widget.onGestionarUsuario,
                         activo: activo,
                       ),
                     ],
@@ -421,6 +408,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                     onEditar: widget.onEditar,
                     onEstado: widget.onEstado,
                     onEliminar: widget.onEliminar,
+                    onGestionarUsuario: widget.onGestionarUsuario,
                     activo: activo,
                   ),
                 ],
@@ -579,14 +567,13 @@ class _Chip extends StatelessWidget {
 }
 
 class _MenuAcciones extends StatelessWidget {
-  final VoidCallback onEditar, onEstado, onEliminar;
-  final VoidCallback? onGestionarUsuario;
+  final VoidCallback onEditar, onEstado, onEliminar, onGestionarUsuario;
   final bool activo;
   const _MenuAcciones({
     required this.onEditar,
     required this.onEstado,
     required this.onEliminar,
-    this.onGestionarUsuario,
+    required this.onGestionarUsuario,
     required this.activo,
   });
   @override
@@ -597,15 +584,15 @@ class _MenuAcciones extends StatelessWidget {
       if (v == 'editar') onEditar();
       if (v == 'estado') onEstado();
       if (v == 'borrar') onEliminar();
-      if (v == 'usuario') onGestionarUsuario?.call();
+      if (v == 'usuario') onGestionarUsuario();
     },
     itemBuilder: (_) => [
-      PopupMenuItem(
+      const PopupMenuItem(
         value: 'usuario',
         child: Row(
           children: [
             Icon(Icons.login_outlined, color: _kColor, size: 16),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               'Gestionar Usuario',
               style: TextStyle(color: kWhite, fontSize: 13),
@@ -749,7 +736,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
       _guardando = true;
       _error = null;
     });
-
     final datos = {
       'nombre': _nombreCtrl.text.trim(),
       'edad': int.tryParse(_edadCtrl.text.trim()) ?? 0,
@@ -762,7 +748,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
       'asistioEncuentro': _encuentro,
       'estado': _estado,
     };
-
     try {
       if (_esEdicion) {
         await _sb
@@ -793,7 +778,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
         ),
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
@@ -835,8 +819,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                 ],
               ),
             ),
-
-            // Formulario
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -899,7 +881,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                       Icons.location_on_outlined,
                     ),
                     const SizedBox(height: 20),
-
                     _Seccion('DATOS ESPIRITUALES'),
                     const SizedBox(height: 12),
                     _Campo(
@@ -911,7 +892,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                     Row(
                       children: [
                         Expanded(
-                          child: _Switch(
+                          child: _SwitchField(
                             'Bautizado',
                             _bautizado,
                             (v) => setState(() => _bautizado = v),
@@ -919,7 +900,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _Switch(
+                          child: _SwitchField(
                             'Asistio a encuentro',
                             _encuentro,
                             (v) => setState(() => _encuentro = v),
@@ -928,7 +909,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
                     _Seccion('ESTADO'),
                     const SizedBox(height: 12),
                     Container(
@@ -958,7 +938,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                         ),
                       ),
                     ),
-
                     if (_error != null) ...[
                       const SizedBox(height: 14),
                       Container(
@@ -995,8 +974,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                 ),
               ),
             ),
-
-            // Botones
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -1066,7 +1043,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
   }
 }
 
-// ── Widgets auxiliares del formulario ─────────────────
 class _Seccion extends StatelessWidget {
   final String texto;
   const _Seccion(this.texto);
@@ -1121,11 +1097,12 @@ class _Campo extends StatelessWidget {
   );
 }
 
-class _Switch extends StatelessWidget {
+// Renombrado de _Switch a _SwitchField para evitar conflicto con widget de Flutter
+class _SwitchField extends StatelessWidget {
   final String label;
   final bool valor;
   final ValueChanged<bool> onChanged;
-  const _Switch(this.label, this.valor, this.onChanged);
+  const _SwitchField(this.label, this.valor, this.onChanged);
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1141,17 +1118,21 @@ class _Switch extends StatelessWidget {
         Switch(
           value: valor,
           onChanged: onChanged,
-          activeColor: _kColor,
-          activeTrackColor: _kColor.withValues(alpha: 0.3),
+          thumbColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return _kColor;
+            return null;
+          }),
+          trackColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected))
+              return _kColor.withValues(alpha: 0.3);
+            return null;
+          }),
         ),
       ],
     ),
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  DIALOGO CONFIRMACION
-// ══════════════════════════════════════════════════════
 class _DialogoConfirmar extends StatelessWidget {
   final String titulo, mensaje, textoBoton;
   final Color colorBoton;
