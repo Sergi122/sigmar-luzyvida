@@ -137,9 +137,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
           }
         }
         // Crear nuevo usuario vinculado al miembro
-        return RegistroUsuarioScreen(
-          usuarioParaEditar: null,
-        );
+        return RegistroUsuarioScreen(usuarioParaEditar: null);
       },
     );
     if (resultado == true) _cargar();
@@ -501,7 +499,9 @@ class _InfoMiembro extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.green.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: const Text(
                   'USUARIO',
@@ -606,7 +606,10 @@ class _MenuAcciones extends StatelessWidget {
           children: [
             Icon(Icons.login_outlined, color: _kColor, size: 16),
             const SizedBox(width: 8),
-            Text('Gestionar Usuario', style: TextStyle(color: kWhite, fontSize: 13)),
+            Text(
+              'Gestionar Usuario',
+              style: TextStyle(color: kWhite, fontSize: 13),
+            ),
           ],
         ),
       ),

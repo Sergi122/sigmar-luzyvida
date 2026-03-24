@@ -103,7 +103,7 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: movil ? 420 : 540,
       child: Stack(
@@ -113,7 +113,7 @@ class _HeroSection extends StatelessWidget {
           Image.asset(
             'assets/images/hero1.png',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -169,27 +169,6 @@ class _HeroSection extends StatelessWidget {
                     runSpacing: 12,
                     alignment: WrapAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () => Navigator.pushNamed(context, '/login'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kGold,
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        child: const Text(
-                          'ACCEDER AL SISTEMA',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
                       OutlinedButton(
                         onPressed: () =>
                             Navigator.pushReplacementNamed(context, '/sobre'),
@@ -374,7 +353,7 @@ class _SliderFotos extends StatelessWidget {
                 child: Image.asset(
                   imagenes[actual],
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: kBgCard,
                     child: const Center(
                       child: Icon(Icons.image_outlined, color: kGold, size: 64),

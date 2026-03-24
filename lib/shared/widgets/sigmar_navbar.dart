@@ -40,135 +40,70 @@ class SigmarNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 1100;
+    // Bajamos el breakpoint para que en tablets pequeñas o móviles apaisados no se rompa
+    final bool esEscritorio = MediaQuery.of(context).size.width > 1000;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ), // Reducido padding lateral
       decoration: const BoxDecoration(
         color: Color(0xFF111111),
         border: Border(bottom: BorderSide(color: kDivider)),
       ),
       child: Row(
         children: [
-          // Logo
-          GestureDetector(
-            onTap: () => Navigator.pushReplacementNamed(context, '/'),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Row(
-                children: [
-                  // ✅ Logo real corregido
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'assets/images/logo.jpg',
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 44,
-                        height: 44,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(colors: [kGold, kGoldDark]),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'LV',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'LUZ Y VIDA',
-                        style: TextStyle(
-                          color: kGold,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      Text(
-                        'Somos Familia',
-                        style: TextStyle(color: kGrey, fontSize: 10),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+          // LOGO
+          _buildLogo(context),
+
           const Spacer(),
 
-          // Links desktop
-          if (!movil)
-            Flexible(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: _todos
-                      .map(
-                        (r) => Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: _NavLink(
-                            label: r.label,
-                            ruta: r.ruta,
-                            actual: rutaActual,
-                            onTap: () =>
-                                Navigator.pushReplacementNamed(context, r.ruta),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
+          // LINKS CENTRALES (Solo Escritorio)
+          if (esEscritorio)
+            Row(
+              children: _todos
+                  .map(
+                    (r) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _NavLink(
+                        label: r.label,
+                        ruta: r.ruta,
+                        actual: rutaActual,
+                        onTap: () =>
+                            Navigator.pushReplacementNamed(context, r.ruta),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
 
-          // Boton derecho: login o perfil
+          if (esEscritorio) const SizedBox(width: 20),
+
+          // BOTÓN DERECHO (Login o Perfil)
           if (AppSession.autenticado)
             _MenuPerfil(
+              esMovil: !esEscritorio,
               onCerrar: () {
                 AppSession.cerrar();
                 Navigator.pushReplacementNamed(context, '/');
               },
             )
           else
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/login'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kGold,
-                foregroundColor: Colors.black,
-                textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                elevation: 0,
-              ),
-              child: const Text('INICIAR SESION'),
-            ),
+            _buildBotonLogin(context),
 
-          // Menu movil
-          if (movil) ...[
-            const SizedBox(width: 8),
+          // MENÚ MÓVIL (Las 3 baritas)
+          if (!esEscritorio) ...[
+            const SizedBox(width: 10),
             PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 200),
               color: kBgCard,
-              icon: const Icon(Icons.menu, color: kWhite),
+              icon: const Icon(
+                Icons.menu,
+                color: kGold,
+                size: 28,
+              ), // Color Oro para que se note
               onSelected: (v) => Navigator.pushReplacementNamed(context, v),
               itemBuilder: (_) => _todos
                   .map(
@@ -176,7 +111,7 @@ class SigmarNavbar extends StatelessWidget {
                       value: r.ruta,
                       child: Text(
                         r.label,
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ),
                   )
@@ -187,7 +122,90 @@ class SigmarNavbar extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildLogo(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pushReplacementNamed(context, '/'),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo.jpg',
+                width: 38, // Un poco más pequeño para ganar espacio
+                height: 38,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildPlaceholderLogo(),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'LUZ Y VIDA',
+                  style: TextStyle(
+                    color: kGold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                Text(
+                  'Somos Familia',
+                  style: TextStyle(color: kGrey, fontSize: 9),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderLogo() {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(colors: [kGold, kGoldDark]),
+      ),
+      child: const Center(
+        child: Text(
+          'LV',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBotonLogin(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => Navigator.pushNamed(context, '/login'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: kGold,
+        foregroundColor: Colors.black,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+        elevation: 0,
+      ),
+      child: const Text(
+        'INICIAR SESION',
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
 }
+
+// --- Soporte para los otros widgets internos ---
 
 class _Item {
   final String label, ruta;
@@ -227,16 +245,10 @@ class _NavLinkState extends State<_NavLink> {
                 color: activo ? kGold : (_h ? kGoldLight : kGrey),
                 fontSize: 11,
                 fontWeight: activo ? FontWeight.bold : FontWeight.w500,
-                letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(height: 3),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              width: activo ? 24 : 0,
-              height: 2,
-              color: kGold,
-            ),
+            const SizedBox(height: 2),
+            if (activo) Container(width: 16, height: 2, color: kGold),
           ],
         ),
       ),
@@ -245,8 +257,9 @@ class _NavLinkState extends State<_NavLink> {
 }
 
 class _MenuPerfil extends StatelessWidget {
+  final bool esMovil;
   final VoidCallback onCerrar;
-  const _MenuPerfil({required this.onCerrar});
+  const _MenuPerfil({required this.esMovil, required this.onCerrar});
 
   Color get _c {
     switch (AppSession.rol) {
@@ -289,7 +302,7 @@ class _MenuPerfil extends StatelessWidget {
               ),
               Text(
                 AppSession.rol.toUpperCase(),
-                style: TextStyle(color: _c, fontSize: 10, letterSpacing: 1),
+                style: TextStyle(color: _c, fontSize: 10),
               ),
             ],
           ),
@@ -297,68 +310,47 @@ class _MenuPerfil extends StatelessWidget {
         const PopupMenuDivider(),
         const PopupMenuItem(
           value: 'perfil',
-          child: Row(
-            children: [
-              Icon(Icons.person_outline, color: kGrey, size: 16),
-              SizedBox(width: 8),
-              Text('Mi Perfil', style: TextStyle(color: kWhite, fontSize: 13)),
-            ],
-          ),
+          child: Text('Mi Perfil', style: TextStyle(color: kWhite)),
         ),
         const PopupMenuItem(
           value: 'salir',
-          child: Row(
-            children: [
-              Icon(Icons.logout, color: kDanger, size: 16),
-              SizedBox(width: 8),
-              Text(
-                'Cerrar sesion',
-                style: TextStyle(color: kDanger, fontSize: 13),
-              ),
-            ],
-          ),
+          child: Text('Cerrar sesion', style: TextStyle(color: kDanger)),
         ),
       ],
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: _c.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _c.withValues(alpha: 0.4)),
-            ),
-            child: Text(
-              AppSession.rol.toUpperCase(),
-              style: TextStyle(
-                color: _c,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
+          if (!esMovil) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: _c.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _c.withOpacity(0.3)),
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _c.withValues(alpha: 0.15),
-              border: Border.all(color: _c.withValues(alpha: 0.4)),
-            ),
-            child: Center(
               child: Text(
-                ini,
+                AppSession.rol.toUpperCase(),
                 style: TextStyle(
                   color: _c,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
                 ),
               ),
             ),
+            const SizedBox(width: 8),
+          ],
+          CircleAvatar(
+            radius: 17,
+            backgroundColor: _c.withOpacity(0.2),
+            child: Text(
+              ini,
+              style: TextStyle(
+                color: _c,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
           ),
-          const SizedBox(width: 4),
           const Icon(Icons.keyboard_arrow_down, color: kGrey, size: 16),
         ],
       ),

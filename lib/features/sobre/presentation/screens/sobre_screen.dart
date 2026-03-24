@@ -3,6 +3,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
 import '../../../../shared/widgets/sigmar_footer.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
+import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 
 void _abrir(String url) async {
   final uri = Uri.parse(url);
@@ -801,81 +807,33 @@ class _ContactoItem extends StatelessWidget {
 class _MapaWidget extends StatelessWidget {
   const _MapaWidget();
 
-  Future<void> _abrirMapa(BuildContext context) async {
-    final url = Uri.parse(
-      'https://www.google.com/maps?q=-16.524,-68.173&z=15',
-    );
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo abrir el mapa'),
-          backgroundColor: kDanger,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _abrirMapa(context),
-      child: Container(
+    if (kIsWeb) {
+      // ignore: undefined_prefixed_name
+      ui.platformViewRegistry.registerViewFactory(
+        'mapa-html',
+        (int viewId) => html.IFrameElement()
+          ..src =
+              'https://www.google.com/maps?q=-16.524,-68.173&z=15&output=embed'
+          ..style.border = 'none',
+      );
+
+      return Container(
         height: 260,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: kGold.withOpacity(0.3)),
         ),
-        child: Stack(
-          children: [
-            // Imagen estática del mapa (placeholder)
-            Container(
-              decoration: BoxDecoration(
-                color: kBgCard,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 48,
-                      color: kGold.withOpacity(0.6),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'La Paz, Bolivia',
-                      style: TextStyle(
-                        color: kWhite.withOpacity(0.8),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            // Overlay con botón
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.open_in_new,
-                    color: kWhite,
-                    size: 32,
-                  ),
-                ),
-              ),
-            ),
-          ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: const HtmlElementView(viewType: 'mapa-html'),
         ),
-      ),
-    );
+      );
+    }
+
+    // fallback (por si no es web)
+    return const Center(child: Text('Mapa solo disponible en web'));
   }
 }
 

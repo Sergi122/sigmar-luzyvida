@@ -9,7 +9,7 @@ export 'admin_grupos_screen.dart';
 export 'admin_cursos_screen.dart';
 export 'admin_usuarios_screen.dart';
 export 'registro_usuario_screen.dart';
-export 'admin_aportes_screen.dart'; // ✅
+export 'admin_aportes_screen.dart';
 
 // WIDGET BASE para pantallas en desarrollo
 class _PantallaModulo extends StatelessWidget {
@@ -29,8 +29,10 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Manejo de nulos para evitar errores en tiempo de ejecución
     final nombre = AppSession.nombre ?? 'Usuario';
     final rol = (AppSession.rol ?? 'Invitado').toUpperCase();
+
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
@@ -44,7 +46,8 @@ class _PantallaModulo extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    // ✅ CORRECCIÓN: withValues en lugar de withOpacity
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icono, color: color, size: 26),
@@ -73,9 +76,10 @@ class _PantallaModulo extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
+                // ✅ CORRECCIÓN: withValues
+                color: color.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: color.withOpacity(0.25)),
+                border: Border.all(color: color.withValues(alpha: 0.25)),
               ),
               child: Row(
                 children: [
@@ -111,7 +115,8 @@ class _PantallaModulo extends StatelessWidget {
                         onPressed: () {},
                         style: OutlinedButton.styleFrom(
                           foregroundColor: color,
-                          side: BorderSide(color: color.withOpacity(0.4)),
+                          // ✅ CORRECCIÓN: withValues
+                          side: BorderSide(color: color.withValues(alpha: 0.4)),
                         ),
                         child: Text(a),
                       ),
@@ -133,7 +138,7 @@ class _PantallaModulo extends StatelessWidget {
   }
 }
 
-// ✅ AdminAportesScreen eliminada — ahora vive en admin_aportes_screen.dart
+// --- PANTALLAS ESPECÍFICAS ---
 
 class InscripcionScreen extends StatelessWidget {
   const InscripcionScreen({super.key});
