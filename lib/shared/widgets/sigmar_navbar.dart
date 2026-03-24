@@ -56,24 +56,29 @@ class SigmarNavbar extends StatelessWidget {
               cursor: SystemMouseCursors.click,
               child: Row(
                 children: [
-                  Image.asset(
-                    'assets/images/logo.jpg',
-                    width: 44,
-                    height: 44,
-                    errorBuilder: (_, __, ___) => Container(
+                  // ✅ Logo real corregido
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
                       width: 44,
                       height: 44,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [kGold, kGoldDark]),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'LV',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(colors: [kGold, kGoldDark]),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'LV',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),

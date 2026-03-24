@@ -3,11 +3,12 @@ import 'core/constants/app_colors.dart';
 import 'features/home/presentation/screens/inicio_screen.dart';
 import 'features/sobre/presentation/screens/sobre_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
+
+// Módulos
 import 'features/miembro/presentation/screens/miembro_screens.dart';
 import 'features/lider/presentation/screens/lider_screens.dart';
 import 'features/pastor/presentation/screens/pastor_screens.dart';
 import 'features/admin/presentation/screens/admin_screens.dart';
-import 'features/admin/presentation/screens/admin_miembros_screen.dart'; // ✅
 
 class SigmarApp extends StatelessWidget {
   const SigmarApp({super.key});
@@ -28,28 +29,24 @@ class SigmarApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        // Publicas
         '/': (_) => const InicioScreen(),
         '/sobre': (_) => const SobreScreen(),
         '/login': (_) => const LoginScreen(),
 
-        // Miembro
         '/miembro/inscripcion': (_) => const InscripcionScreen(),
-
-        // Lider
         '/lider/grupo': (_) => const MiGrupoScreen(),
-
-        // Pastor
         '/pastor/reportes': (_) => const ReportesScreen(),
         '/pastor/guias': (_) => const GuiasScreen(),
 
-        // Admin
+        // Admin - Usando las clases definidas en admin_screens.dart
         '/admin/grupos': (_) => const AdminGruposScreen(),
         '/admin/cursos': (_) => const AdminCursosScreen(),
-        '/admin/usuarios': (_) => const AdminUsuariosScreen(),
+        '/admin/miembros': (_) => const AdminMiembrosScreen(),
+        '/admin/usuarios': (_) =>
+            const AdminUsuariosScreen(), // Carga RegistroUsuarioScreen
         '/admin/aportes': (_) => const AdminAportesScreen(),
-        '/admin/miembros': (_) => const AdminMiembrosScreen(), // ✅
-        // Compartida
+        '/admin/usuarios/nuevo': (_) => const RegistroUsuarioScreen(),
+
         '/perfil': (_) => const PerfilScreen(),
       },
     );

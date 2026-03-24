@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_colors.dart';
+
+void _abrir(String url) async {
+  final uri = Uri.parse(url);
+  if (await canLaunchUrl(uri))
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+}
 
 class SigmarFooter extends StatelessWidget {
   const SigmarFooter({super.key});
@@ -98,17 +105,31 @@ class _LogoFooter extends StatelessWidget {
       children: [
         Row(
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [kGold, kGoldDark]),
-              ),
-              child: const Center(
-                child: Text(
-                  '✦',
-                  style: TextStyle(color: Colors.black, fontSize: 20),
+            // ✅ Logo real
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/images/logo.jpg',
+                width: 52,
+                height: 52,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(colors: [kGold, kGoldDark]),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'LV',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -159,10 +180,23 @@ class _ContactoFooter extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _FooterItem(Icons.location_on_outlined, 'El Alto, La Paz, Bolivia'),
-        _FooterItem(Icons.email_outlined, 'contacto@somosluzyvida.net'),
+        // ✅ Ubicacion abre Google Maps
+        _FooterItem(
+          Icons.location_on_outlined,
+          'El Alto, La Paz, Bolivia',
+          url: 'https://maps.app.goo.gl/a9MojcjXDnCtAN2d6',
+        ),
+        _FooterItem(
+          Icons.email_outlined,
+          'contacto@somosluzyvida.net',
+          url: 'mailto:contacto@somosluzyvida.net',
+        ),
         _FooterItem(Icons.phone_outlined, '+591 (Bolivia)'),
-        _FooterItem(Icons.language_outlined, 'somosluzyvida.net'),
+        _FooterItem(
+          Icons.language_outlined,
+          'somosluzyvida.net',
+          url: 'https://somosluzyvida.net',
+        ),
       ],
     );
   }
@@ -185,19 +219,33 @@ class _HorariosFooter extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _FooterItem(Icons.access_time_outlined, 'Domingo 9:00 AM'),
-        _FooterItem(Icons.access_time_outlined, 'Domingo 6:00 PM'),
-        _FooterItem(Icons.access_time_outlined, 'Miércoles 7:00 PM'),
+        _FooterItem(Icons.access_time_outlined, 'Domingo 5:00 PM'),
+        _FooterItem(Icons.access_time_outlined, 'Miercoles 5:00 AM'),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: kGold.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: kGold.withOpacity(0.3)),
-          ),
-          child: const Text(
-            '¡Todos son bienvenidos!',
-            style: TextStyle(color: kGold, fontSize: 12),
+        // ✅ Boton ubicacion abre Maps
+        GestureDetector(
+          onTap: () => _abrir('https://maps.app.goo.gl/a9MojcjXDnCtAN2d6'),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: kGold.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: kGold.withOpacity(0.3)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.location_on, color: kGold, size: 13),
+                  SizedBox(width: 6),
+                  Text(
+                    '¡Todos son bienvenidos!',
+                    style: TextStyle(color: kGold, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -221,13 +269,27 @@ class _RedesFooter extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _RedBtn(Icons.facebook, 'Facebook', const Color(0xFF1877F2)),
+        // ✅ Links reales
+        _RedBtn(
+          Icons.facebook,
+          'Facebook',
+          const Color(0xFF1877F2),
+          'https://www.facebook.com/luzyvidasomosfamilia',
+        ),
         const SizedBox(height: 8),
-        _RedBtn(Icons.camera_alt_rounded, 'Instagram', const Color(0xFFE1306C)),
+        _RedBtn(
+          Icons.camera_alt_rounded,
+          'Instagram',
+          const Color(0xFFE1306C),
+          'https://www.instagram.com/luzyvidasomosfamilia',
+        ),
         const SizedBox(height: 8),
-        _RedBtn(Icons.play_circle_filled, 'YouTube', const Color(0xFFFF0000)),
-        const SizedBox(height: 8),
-        _RedBtn(Icons.chat_bubble_outlined, 'Twitter/X', kGrey),
+        _RedBtn(
+          Icons.play_circle_filled,
+          'YouTube',
+          const Color(0xFFFF0000),
+          'https://www.youtube.com/@LuzyVidaSomosFamilia',
+        ),
       ],
     );
   }
@@ -236,21 +298,35 @@ class _RedesFooter extends StatelessWidget {
 class _FooterItem extends StatelessWidget {
   final IconData icon;
   final String texto;
-  const _FooterItem(this.icon, this.texto);
+  final String? url;
+  const _FooterItem(this.icon, this.texto, {this.url});
+
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
-    child: Row(
-      children: [
-        Icon(icon, color: kGold, size: 15),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            texto,
-            style: const TextStyle(color: kGrey, fontSize: 12, height: 1.4),
-          ),
+    child: GestureDetector(
+      onTap: url != null ? () => _abrir(url!) : null,
+      child: MouseRegion(
+        cursor: url != null ? SystemMouseCursors.click : MouseCursor.defer,
+        child: Row(
+          children: [
+            Icon(icon, color: kGold, size: 15),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                texto,
+                style: TextStyle(
+                  color: url != null ? kGoldLight : kGrey,
+                  fontSize: 12,
+                  height: 1.4,
+                  decoration: url != null ? TextDecoration.underline : null,
+                  decorationColor: kGoldLight,
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     ),
   );
 }
@@ -259,7 +335,8 @@ class _RedBtn extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
-  const _RedBtn(this.icon, this.label, this.color);
+  final String url;
+  const _RedBtn(this.icon, this.label, this.color, this.url);
   @override
   State<_RedBtn> createState() => _RedBtnState();
 }
@@ -271,24 +348,27 @@ class _RedBtnState extends State<_RedBtn> {
     cursor: SystemMouseCursors.click,
     onEnter: (_) => setState(() => _h = true),
     onExit: (_) => setState(() => _h = false),
-    child: AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: _h ? widget.color.withOpacity(0.12) : Colors.transparent,
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: _h ? widget.color : kDivider),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(widget.icon, color: _h ? widget.color : kGrey, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            widget.label,
-            style: TextStyle(color: _h ? widget.color : kGrey, fontSize: 12),
-          ),
-        ],
+    child: GestureDetector(
+      onTap: () => _abrir(widget.url),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: _h ? widget.color.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: _h ? widget.color : kDivider),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(widget.icon, color: _h ? widget.color : kGrey, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              widget.label,
+              style: TextStyle(color: _h ? widget.color : kGrey, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     ),
   );

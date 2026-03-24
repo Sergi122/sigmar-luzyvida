@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
 import '../../../../shared/widgets/sigmar_footer.dart';
+
+void _abrir(String url) async {
+  final uri = Uri.parse(url);
+  if (await canLaunchUrl(uri))
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+}
 
 class SobreScreen extends StatelessWidget {
   const SobreScreen({super.key});
@@ -36,7 +43,6 @@ class SobreScreen extends StatelessWidget {
   }
 }
 
-// ── Hero ──────────────────────────────────────────────
 class _HeroSobre extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -66,7 +72,7 @@ class _HeroSobre extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '¿QUIERES SABER POR QUÉ ESTAMOS AQUÍ PARA TÍ?',
+            'LUZ Y VIDA EN LAS NACIONES — SOMOS FAMILIA',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Color(0xFF2A1A00),
@@ -80,7 +86,6 @@ class _HeroSobre extends StatelessWidget {
   }
 }
 
-// ── Historia ──────────────────────────────────────────
 class _SeccionHistoria extends StatelessWidget {
   final bool movil;
   const _SeccionHistoria({required this.movil});
@@ -122,9 +127,10 @@ class _FotoIglesia extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Image.asset(
-        'assets/images/hero1.png',
+        'assets/images/equipo_pastoral.png', // ✅ foto real
         fit: BoxFit.cover,
         height: 320,
+        width: double.infinity,
         errorBuilder: (_, __, ___) => Container(
           height: 320,
           decoration: BoxDecoration(
@@ -159,25 +165,9 @@ class _TextoHistoria extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const parrafos = [
-      'Luz y Vida Somos Familia existe porque Dios tiene un Amor Grande para ti, '
-          'para nuestra ciudad de El Alto, para Bolivia y para las naciones. Somos '
-          'fruto de ese amor de Dios que un día llegó a nuestras vidas para darnos '
-          'esperanza y una vida nueva.',
-
-      'Dios en su bondad y soberanía levantó a 2 jóvenes poniendo en sus corazones '
-          'el servirle, siendo usados con poder para llevar su amor hacia aquellas '
-          'personas que necesitaban un nuevo comienzo con Dios.',
-
-      'Es así que queremos contarte cómo fue ese proceso y cómo Dios guió y levantó '
-          'más personas que llenos del amor de Dios hoy queremos compartirte lo que Dios '
-          'hizo en nuestras vidas y también lo puede hacer contigo.',
-
-      'Era la segunda semana de diciembre 1987, en donde dos amigos en Cristo, '
-          'John Apaza y Rogelio Calle, junto a algunos niños, decidieron con la ayuda '
-          'de Dios salir a la Plaza La Paz y predicar el evangelio de Jesucristo, '
-          'tomando en sus manos una guitarra, un bombo pequeño y bastantes folletos '
-          'que llevaban escrita la Palabra de Dios, pero sobre todo bastante decisión '
-          'de ser usados por nuestro Señor.',
+      'La Congregación Cristiana "Luz y Vida en las Naciones" fue fundada oficialmente el 13 de diciembre de 1987 en la ciudad de El Alto, departamento de La Paz, Bolivia. Sus fundadores, el Pastor Rogelio Calle Chavez y el líder John Felix Apaza Apasa, junto a sus respectivas familias, iniciaron las primeras reuniones en el domicilio de la hermana Catalina Apasa Apasa.',
+      'Desde sus inicios, la congregación se estableció con el propósito de predicar el evangelio de Jesucristo y formar una comunidad basada en principios bíblicos. A lo largo de los años, la iglesia ha desarrollado un enfoque ministerial centrado en la extensión del Reino de Dios, promoviendo la enseñanza de la Palabra bajo fundamentos de fe, confraternidad cristiana y crecimiento espiritual.',
+      'Como estrategia de crecimiento y organización, la iglesia adopta el modelo celular conocido como "Modelo de los 12", estructurado en cuatro etapas: ganar, consolidar, discipular y enviar. Bajo el lema "Luz y Vida, Somos Familia", la congregación enfatiza la familia como base esencial de su estructura espiritual y organizativa.',
     ];
 
     return Column(
@@ -208,7 +198,6 @@ class _TextoHistoria extends StatelessWidget {
   }
 }
 
-// ── Visión y Misión ───────────────────────────────────
 class _SeccionVisionMision extends StatelessWidget {
   final bool movil;
   const _SeccionVisionMision({required this.movil});
@@ -228,17 +217,13 @@ class _SeccionVisionMision extends StatelessWidget {
                     _VMCard(
                       'VISIÓN',
                       Icons.visibility_outlined,
-                      'Ver familias transformadas, matrimonios estables y jóvenes con '
-                          'propósito, formando una comunidad de creyentes maduros que impacten '
-                          'El Alto, Bolivia y las naciones con el amor de Dios.',
+                      'Expandir el reino de Dios desde la ciudad de El Alto, por toda Bolivia y hasta lo último de la tierra.',
                     ),
                     const SizedBox(height: 20),
                     _VMCard(
                       'MISIÓN',
                       Icons.flag_outlined,
-                      'Proclamar el amor de Dios a través del evangelio de Jesucristo, '
-                          'discipulando a cada persona para que crezca en fe, carácter y '
-                          'servicio, fortaleciendo la familia como base de la sociedad y la iglesia.',
+                      'Somos una Iglesia de la Gran Comisión impulsada por el Espíritu Santo a rescatar vidas para enseñar la Palabra de Dios con el fin de desarrollar el carácter de Cristo, en sujeción, fidelidad y servicio a la Iglesia en las naciones.',
                     ),
                   ],
                 )
@@ -248,9 +233,7 @@ class _SeccionVisionMision extends StatelessWidget {
                       child: _VMCard(
                         'VISIÓN',
                         Icons.visibility_outlined,
-                        'Ver familias transformadas, matrimonios estables y jóvenes con '
-                            'propósito, formando una comunidad de creyentes maduros que impacten '
-                            'El Alto, Bolivia y las naciones con el amor de Dios.',
+                        'Expandir el reino de Dios desde la ciudad de El Alto, por toda Bolivia y hasta lo último de la tierra.',
                       ),
                     ),
                     const SizedBox(width: 24),
@@ -258,9 +241,7 @@ class _SeccionVisionMision extends StatelessWidget {
                       child: _VMCard(
                         'MISIÓN',
                         Icons.flag_outlined,
-                        'Proclamar el amor de Dios a través del evangelio de Jesucristo, '
-                            'discipulando a cada persona para que crezca en fe, carácter y '
-                            'servicio, fortaleciendo la familia como base de la sociedad y la iglesia.',
+                        'Somos una Iglesia de la Gran Comisión impulsada por el Espíritu Santo a rescatar vidas para enseñar la Palabra de Dios con el fin de desarrollar el carácter de Cristo, en sujeción, fidelidad y servicio a la Iglesia en las naciones.',
                       ),
                     ),
                   ],
@@ -313,7 +294,6 @@ class _VMCard extends StatelessWidget {
   );
 }
 
-// ── Línea de tiempo ───────────────────────────────────
 class _SeccionLineasTiempo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -321,7 +301,7 @@ class _SeccionLineasTiempo extends StatelessWidget {
       _Hito(
         '1987',
         'Fundación',
-        'John Apaza y Rogelio Calle comienzan a predicar en la Plaza La Paz, El Alto.',
+        'El Pastor Rogelio Calle Chavez y John Felix Apaza Apasa fundan la iglesia el 13 de diciembre en El Alto, Bolivia.',
       ),
       _Hito(
         '1990',
@@ -331,7 +311,7 @@ class _SeccionLineasTiempo extends StatelessWidget {
       _Hito(
         '2000',
         'Expansión',
-        'Se multiplican los grupos celulares y ministerios dentro de la iglesia.',
+        'Se multiplican los grupos celulares bajo el Modelo de los 12.',
       ),
       _Hito(
         '2010',
@@ -339,12 +319,11 @@ class _SeccionLineasTiempo extends StatelessWidget {
         'La iglesia consolida sus ministerios de jóvenes, matrimonios y niños.',
       ),
       _Hito(
-        '2024',
+        '2025',
         'SIGMAR',
         'Implementación del sistema digital de gestión de miembros y grupos.',
       ),
     ];
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 40),
       color: kBgMid,
@@ -431,6 +410,11 @@ class _HitoItem extends StatelessWidget {
 }
 
 // ── Pastores ──────────────────────────────────────────
+class _PastorInfo {
+  final String nombre, rol, desc, foto;
+  const _PastorInfo(this.nombre, this.rol, this.desc, this.foto);
+}
+
 class _SeccionPastores extends StatelessWidget {
   final bool movil;
   const _SeccionPastores({required this.movil});
@@ -439,19 +423,22 @@ class _SeccionPastores extends StatelessWidget {
   Widget build(BuildContext context) {
     const pastores = [
       _PastorInfo(
-        'John Apaza',
-        'Pastor Principal',
-        'Fundador de la iglesia Luz y Vida. Con más de 37 años guiando la congregación con amor, sabiduría y visión de Dios.',
+        'Pastor Rogelio Calle Chavez',
+        'Pastor Fundador',
+        'Co-fundador de la iglesia Luz y Vida. Desde 1987 guiando la congregación con amor, sabiduría y visión del Reino de Dios.',
+        'assets/images/pastor_rogelio.jpg', // ← agrega la foto cuando la tengas
       ),
       _PastorInfo(
-        'Rogelio Calle',
+        'John Felix Apaza Apasa',
         'Co-Fundador',
-        'Uno de los pilares desde los inicios en 1987, predicando el evangelio en El Alto y formando discípulos.',
+        'Uno de los pilares desde los inicios el 13 de diciembre de 1987, predicando el evangelio en El Alto y formando discípulos.',
+        'assets/images/pastor_john.jpg',
       ),
       _PastorInfo(
         'Equipo Pastoral',
         'Líderes y Guías',
-        'Un equipo comprometido con el discipulado, la adoración y el crecimiento espiritual de cada miembro de la familia.',
+        'Un equipo comprometido con el discipulado bajo el Modelo de los 12: ganar, consolidar, discipular y enviar.',
+        'assets/images/equipo_pastoral.png',
       ),
     ];
 
@@ -491,11 +478,6 @@ class _SeccionPastores extends StatelessWidget {
   }
 }
 
-class _PastorInfo {
-  final String nombre, rol, desc;
-  const _PastorInfo(this.nombre, this.rol, this.desc);
-}
-
 class _PastorCard extends StatelessWidget {
   final _PastorInfo info;
   const _PastorCard(this.info);
@@ -509,22 +491,41 @@ class _PastorCard extends StatelessWidget {
     ),
     child: Column(
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: kGold.withOpacity(0.1),
-            border: Border.all(color: kGold.withOpacity(0.5), width: 2),
+        // ✅ Foto circular real
+        ClipOval(
+          child: Image.asset(
+            info.foto,
+            width: 90,
+            height: 90,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: kGold.withOpacity(0.1),
+                border: Border.all(color: kGold.withOpacity(0.5), width: 2),
+              ),
+              child: Center(
+                child: Text(
+                  info.nombre[0],
+                  style: const TextStyle(
+                    color: kGold,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
-          child: const Icon(Icons.person, color: kGold, size: 36),
         ),
         const SizedBox(height: 14),
         Text(
           info.nombre,
+          textAlign: TextAlign.center,
           style: const TextStyle(
             color: kWhite,
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -668,7 +669,7 @@ class _ValCard extends StatelessWidget {
   );
 }
 
-// ── Ubicación y contacto ──────────────────────────────
+// ── Ubicación ─────────────────────────────────────────
 class _SeccionUbicacion extends StatelessWidget {
   final bool movil;
   const _SeccionUbicacion({required this.movil});
@@ -687,14 +688,14 @@ class _SeccionUbicacion extends StatelessWidget {
                   children: [
                     _InfoContacto(),
                     const SizedBox(height: 28),
-                    _MapaWidget(),
+                    const _MapaWidget(),
                   ],
                 )
               : Row(
                   children: [
                     Expanded(child: _InfoContacto()),
                     const SizedBox(width: 40),
-                    Expanded(child: _MapaWidget()),
+                    const Expanded(child: _MapaWidget()),
                   ],
                 ),
         ],
@@ -720,77 +721,162 @@ class _InfoContacto extends StatelessWidget {
         const SizedBox(height: 6),
         Container(width: 50, height: 3, color: kGold),
         const SizedBox(height: 20),
-        ...[
-              [Icons.location_on_outlined, 'El Alto, La Paz, Bolivia'],
-              [Icons.access_time_outlined, 'Domingo 9:00 AM y 6:00 PM'],
-              [
-                Icons.access_time_outlined,
-                'Miércoles 7:00 PM — Estudio Bíblico',
-              ],
-              [Icons.facebook, 'facebook.com/luzyvidasomosfamilia'],
-              [Icons.camera_alt_rounded, '@luzyvidasomosfamilia'],
-              [Icons.language_outlined, 'somosluzyvida.net'],
-            ]
-            .map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Row(
-                  children: [
-                    Icon(item[0] as IconData, color: kGold, size: 18),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        item[1] as String,
-                        style: const TextStyle(
-                          color: kGrey,
-                          fontSize: 14,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
+        _ContactoItem(
+          Icons.location_on_outlined,
+          'El Alto, La Paz, Bolivia',
+          'https://maps.app.goo.gl/a9MojcjXDnCtAN2d6',
+        ),
+        _ContactoItem(
+          Icons.access_time_outlined,
+          'Domingo 9:00 AM y 6:00 PM',
+          null,
+        ),
+        _ContactoItem(
+          Icons.access_time_outlined,
+          'Miércoles — Estudio Bíblico',
+          null,
+        ),
+        _ContactoItem(
+          Icons.facebook,
+          'facebook.com/luzyvidasomosfamilia',
+          'https://www.facebook.com/luzyvidasomosfamilia',
+        ),
+        _ContactoItem(
+          Icons.camera_alt_rounded,
+          '@luzyvidasomosfamilia',
+          'https://www.instagram.com/luzyvidasomosfamilia',
+        ),
+        _ContactoItem(
+          Icons.play_circle_filled,
+          '@LuzyVidaSomosFamilia',
+          'https://www.youtube.com/@LuzyVidaSomosFamilia',
+        ),
+        _ContactoItem(
+          Icons.language_outlined,
+          'somosluzyvida.net',
+          'https://somosluzyvida.net',
+        ),
       ],
     );
   }
 }
 
-class _MapaWidget extends StatelessWidget {
+class _ContactoItem extends StatelessWidget {
+  final IconData icon;
+  final String texto;
+  final String? url;
+  const _ContactoItem(this.icon, this.texto, this.url);
+
   @override
-  Widget build(BuildContext context) => Container(
-    height: 260,
-    decoration: BoxDecoration(
-      color: kBgCard,
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: kGold.withOpacity(0.3)),
-    ),
-    child: const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.location_on, color: kGold, size: 52),
-          SizedBox(height: 12),
-          Text(
-            'El Alto, La Paz',
-            style: TextStyle(
-              color: kWhite,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: GestureDetector(
+      onTap: url != null ? () => _abrir(url!) : null,
+      child: MouseRegion(
+        cursor: url != null ? SystemMouseCursors.click : MouseCursor.defer,
+        child: Row(
+          children: [
+            Icon(icon, color: kGold, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                texto,
+                style: TextStyle(
+                  color: url != null ? kGoldLight : kGrey,
+                  fontSize: 14,
+                  height: 1.4,
+                  decoration: url != null ? TextDecoration.underline : null,
+                  decorationColor: kGoldLight,
+                ),
+              ),
             ),
-          ),
-          Text('Bolivia', style: TextStyle(color: kGrey, fontSize: 13)),
-          SizedBox(height: 8),
-          Text(
-            'Iglesia Luz y Vida — Somos Familia',
-            style: TextStyle(color: kGold, fontSize: 12),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );
+}
+
+// ✅ Mapa embebido multiplataforma
+class _MapaWidget extends StatelessWidget {
+  const _MapaWidget();
+
+  Future<void> _abrirMapa(BuildContext context) async {
+    final url = Uri.parse(
+      'https://www.google.com/maps?q=-16.524,-68.173&z=15',
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo abrir el mapa'),
+          backgroundColor: kDanger,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _abrirMapa(context),
+      child: Container(
+        height: 260,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kGold.withOpacity(0.3)),
+        ),
+        child: Stack(
+          children: [
+            // Imagen estática del mapa (placeholder)
+            Container(
+              decoration: BoxDecoration(
+                color: kBgCard,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 48,
+                      color: kGold.withOpacity(0.6),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'La Paz, Bolivia',
+                      style: TextStyle(
+                        color: kWhite.withOpacity(0.8),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Overlay con botón
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.open_in_new,
+                    color: kWhite,
+                    size: 32,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ── Widget auxiliar ───────────────────────────────────

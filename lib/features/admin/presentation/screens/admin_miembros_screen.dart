@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
+import 'registro_usuario_screen.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD); // purple admin
@@ -31,9 +32,16 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      final data = await _sb.from('miembros').select().order('nombre');
+      final data = await _sb
+          .from('miembros')
+          .select('*, usuarios!miembro_id(id)')
+          .order('nombre');
       setState(() {
-        _miembros = List<Map<String, dynamic>>.from(data);
+        _miembros = List<Map<String, dynamic>>.from(data).map((m) {
+          final usuarios = m['usuarios'] as List?;
+          m['tieneUsuario'] = usuarios != null && usuarios.isNotEmpty;
+          return m;
+        }).toList();
         _filtrar();
         _cargando = false;
       });
@@ -116,63 +124,82 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
     if (resultado == true) _cargar();
   }
 
+  void _abrirGestionUsuario({Map<String, dynamic>? miembro}) async {
+    final resultado = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        if (miembro != null && miembro['tieneUsuario'] == true) {
+          // Buscar el usuario vinculado
+          final usuarios = miembro['usuarios'] as List?;
+          if (usuarios != null && usuarios.isNotEmpty) {
+            return RegistroUsuarioScreen(usuarioParaEditar: usuarios[0]);
+          }
+        }
+        // Crear nuevo usuario vinculado al miembro
+        return RegistroUsuarioScreen(
+          usuarioParaEditar: null,
+        );
+      },
+    );
+    if (resultado == true) _cargar();
+  }
+
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 800;
     return SigmarPage(
       rutaActual: '/admin/miembros',
       child: Padding(
-        padding: EdgeInsets.all(movil ? 16 : 28),
+        padding: const EdgeInsets.all(28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (movil) ...[
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: _kColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.people_outlined,
-                      color: _kColor,
-                      size: 22,
-                    ),
+            // Header
+            Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: _kColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Gestion de Miembros',
-                          style: TextStyle(
-                            color: kWhite,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Administrar miembros de la iglesia',
-                          style: TextStyle(color: kGrey, fontSize: 11),
-                        ),
-                      ],
-                    ),
+                  child: const Icon(
+                    Icons.people_outlined,
+                    color: _kColor,
+                    size: 26,
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Gestion de Miembros',
+                        style: TextStyle(
+                          color: kWhite,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Administrar todos los miembros de la iglesia',
+                        style: TextStyle(color: kGrey, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
                   onPressed: () => _abrirFormulario(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -184,69 +211,13 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-            ] else ...[
-              Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: _kColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.people_outlined,
-                      color: _kColor,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Gestion de Miembros',
-                          style: TextStyle(
-                            color: kWhite,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Administrar todos los miembros de la iglesia',
-                          style: TextStyle(color: kGrey, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _abrirFormulario(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _kColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text(
-                      'Nuevo Miembro',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
             const SizedBox(height: 8),
             Container(width: 50, height: 3, color: _kColor),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+
+            // Barra de busqueda y filtros
             movil
                 ? Column(
                     children: [
@@ -256,7 +227,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                           _filtrar();
                         }),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       _FiltroEstado(
                         valor: _filtroEstado,
                         onChanged: (v) => setState(() {
@@ -288,11 +259,15 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                     ],
                   ),
             const SizedBox(height: 8),
+
+            // Contador
             Text(
               '${_filtrados.length} miembro${_filtrados.length != 1 ? 's' : ''}',
               style: const TextStyle(color: kGrey, fontSize: 12),
             ),
             const SizedBox(height: 16),
+
+            // Lista
             if (_cargando)
               const Center(
                 child: Padding(
@@ -309,6 +284,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                   onEditar: () => _abrirFormulario(miembro: m),
                   onEstado: () => _cambiarEstado(m),
                   onEliminar: () => _eliminar(m),
+                  onGestionarUsuario: () => _abrirGestionUsuario(miembro: m),
                 ),
               )),
           ],
@@ -382,11 +358,13 @@ class _FiltroEstado extends StatelessWidget {
 class _TarjetaMiembro extends StatefulWidget {
   final Map<String, dynamic> miembro;
   final VoidCallback onEditar, onEstado, onEliminar;
+  final VoidCallback? onGestionarUsuario;
   const _TarjetaMiembro({
     required this.miembro,
     required this.onEditar,
     required this.onEstado,
     required this.onEliminar,
+    this.onGestionarUsuario,
   });
   @override
   State<_TarjetaMiembro> createState() => _TarjetaMiembroState();
@@ -501,43 +479,68 @@ class _InfoMiembro extends StatelessWidget {
   final Map<String, dynamic> m;
   const _InfoMiembro({required this.m});
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        m['nombre'] ?? '',
-        style: const TextStyle(
-          color: kWhite,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+  Widget build(BuildContext context) {
+    final tieneUsuario = m['tieneUsuario'] == true;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              m['nombre'] ?? '',
+              style: const TextStyle(
+                color: kWhite,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 6),
+            if (tieneUsuario)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                ),
+                child: const Text(
+                  'USUARIO',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
         ),
-      ),
-      const SizedBox(height: 3),
-      Row(
-        children: [
-          const Icon(Icons.badge_outlined, color: kGrey, size: 12),
-          const SizedBox(width: 4),
-          Text(
-            m['carnet'] ?? '',
-            style: const TextStyle(color: kGrey, fontSize: 12),
-          ),
-          const SizedBox(width: 12),
-          const Icon(Icons.phone_outlined, color: kGrey, size: 12),
-          const SizedBox(width: 4),
-          Text(
-            '${m['telefono'] ?? ''}',
-            style: const TextStyle(color: kGrey, fontSize: 12),
-          ),
-        ],
-      ),
-      const SizedBox(height: 2),
-      Text(
-        m['direccion'] ?? '',
-        style: const TextStyle(color: kGrey, fontSize: 11),
-        overflow: TextOverflow.ellipsis,
-      ),
-    ],
-  );
+        const SizedBox(height: 3),
+        Row(
+          children: [
+            const Icon(Icons.badge_outlined, color: kGrey, size: 12),
+            const SizedBox(width: 4),
+            Text(
+              m['carnet'] ?? '',
+              style: const TextStyle(color: kGrey, fontSize: 12),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.phone_outlined, color: kGrey, size: 12),
+            const SizedBox(width: 4),
+            Text(
+              '${m['telefono'] ?? ''}',
+              style: const TextStyle(color: kGrey, fontSize: 12),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          m['direccion'] ?? '',
+          style: const TextStyle(color: kGrey, fontSize: 11),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
 }
 
 class _Chips extends StatelessWidget {
@@ -577,11 +580,13 @@ class _Chip extends StatelessWidget {
 
 class _MenuAcciones extends StatelessWidget {
   final VoidCallback onEditar, onEstado, onEliminar;
+  final VoidCallback? onGestionarUsuario;
   final bool activo;
   const _MenuAcciones({
     required this.onEditar,
     required this.onEstado,
     required this.onEliminar,
+    this.onGestionarUsuario,
     required this.activo,
   });
   @override
@@ -592,8 +597,20 @@ class _MenuAcciones extends StatelessWidget {
       if (v == 'editar') onEditar();
       if (v == 'estado') onEstado();
       if (v == 'borrar') onEliminar();
+      if (v == 'usuario') onGestionarUsuario?.call();
     },
     itemBuilder: (_) => [
+      PopupMenuItem(
+        value: 'usuario',
+        child: Row(
+          children: [
+            Icon(Icons.login_outlined, color: _kColor, size: 16),
+            const SizedBox(width: 8),
+            Text('Gestionar Usuario', style: TextStyle(color: kWhite, fontSize: 13)),
+          ],
+        ),
+      ),
+      const PopupMenuDivider(),
       const PopupMenuItem(
         value: 'editar',
         child: Row(

@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
-import 'admin_miembros_screen.dart';
 
+// EXPORTACIONES
+export 'admin_miembros_screen.dart';
+export 'admin_grupos_screen.dart';
+export 'admin_cursos_screen.dart';
+export 'admin_usuarios_screen.dart';
+export 'registro_usuario_screen.dart';
+export 'admin_aportes_screen.dart'; // ✅
+
+// WIDGET BASE para pantallas en desarrollo
 class _PantallaModulo extends StatelessWidget {
   final String ruta, titulo, subtitulo;
   final IconData icono;
   final Color color;
   final List<String> acciones;
-  final List<VoidCallback?> onAcciones;
 
   const _PantallaModulo({
     required this.ruta,
@@ -18,61 +25,57 @@ class _PantallaModulo extends StatelessWidget {
     required this.icono,
     required this.color,
     this.acciones = const [],
-    this.onAcciones = const [],
   });
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 600;
+    final nombre = AppSession.nombre ?? 'Usuario';
+    final rol = (AppSession.rol ?? 'Invitado').toUpperCase();
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
-        padding: EdgeInsets.all(movil ? 16 : 32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
+                    color: color.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icono, color: color, size: 24),
+                  child: Icon(icono, color: color, size: 26),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        titulo,
-                        style: TextStyle(
-                          color: kWhite,
-                          fontSize: movil ? 18 : 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        color: kWhite,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        subtitulo,
-                        style: const TextStyle(color: kGrey, fontSize: 12),
-                      ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      subtitulo,
+                      style: const TextStyle(color: kGrey, fontSize: 13),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Container(width: 50, height: 3, color: color),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
+                color: color.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: color.withValues(alpha: 0.25)),
+                border: Border.all(color: color.withOpacity(0.25)),
               ),
               child: Row(
                 children: [
@@ -80,7 +83,7 @@ class _PantallaModulo extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '${AppSession.nombre} • ${AppSession.rol.toUpperCase()}',
+                      '$nombre • $rol',
                       style: TextStyle(
                         color: color,
                         fontSize: 12,
@@ -100,68 +103,27 @@ class _PantallaModulo extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(acciones.length, (i) {
-                  final cb = i < onAcciones.length ? onAcciones[i] : null;
-                  return OutlinedButton.icon(
-                    onPressed: cb,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: color,
-                      side: BorderSide(color: color.withValues(alpha: 0.4)),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: movil ? 12 : 18,
-                        vertical: 10,
+                spacing: 10,
+                runSpacing: 10,
+                children: acciones
+                    .map(
+                      (a) => OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: color,
+                          side: BorderSide(color: color.withOpacity(0.4)),
+                        ),
+                        child: Text(a),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    icon: const Icon(Icons.chevron_right, size: 15),
-                    label: Text(
-                      acciones[i],
-                      style: TextStyle(fontSize: movil ? 12 : 13),
-                    ),
-                  );
-                }),
+                    )
+                    .toList(),
               ),
-              const SizedBox(height: 24),
             ],
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: kBgCard,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: kDivider),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.construction_outlined,
-                    color: kGold,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'En construccion',
-                          style: TextStyle(
-                            color: kWhite,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Implementar logica de "$titulo" aqui con Supabase',
-                          style: const TextStyle(color: kGrey, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+            const Spacer(),
+            const Center(
+              child: Text(
+                'Módulo en desarrollo',
+                style: TextStyle(color: kGrey, fontSize: 12),
               ),
             ),
           ],
@@ -171,175 +133,64 @@ class _PantallaModulo extends StatelessWidget {
   }
 }
 
+// ✅ AdminAportesScreen eliminada — ahora vive en admin_aportes_screen.dart
+
 class InscripcionScreen extends StatelessWidget {
   const InscripcionScreen({super.key});
   @override
-  Widget build(BuildContext context) => _PantallaModulo(
+  Widget build(BuildContext context) => const _PantallaModulo(
     ruta: '/miembro/inscripcion',
-    titulo: 'Inscripcion a Curso',
+    titulo: 'Inscripción',
     subtitulo: 'Ver cursos disponibles e inscribirse',
-    icono: Icons.school_outlined,
-    color: const Color(0xFF1D9E75),
-    acciones: const ['Ver cursos disponibles', 'Mis inscripciones'],
-    onAcciones: [null, null],
+    icono: Icons.school,
+    color: Colors.green,
   );
 }
 
 class MiGrupoScreen extends StatelessWidget {
   const MiGrupoScreen({super.key});
   @override
-  Widget build(BuildContext context) => _PantallaModulo(
+  Widget build(BuildContext context) => const _PantallaModulo(
     ruta: '/lider/grupo',
     titulo: 'Mi Grupo',
-    subtitulo: 'Gestionar tu grupo de reunion',
-    icono: Icons.group_outlined,
-    color: const Color(0xFF378ADD),
-    acciones: const [
-      'Ver lista de miembros',
-      'Tomar asistencia hoy',
-      'Ver historial de asistencia',
-      'Agregar miembro',
-    ],
-    onAcciones: [null, null, null, null],
+    subtitulo: 'Gestionar tu grupo de reunión',
+    icono: Icons.group,
+    color: Colors.blue,
   );
 }
 
 class ReportesScreen extends StatelessWidget {
   const ReportesScreen({super.key});
   @override
-  Widget build(BuildContext context) => _PantallaModulo(
+  Widget build(BuildContext context) => const _PantallaModulo(
     ruta: '/pastor/reportes',
     titulo: 'Reportes',
     subtitulo: 'Reportes generales de la iglesia',
-    icono: Icons.bar_chart_outlined,
-    color: const Color(0xFFBA7517),
-    acciones: const [
-      'Reporte de miembros',
-      'Reporte de asistencia',
-      'Reporte de aportes',
-      'Reporte de cursos',
-      'Exportar a PDF',
-    ],
-    onAcciones: [null, null, null, null, null],
+    icono: Icons.bar_chart,
+    color: Colors.orange,
   );
 }
 
 class GuiasScreen extends StatelessWidget {
   const GuiasScreen({super.key});
   @override
-  Widget build(BuildContext context) => _PantallaModulo(
+  Widget build(BuildContext context) => const _PantallaModulo(
     ruta: '/pastor/guias',
-    titulo: 'Asignar Guias',
-    subtitulo: 'Designar miembros como guias de curso',
-    icono: Icons.assignment_ind_outlined,
-    color: const Color(0xFFBA7517),
-    acciones: const [
-      'Ver cursos sin guia',
-      'Asignar guia a curso',
-      'Ver lista de guias',
-    ],
-    onAcciones: [null, null, null],
-  );
-}
-
-class AdminGruposScreen extends StatelessWidget {
-  const AdminGruposScreen({super.key});
-  @override
-  Widget build(BuildContext context) => _PantallaModulo(
-    ruta: '/admin/grupos',
-    titulo: 'Gestion de Grupos',
-    subtitulo: 'Administrar grupos de reunion',
-    icono: Icons.group_outlined,
-    color: const Color(0xFF7F77DD),
-    acciones: const [
-      'Ver lista de grupos',
-      'Crear nuevo grupo',
-      'Asignar lider',
-      'Agregar miembros',
-      'Editar / Eliminar grupo',
-    ],
-    onAcciones: [null, null, null, null, null],
-  );
-}
-
-class AdminCursosScreen extends StatelessWidget {
-  const AdminCursosScreen({super.key});
-  @override
-  Widget build(BuildContext context) => _PantallaModulo(
-    ruta: '/admin/cursos',
-    titulo: 'Gestion de Cursos',
-    subtitulo: 'Administrar cursos y aulas',
-    icono: Icons.school_outlined,
-    color: const Color(0xFF7F77DD),
-    acciones: const [
-      'Ver lista de cursos',
-      'Crear nuevo curso',
-      'Asignar guia al curso',
-      'Agregar miembros al curso',
-      'Editar / Eliminar curso',
-    ],
-    onAcciones: [
-      null,
-      null,
-      null,
-      () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AdminMiembrosScreen()),
-      ),
-      null,
-    ],
-  );
-}
-
-class AdminUsuariosScreen extends StatelessWidget {
-  const AdminUsuariosScreen({super.key});
-  @override
-  Widget build(BuildContext context) => _PantallaModulo(
-    ruta: '/admin/usuarios',
-    titulo: 'Gestion de Usuarios',
-    subtitulo: 'Crear accesos al sistema SIGMAR',
-    icono: Icons.manage_accounts_outlined,
-    color: const Color(0xFF7F77DD),
-    acciones: const [
-      'Ver lista de usuarios',
-      'Crear usuario (email, contrasena y rol)',
-      'Cambiar rol de usuario',
-      'Activar / Desactivar usuario',
-    ],
-    onAcciones: [null, null, null, null],
-  );
-}
-
-class AdminAportesScreen extends StatelessWidget {
-  const AdminAportesScreen({super.key});
-  @override
-  Widget build(BuildContext context) => _PantallaModulo(
-    ruta: '/admin/aportes',
-    titulo: 'Gestion de Aportes',
-    subtitulo: 'Ofrendas y diezmos de la iglesia',
-    icono: Icons.attach_money_outlined,
-    color: const Color(0xFF7F77DD),
-    acciones: const [
-      'Ver aportes del dia',
-      'Registrar ofrenda',
-      'Registrar diezmo',
-      'Modificar aporte',
-      'Buscar por fecha',
-    ],
-    onAcciones: [null, null, null, null, null],
+    titulo: 'Guías',
+    subtitulo: 'Asignar guías a cursos',
+    icono: Icons.assignment,
+    color: Colors.orange,
   );
 }
 
 class PerfilScreen extends StatelessWidget {
   const PerfilScreen({super.key});
   @override
-  Widget build(BuildContext context) => _PantallaModulo(
+  Widget build(BuildContext context) => const _PantallaModulo(
     ruta: '/perfil',
-    titulo: 'Mi Perfil',
-    subtitulo: 'Ver y editar mis datos personales',
-    icono: Icons.person_outline,
+    titulo: 'Perfil',
+    subtitulo: 'Ver y editar mis datos',
+    icono: Icons.person,
     color: kGold,
-    acciones: const ['Editar datos personales', 'Cambiar contrasena'],
-    onAcciones: [null, null],
   );
 }

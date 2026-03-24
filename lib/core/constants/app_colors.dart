@@ -11,3 +11,5 @@ const kGrey = Color(0xFFAAAAAA);
 const kDivider = Color(0xFF333333);
 const kDanger = Color(0xFFB03A2E);
 const kSuccess = Color(0xFF1E8449);
+const kDangerColor = kDanger;
+const kSuccessColor = kSuccess;
