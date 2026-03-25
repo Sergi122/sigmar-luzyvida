@@ -6,6 +6,16 @@ import '../../../../shared/widgets/sigmar_page.dart';
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
 
+const _diasSemana = [
+  'lunes',
+  'martes',
+  'miercoles',
+  'jueves',
+  'viernes',
+  'sabado',
+  'domingo',
+];
+
 class AdminGruposScreen extends StatefulWidget {
   const AdminGruposScreen({super.key});
   @override
@@ -15,9 +25,6 @@ class AdminGruposScreen extends StatefulWidget {
 class _AdminGruposScreenState extends State<AdminGruposScreen> {
   List<Map<String, dynamic>> _grupos = [];
   List<Map<String, dynamic>> _filtrados = [];
-  List<Map<String, dynamic>> _miembros = [];
-  Set<int> _idsLideres = {};
-  Map<int, Set<int>> _miembrosPorGrupo = {};
   bool _cargando = true;
   String _busqueda = '';
 
@@ -30,153 +37,73 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      final grupos = await _sb.from('grupos').select().order('nombre');
-      final miembros = await _sb
-          .from('miembros')
-          .select('id, nombre')
-          .eq('estado', 'activo')
+      // ✅ join con miembros para obtener nombre del lider (id_lider)
+      final data = await _sb
+          .from('grupos')
+          .select('*, miembros!grupos_id_lider_fkey(nombre)')
           .order('nombre');
-
-      // IDs de miembros que ya son líderes de algún grupo
-      final idsLideres = (grupos as List)
-          .where((g) => g['idLider'] != null)
-          .map((g) => g['idLider'] as int)
-          .toSet();
-
-      // Cargar qué miembros están en cada grupo
-      final todosMiembrosGrupo = await _sb
-          .from('grupo_miembros')
-          .select('idgrupo, idmiembro');
-
-      // Mapa: idGrupo -> Set<idMiembro>
-      final Map<int, Set<int>> miembrosPorGrupo = {};
-      for (final r in (todosMiembrosGrupo as List)) {
-        final gid = r['idgrupo'] as int;
-        final mid = r['idmiembro'] as int;
-        miembrosPorGrupo.putIfAbsent(gid, () => {}).add(mid);
-      }
-
-      // Obtener nombre del lider para cada grupo
-      final List<Map<String, dynamic>> conLider = [];
-      for (final g in grupos) {
-        final m = Map<String, dynamic>.from(g);
-        if (g['idLider'] != null) {
-          try {
-            final l = await _sb
-                .from('miembros')
-                .select('nombre')
-                .eq('id', g['idLider'])
-                .maybeSingle();
-            m['liderNombre'] = l?['nombre'] ?? '';
-          } catch (_) {}
-        }
-        conLider.add(m);
-      }
-
       setState(() {
-        _grupos = conLider;
-        _miembros = List<Map<String, dynamic>>.from(miembros);
-        _idsLideres = idsLideres;
-        _miembrosPorGrupo = miembrosPorGrupo;
+        _grupos = List<Map<String, dynamic>>.from(data);
         _filtrar();
         _cargando = false;
       });
     } catch (e) {
       setState(() => _cargando = false);
-      _snack('Error al cargar: $e', error: true);
+      _msg('Error: $e', error: true);
     }
   }
 
   void _filtrar() {
-    final q = _busqueda.toLowerCase();
-    setState(() {
-      _filtrados = q.isEmpty
-          ? _grupos
-          : _grupos
-                .where((g) => (g['nombre'] ?? '').toLowerCase().contains(q))
-                .toList();
-    });
+    _filtrados = _grupos.where((g) {
+      final nombre = (g['nombre'] ?? '').toLowerCase();
+      return _busqueda.isEmpty || nombre.contains(_busqueda.toLowerCase());
+    }).toList();
   }
 
-  void _snack(String msg, {bool error = false}) {
+  void _msg(String m, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: error ? kDanger : kSuccess),
+      SnackBar(content: Text(m), backgroundColor: error ? kDanger : kSuccess),
     );
   }
 
-  void _abrirForm({Map<String, dynamic>? grupo}) async {
+  Future<void> _eliminar(Map<String, dynamic> g) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => _DialogConfirm(
+        titulo: 'Eliminar grupo',
+        mensaje: '¿Eliminar el grupo "${g['nombre']}"?',
+      ),
+    );
+    if (ok != true) return;
+    await _sb.from('grupos').delete().eq('id', g['id']);
+    _msg('Grupo eliminado');
+    _cargar();
+  }
+
+  void _abrirFormulario({Map<String, dynamic>? grupo}) async {
     final ok = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => _FormGrupo(
-        grupo: grupo,
-        miembros: _miembros,
-        idsLideres: _idsLideres,
-        grupoActualId: grupo?['id'],
-      ),
+      builder: (_) => _FormGrupo(grupo: grupo),
     );
     if (ok == true) _cargar();
   }
 
-  void _gestionarMiembros(Map<String, dynamic> g) async {
-    await showDialog(
+  void _verMiembros(Map<String, dynamic> g) {
+    showDialog(
       context: context,
-      builder: (_) => _DialogoMiembros(
-        grupo: g,
-        todosMiembros: _miembros,
-        miembrosPorGrupo: _miembrosPorGrupo,
-        idsLideres: _idsLideres,
-      ),
+      builder: (_) => _DialogMiembrosGrupo(grupo: g),
     );
-    _cargar();
-  }
-
-  void _eliminar(Map<String, dynamic> g) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: kBgCard,
-        title: const Text('Eliminar Grupo', style: TextStyle(color: kWhite)),
-        content: Text(
-          '¿Eliminar "${g['nombre']}"?',
-          style: const TextStyle(color: kGrey),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(color: kGrey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kDanger,
-              elevation: 0,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Eliminar',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    try {
-      await _sb.from('grupos').delete().eq('id', g['id']);
-      _snack('Grupo eliminado');
-      _cargar();
-    } catch (e) {
-      _snack('Error: $e', error: true);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final movil = MediaQuery.of(context).size.width < 800;
     return SigmarPage(
       rutaActual: '/admin/grupos',
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(movil ? 16 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -209,25 +136,49 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                         ),
                       ),
                       Text(
-                        'Administrar grupos de reunion',
+                        'Administrar grupos de reunión',
                         style: TextStyle(color: kGrey, fontSize: 13),
                       ),
                     ],
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: () => _abrirForm(),
+                if (!movil)
+                  ElevatedButton.icon(
+                    onPressed: () => _abrirFormulario(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text(
+                      'Nuevo Grupo',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+              ],
+            ),
+            if (movil) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _abrirFormulario(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kColor,
                     foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    elevation: 0,
                   ),
                   icon: const Icon(Icons.add, size: 18),
                   label: const Text(
@@ -235,12 +186,11 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
             const SizedBox(height: 8),
             Container(width: 50, height: 3, color: _kColor),
-            const SizedBox(height: 24),
-
+            const SizedBox(height: 20),
             TextField(
               onChanged: (v) => setState(() {
                 _busqueda = v;
@@ -253,6 +203,10 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                 prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
                 filled: true,
                 fillColor: kBgCard,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: const BorderSide(color: kDivider),
@@ -265,10 +219,6 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: const BorderSide(color: _kColor, width: 2),
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
               ),
             ),
             const SizedBox(height: 8),
@@ -277,7 +227,6 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
               style: const TextStyle(color: kGrey, fontSize: 12),
             ),
             const SizedBox(height: 16),
-
             if (_cargando)
               const Center(
                 child: Padding(
@@ -286,24 +235,12 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                 ),
               )
             else if (_filtrados.isEmpty)
-              Center(
+              const Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(40),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.group_off_outlined,
-                        color: kGrey,
-                        size: 48,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _busqueda.isEmpty
-                            ? 'No hay grupos registrados'
-                            : 'Sin resultados para "$_busqueda"',
-                        style: const TextStyle(color: kGrey, fontSize: 14),
-                      ),
-                    ],
+                  padding: EdgeInsets.all(40),
+                  child: Text(
+                    'No hay grupos registrados',
+                    style: TextStyle(color: kGrey, fontSize: 14),
                   ),
                 ),
               )
@@ -311,9 +248,9 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
               ...(_filtrados.map(
                 (g) => _TarjetaGrupo(
                   grupo: g,
-                  onEditar: () => _abrirForm(grupo: g),
-                  onMiembros: () => _gestionarMiembros(g),
+                  onEditar: () => _abrirFormulario(grupo: g),
                   onEliminar: () => _eliminar(g),
+                  onVerMiembros: () => _verMiembros(g),
                 ),
               )),
           ],
@@ -323,17 +260,14 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  TARJETA DE GRUPO
-// ══════════════════════════════════════════════════════
 class _TarjetaGrupo extends StatefulWidget {
   final Map<String, dynamic> grupo;
-  final VoidCallback onEditar, onMiembros, onEliminar;
+  final VoidCallback onEditar, onEliminar, onVerMiembros;
   const _TarjetaGrupo({
     required this.grupo,
     required this.onEditar,
-    required this.onMiembros,
     required this.onEliminar,
+    required this.onVerMiembros,
   });
   @override
   State<_TarjetaGrupo> createState() => _TarjetaGrupoState();
@@ -345,13 +279,15 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
   Widget build(BuildContext context) {
     final g = widget.grupo;
     final activo = g['estado'] == 'activo';
+    // ✅ nombre del lider via join
+    final liderNombre = (g['miembros'] as Map?)?['nombre'] ?? 'Sin líder';
     return MouseRegion(
       onEnter: (_) => setState(() => _h = true),
       onExit: (_) => setState(() => _h = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _h ? kBgCard : kBgMid,
           borderRadius: BorderRadius.circular(10),
@@ -360,16 +296,25 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
           ),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: _kColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
+                shape: BoxShape.circle,
+                color: _kColor.withValues(alpha: 0.15),
+                border: Border.all(color: _kColor.withValues(alpha: 0.4)),
               ),
-              child: const Icon(Icons.group_outlined, color: _kColor, size: 22),
+              child: Center(
+                child: Text(
+                  (g['nombre'] ?? 'G')[0].toUpperCase(),
+                  style: const TextStyle(
+                    color: _kColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -378,55 +323,76 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          g['nombre'] ?? '',
-                          style: const TextStyle(
-                            color: kWhite,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        g['nombre'] ?? '',
+                        style: const TextStyle(
+                          color: kWhite,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
+                          horizontal: 6,
+                          vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: activo
-                              ? kSuccess.withValues(alpha: 0.15)
-                              : kGrey.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
+                          color: (activo ? kSuccess : kDanger).withValues(
+                            alpha: 0.1,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          g['estado'] ?? 'activo',
+                          g['estado'] ?? '',
                           style: TextStyle(
-                            color: activo ? kSuccess : kGrey,
+                            color: activo ? kSuccess : kDanger,
                             fontSize: 10,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  if (g['lugar'] != null)
-                    _InfoRow(Icons.location_on_outlined, g['lugar']),
-                  if (g['horario'] != null)
-                    _InfoRow(Icons.schedule_outlined, g['horario']),
-                  if ((g['liderNombre'] ?? '').isNotEmpty)
-                    _InfoRow(
-                      Icons.person_outline,
-                      'Lider: ${g['liderNombre']}',
-                      color: kGold,
-                    ),
-                  if (g['idLider'] == null)
-                    _InfoRow(
-                      Icons.person_off_outlined,
-                      'Sin lider asignado',
-                      color: kDanger,
-                    ),
+                  const SizedBox(height: 3),
+                  // ✅ usar lugar y dia_semana
+                  Row(
+                    children: [
+                      const Icon(Icons.person_outline, color: kGrey, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        liderNombre,
+                        style: const TextStyle(color: kGrey, fontSize: 12),
+                      ),
+                      const SizedBox(width: 12),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        color: kGrey,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          g['lugar'] ?? '',
+                          style: const TextStyle(color: kGrey, fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        color: kGrey,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${g['dia_semana'] ?? ''} ${g['hora'] ?? ''}',
+                        style: const TextStyle(color: kGrey, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -434,29 +400,11 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
               color: kBgCard,
               icon: const Icon(Icons.more_vert, color: kGrey, size: 20),
               onSelected: (v) {
-                if (v == 'miembros') widget.onMiembros();
                 if (v == 'editar') widget.onEditar();
-                if (v == 'eliminar') widget.onEliminar();
+                if (v == 'miembros') widget.onVerMiembros();
+                if (v == 'borrar') widget.onEliminar();
               },
               itemBuilder: (_) => [
-                const PopupMenuItem(
-                  value: 'miembros',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.people_outline,
-                        color: Color(0xFF1D9E75),
-                        size: 16,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Gestionar miembros',
-                        style: TextStyle(color: kWhite, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
-                const PopupMenuDivider(),
                 const PopupMenuItem(
                   value: 'editar',
                   child: Row(
@@ -470,9 +418,22 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                     ],
                   ),
                 ),
+                const PopupMenuItem(
+                  value: 'miembros',
+                  child: Row(
+                    children: [
+                      Icon(Icons.people_outline, color: _kColor, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'Ver / Agregar miembros',
+                        style: TextStyle(color: kWhite, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
                 const PopupMenuDivider(),
                 const PopupMenuItem(
-                  value: 'eliminar',
+                  value: 'borrar',
                   child: Row(
                     children: [
                       Icon(Icons.delete_outline, color: kDanger, size: 16),
@@ -493,362 +454,10 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String texto;
-  final Color color;
-  const _InfoRow(this.icon, this.texto, {this.color = kGrey});
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 3),
-    child: Row(
-      children: [
-        Icon(icon, color: color, size: 13),
-        const SizedBox(width: 5),
-        Expanded(
-          child: Text(texto, style: TextStyle(color: color, fontSize: 12)),
-        ),
-      ],
-    ),
-  );
-}
-
-// ══════════════════════════════════════════════════════
-//  DIALOGO GESTIONAR MIEMBROS DEL GRUPO
-// ══════════════════════════════════════════════════════
-class _DialogoMiembros extends StatefulWidget {
-  final Map<String, dynamic> grupo;
-  final List<Map<String, dynamic>> todosMiembros;
-  final Map<int, Set<int>> miembrosPorGrupo;
-  final Set<int> idsLideres;
-  const _DialogoMiembros({
-    required this.grupo,
-    required this.todosMiembros,
-    required this.miembrosPorGrupo,
-    required this.idsLideres,
-  });
-  @override
-  State<_DialogoMiembros> createState() => _DialogoMiembrosState();
-}
-
-class _DialogoMiembrosState extends State<_DialogoMiembros> {
-  Set<int> _enGrupo = {};
-  bool _cargando = true;
-  String _busqueda = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _cargar();
-  }
-
-  Future<void> _cargar() async {
-    try {
-      final data = await _sb
-          .from('grupo_miembros')
-          .select('idmiembro')
-          .eq('idgrupo', widget.grupo['id']);
-      setState(() {
-        _enGrupo = (data as List).map((r) => r['idmiembro'] as int).toSet();
-        _cargando = false;
-      });
-    } catch (e) {
-      setState(() => _cargando = false);
-    }
-  }
-
-  Future<void> _toggle(int idMiembro, bool agregar) async {
-    try {
-      if (agregar) {
-        await _sb.from('grupo_miembros').insert({
-          'idgrupo': widget.grupo['id'],
-          'idmiembro': idMiembro,
-        });
-        setState(() => _enGrupo.add(idMiembro));
-      } else {
-        await _sb
-            .from('grupo_miembros')
-            .delete()
-            .eq('idgrupo', widget.grupo['id'])
-            .eq('idmiembro', idMiembro);
-        setState(() => _enGrupo.remove(idMiembro));
-      }
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: kDanger),
-        );
-    }
-  }
-
-  List<Map<String, dynamic>> get _filtrados {
-    final q = _busqueda.toLowerCase();
-    final idGrupoActual = widget.grupo['id'] as int;
-
-    // Miembros que están en OTROS grupos
-    final enOtrosGrupos = <int>{};
-    widget.miembrosPorGrupo.forEach((gid, mids) {
-      if (gid != idGrupoActual) enOtrosGrupos.addAll(mids);
-    });
-
-    return widget.todosMiembros.where((m) {
-      final mid = m['id'] as int;
-
-      // Los líderes de cualquier grupo NO pueden aparecer como miembros
-      if (widget.idsLideres.contains(mid)) return false;
-
-      // Si está en otro grupo no aparece (a menos que ya esté en este, para poder quitarlo)
-      final visible = _enGrupo.contains(mid) || !enOtrosGrupos.contains(mid);
-
-      final pasaBusqueda =
-          q.isEmpty || (m['nombre'] ?? '').toLowerCase().contains(q);
-
-      return visible && pasaBusqueda;
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: kBgMid,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Container(
-        width: 500,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: Column(
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: kBgCard,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  topRight: Radius.circular(14),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1D9E75).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.people_outline,
-                      color: Color(0xFF1D9E75),
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Miembros — ${widget.grupo['nombre']}',
-                          style: const TextStyle(
-                            color: kWhite,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${_enGrupo.length} miembro${_enGrupo.length != 1 ? 's' : ''} en este grupo',
-                          style: const TextStyle(color: kGrey, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, color: kGrey, size: 20),
-                  ),
-                ],
-              ),
-            ),
-
-            // Buscador
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: TextField(
-                onChanged: (v) => setState(() => _busqueda = v),
-                style: const TextStyle(color: kWhite, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Buscar miembro por nombre...',
-                  hintStyle: const TextStyle(color: kGrey, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search, color: kGrey, size: 16),
-                  filled: true,
-                  fillColor: kBgCard,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kDivider),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: kDivider),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: _kColor, width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-            ),
-
-            // Lista
-            Expanded(
-              child: _cargando
-                  ? const Center(
-                      child: CircularProgressIndicator(color: _kColor),
-                    )
-                  : _filtrados.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Sin resultados',
-                        style: TextStyle(color: kGrey),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _filtrados.length,
-                      itemBuilder: (_, i) {
-                        final m = _filtrados[i];
-                        final enGrupo = _enGrupo.contains(m['id'] as int);
-                        final inicial = (m['nombre'] ?? 'M')[0].toUpperCase();
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 6),
-                          decoration: BoxDecoration(
-                            color: enGrupo
-                                ? const Color(
-                                    0xFF1D9E75,
-                                  ).withValues(alpha: 0.08)
-                                : kBgCard,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: enGrupo
-                                  ? const Color(
-                                      0xFF1D9E75,
-                                    ).withValues(alpha: 0.35)
-                                  : kDivider,
-                            ),
-                          ),
-                          child: CheckboxListTile(
-                            value: enGrupo,
-                            activeColor: const Color(0xFF1D9E75),
-                            checkColor: Colors.white,
-                            title: Text(
-                              m['nombre'] ?? '',
-                              style: TextStyle(
-                                color: enGrupo ? kWhite : kGrey,
-                                fontSize: 13,
-                                fontWeight: enGrupo
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            secondary: Container(
-                              width: 34,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: enGrupo
-                                    ? const Color(
-                                        0xFF1D9E75,
-                                      ).withValues(alpha: 0.15)
-                                    : kBgMid,
-                                border: Border.all(
-                                  color: enGrupo
-                                      ? const Color(
-                                          0xFF1D9E75,
-                                        ).withValues(alpha: 0.4)
-                                      : kDivider,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  inicial,
-                                  style: TextStyle(
-                                    color: enGrupo
-                                        ? const Color(0xFF1D9E75)
-                                        : kGrey,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            onChanged: (v) => _toggle(m['id'] as int, v!),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-
-            // Footer
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: kBgCard,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(14),
-                  bottomRight: Radius.circular(14),
-                ),
-                border: Border(top: BorderSide(color: kDivider)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _kColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Listo',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ══════════════════════════════════════════════════════
-//  FORMULARIO CREAR / EDITAR GRUPO
-// ══════════════════════════════════════════════════════
+// ── Formulario crear/editar grupo ─────────────────────
 class _FormGrupo extends StatefulWidget {
   final Map<String, dynamic>? grupo;
-  final List<Map<String, dynamic>> miembros;
-  final Set<int> idsLideres;
-  final int? grupoActualId;
-  const _FormGrupo({
-    this.grupo,
-    required this.miembros,
-    required this.idsLideres,
-    this.grupoActualId,
-  });
+  const _FormGrupo({this.grupo});
   @override
   State<_FormGrupo> createState() => _FormGrupoState();
 }
@@ -856,59 +465,46 @@ class _FormGrupo extends StatefulWidget {
 class _FormGrupoState extends State<_FormGrupo> {
   final _nombreCtrl = TextEditingController();
   final _lugarCtrl = TextEditingController();
-  final _horarioCtrl = TextEditingController();
-  final _buscarCtrl = TextEditingController();
-
-  Map<String, dynamic>? _lider;
-  List<Map<String, dynamic>> _liderFiltrados = [];
+  final _horaCtrl = TextEditingController();
+  String? _diaSemana;
+  String _estado = 'activo';
+  int? _idLider;
+  List<Map<String, dynamic>> _miembros = [];
   bool _guardando = false;
   String? _error;
 
   bool get _esEdicion => widget.grupo != null;
 
-  // Excluye líderes de otros grupos, pero permite el lider actual de este grupo
-  List<Map<String, dynamic>> get _miembrosDisponibles {
-    return widget.miembros.where((m) {
-      final mid = m['id'] as int;
-      final esLiderActual = widget.grupo?['idLider'] == mid;
-      return esLiderActual || !widget.idsLideres.contains(mid);
-    }).toList();
-  }
-
   @override
   void initState() {
     super.initState();
-    _liderFiltrados = _miembrosDisponibles;
+    _cargarMiembros();
     if (_esEdicion) {
       final g = widget.grupo!;
       _nombreCtrl.text = g['nombre'] ?? '';
+      // ✅ snake_case
       _lugarCtrl.text = g['lugar'] ?? '';
-      _horarioCtrl.text = g['horario'] ?? '';
-      if (g['idLider'] != null) {
-        _lider = widget.miembros
-            .where((m) => m['id'] == g['idLider'])
-            .firstOrNull;
-        if (_lider != null) _buscarCtrl.text = _lider!['nombre'] ?? '';
-      }
+      _horaCtrl.text = g['hora'] ?? '';
+      _diaSemana = g['dia_semana'];
+      _estado = g['estado'] ?? 'activo';
+      _idLider = g['id_lider'] as int?;
     }
-    _buscarCtrl.addListener(() {
-      final q = _buscarCtrl.text.toLowerCase();
-      setState(() {
-        _liderFiltrados = q.isEmpty
-            ? _miembrosDisponibles
-            : _miembrosDisponibles
-                  .where((m) => (m['nombre'] ?? '').toLowerCase().contains(q))
-                  .toList();
-      });
-    });
+  }
+
+  Future<void> _cargarMiembros() async {
+    final data = await _sb
+        .from('miembros')
+        .select('id, nombre')
+        .eq('estado', 'activo')
+        .order('nombre');
+    setState(() => _miembros = List<Map<String, dynamic>>.from(data));
   }
 
   @override
   void dispose() {
     _nombreCtrl.dispose();
     _lugarCtrl.dispose();
-    _horarioCtrl.dispose();
-    _buscarCtrl.dispose();
+    _horaCtrl.dispose();
     super.dispose();
   }
 
@@ -921,12 +517,14 @@ class _FormGrupoState extends State<_FormGrupo> {
       _guardando = true;
       _error = null;
     });
+    // ✅ snake_case
     final datos = {
       'nombre': _nombreCtrl.text.trim(),
       'lugar': _lugarCtrl.text.trim(),
-      'horario': _horarioCtrl.text.trim(),
-      'idLider': _lider?['id'],
-      'estado': 'activo',
+      'hora': _horaCtrl.text.trim(),
+      'dia_semana': _diaSemana,
+      'id_lider': _idLider,
+      'estado': _estado,
     };
     try {
       if (_esEdicion) {
@@ -955,7 +553,6 @@ class _FormGrupoState extends State<_FormGrupo> {
         ),
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
@@ -997,198 +594,122 @@ class _FormGrupoState extends State<_FormGrupo> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _lbl('DATOS DEL GRUPO'),
-                    const SizedBox(height: 12),
-                    _tf(
-                      _nombreCtrl,
+                    _Campo(
                       'Nombre del grupo *',
+                      _nombreCtrl,
                       Icons.group_outlined,
                     ),
                     const SizedBox(height: 12),
-                    _tf(
+                    _Campo(
+                      'Lugar de reunión',
                       _lugarCtrl,
-                      'Lugar / Direccion',
                       Icons.location_on_outlined,
                     ),
                     const SizedBox(height: 12),
-                    _tf(
-                      _horarioCtrl,
-                      'Horario (ej: Viernes 19:00)',
-                      Icons.schedule_outlined,
-                    ),
-                    const SizedBox(height: 20),
-
-                    _lbl('LIDER DEL GRUPO'),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Solo se muestran miembros sin liderazgo asignado',
-                      style: TextStyle(color: kGrey, fontSize: 11),
-                    ),
-                    const SizedBox(height: 12),
-
-                    if (_lider != null)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: kGold.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: kGold.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.person, color: kGold, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _lider!['nombre'] ?? '',
-                                style: const TextStyle(
-                                  color: kGold,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => setState(() {
-                                _lider = null;
-                                _buscarCtrl.clear();
-                              }),
-                              child: const Icon(
-                                Icons.close,
-                                color: kGold,
-                                size: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    TextField(
-                      controller: _buscarCtrl,
-                      style: const TextStyle(color: kWhite, fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'Buscar lider por nombre...',
-                        hintStyle: const TextStyle(color: kGrey, fontSize: 13),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: kGrey,
-                          size: 16,
-                        ),
-                        filled: true,
-                        fillColor: kBgCard,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: kDivider),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: kDivider),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: _kColor,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
+                    // ✅ dia_semana con dropdown
                     Container(
-                      constraints: const BoxConstraints(maxHeight: 180),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
                         color: kBgCard,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: kDivider),
                       ),
-                      child: _liderFiltrados.isEmpty
-                          ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Text(
-                                'Sin resultados',
-                                style: TextStyle(color: kGrey, fontSize: 13),
-                              ),
-                            )
-                          : ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: _liderFiltrados.length,
-                              itemBuilder: (_, i) {
-                                final m = _liderFiltrados[i];
-                                final sel = _lider?['id'] == m['id'];
-                                return InkWell(
-                                  onTap: () => setState(() {
-                                    _lider = m;
-                                    _buscarCtrl.text = m['nombre'] ?? '';
-                                  }),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: sel
-                                          ? _kColor.withValues(alpha: 0.15)
-                                          : Colors.transparent,
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: kDivider.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.person_outline,
-                                          color: sel ? _kColor : kGrey,
-                                          size: 15,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            m['nombre'] ?? '',
-                                            style: TextStyle(
-                                              color: sel ? _kColor : kWhite,
-                                              fontSize: 13,
-                                              fontWeight: sel
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                            ),
-                                          ),
-                                        ),
-                                        if (sel)
-                                          const Icon(
-                                            Icons.check,
-                                            color: _kColor,
-                                            size: 14,
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _diaSemana,
+                          isExpanded: true,
+                          dropdownColor: kBgCard,
+                          hint: const Text(
+                            'Día de reunión',
+                            style: TextStyle(color: kGrey, fontSize: 13),
+                          ),
+                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          onChanged: (v) => setState(() => _diaSemana = v),
+                          items: _diasSemana
+                              .map(
+                                (d) => DropdownMenuItem(
+                                  value: d,
+                                  child: Text(d.toUpperCase()),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ),
-
+                    const SizedBox(height: 12),
+                    _Campo(
+                      'Hora (ej: 19:00)',
+                      _horaCtrl,
+                      Icons.access_time_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    // Lider
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: kBgCard,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: kDivider),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<int>(
+                          value: _idLider,
+                          isExpanded: true,
+                          dropdownColor: kBgCard,
+                          hint: const Text(
+                            'Asignar líder',
+                            style: TextStyle(color: kGrey, fontSize: 13),
+                          ),
+                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          onChanged: (v) => setState(() => _idLider = v),
+                          items: _miembros
+                              .map(
+                                (m) => DropdownMenuItem<int>(
+                                  value: m['id'] as int,
+                                  child: Text(
+                                    m['nombre'] ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: kBgCard,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: kDivider),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _estado,
+                          isExpanded: true,
+                          dropdownColor: kBgCard,
+                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          onChanged: (v) => setState(() => _estado = v!),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'activo',
+                              child: Text('Activo'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'inactivo',
+                              child: Text('Inactivo'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     if (_error != null) ...[
                       const SizedBox(height: 14),
                       Container(
@@ -1200,24 +721,9 @@ class _FormGrupoState extends State<_FormGrupo> {
                             color: kDanger.withValues(alpha: 0.3),
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: kDanger,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _error!,
-                                style: const TextStyle(
-                                  color: kDanger,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(color: kDanger, fontSize: 13),
                         ),
                       ),
                     ],
@@ -1225,8 +731,6 @@ class _FormGrupoState extends State<_FormGrupo> {
                 ),
               ),
             ),
-
-            // Botones
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -1257,7 +761,6 @@ class _FormGrupoState extends State<_FormGrupo> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kColor,
                       foregroundColor: Colors.white,
-                      elevation: 0,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,
@@ -1265,6 +768,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      elevation: 0,
                     ),
                     child: _guardando
                         ? const SizedBox(
@@ -1289,7 +793,7 @@ class _FormGrupoState extends State<_FormGrupo> {
     );
   }
 
-  Widget _tf(TextEditingController ctrl, String label, IconData icon) =>
+  Widget _Campo(String label, TextEditingController ctrl, IconData icon) =>
       TextField(
         controller: ctrl,
         style: const TextStyle(color: kWhite, fontSize: 14),
@@ -1299,6 +803,10 @@ class _FormGrupoState extends State<_FormGrupo> {
           prefixIcon: Icon(icon, color: kGrey, size: 16),
           filled: true,
           fillColor: kBgCard,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: kDivider),
@@ -1311,20 +819,296 @@ class _FormGrupoState extends State<_FormGrupo> {
             borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: _kColor, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 12,
-          ),
         ),
       );
+}
 
-  Widget _lbl(String t) => Text(
-    t,
-    style: const TextStyle(
-      color: kGrey,
-      fontSize: 11,
-      letterSpacing: 2,
-      fontWeight: FontWeight.w600,
+// ── Dialog miembros del grupo ─────────────────────────
+class _DialogMiembrosGrupo extends StatefulWidget {
+  final Map<String, dynamic> grupo;
+  const _DialogMiembrosGrupo({required this.grupo});
+  @override
+  State<_DialogMiembrosGrupo> createState() => _DialogMiembrosGrupoState();
+}
+
+class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
+  List<Map<String, dynamic>> _miembrosGrupo = [];
+  List<Map<String, dynamic>> _todosLosMiembros = [];
+  int? _miembroAAgregar;
+  bool _cargando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargar();
+  }
+
+  Future<void> _cargar() async {
+    setState(() => _cargando = true);
+    // ✅ id_grupo, id_miembro
+    final gmData = await _sb
+        .from('grupo_miembros')
+        .select('id, miembros(id, nombre)')
+        .eq('id_grupo', widget.grupo['id']);
+    final todosData = await _sb
+        .from('miembros')
+        .select('id, nombre')
+        .eq('estado', 'activo')
+        .order('nombre');
+    setState(() {
+      _miembrosGrupo = List<Map<String, dynamic>>.from(gmData);
+      _todosLosMiembros = List<Map<String, dynamic>>.from(todosData);
+      _cargando = false;
+    });
+  }
+
+  Future<void> _agregar() async {
+    if (_miembroAAgregar == null) return;
+    try {
+      // ✅ id_grupo, id_miembro
+      await _sb.from('grupo_miembros').insert({
+        'id_grupo': widget.grupo['id'],
+        'id_miembro': _miembroAAgregar,
+      });
+      setState(() => _miembroAAgregar = null);
+      _cargar();
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: kDanger),
+        );
+    }
+  }
+
+  Future<void> _quitar(int gmId) async {
+    await _sb.from('grupo_miembros').delete().eq('id', gmId);
+    _cargar();
+  }
+
+  List<Map<String, dynamic>> get _disponibles {
+    final idsEnGrupo = _miembrosGrupo
+        .map((gm) => (gm['miembros'] as Map)['id'])
+        .toSet();
+    return _todosLosMiembros
+        .where((m) => !idsEnGrupo.contains(m['id']))
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: kBgMid,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Container(
+        width: 480,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Miembros — ${widget.grupo['nombre']}',
+                  style: const TextStyle(
+                    color: kWhite,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.close, color: kGrey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Agregar miembro
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: kBgCard,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: kDivider),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<int>(
+                        value: _miembroAAgregar,
+                        isExpanded: true,
+                        dropdownColor: kBgCard,
+                        hint: const Text(
+                          'Agregar miembro...',
+                          style: TextStyle(color: kGrey, fontSize: 13),
+                        ),
+                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        onChanged: (v) => setState(() => _miembroAAgregar = v),
+                        items: _disponibles
+                            .map(
+                              (m) => DropdownMenuItem<int>(
+                                value: m['id'] as int,
+                                child: Text(m['nombre'] ?? ''),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _miembroAAgregar != null ? _agregar : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text('Agregar'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${_miembrosGrupo.length} miembro${_miembrosGrupo.length != 1 ? 's' : ''}',
+              style: const TextStyle(color: kGrey, fontSize: 12),
+            ),
+            const SizedBox(height: 8),
+            if (_cargando)
+              const Center(child: CircularProgressIndicator(color: _kColor))
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _miembrosGrupo.length,
+                  itemBuilder: (_, i) {
+                    final gm = _miembrosGrupo[i];
+                    final m = gm['miembros'] as Map;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: kBgCard,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: kDivider),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: _kColor.withValues(alpha: 0.2),
+                            child: Text(
+                              (m['nombre'] ?? 'M')[0].toUpperCase(),
+                              style: const TextStyle(
+                                color: _kColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              m['nombre'] ?? '',
+                              style: const TextStyle(
+                                color: kWhite,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              color: kDanger,
+                              size: 18,
+                            ),
+                            onPressed: () => _quitar(gm['id'] as int),
+                            tooltip: 'Quitar del grupo',
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DialogConfirm extends StatelessWidget {
+  final String titulo, mensaje;
+  const _DialogConfirm({required this.titulo, required this.mensaje});
+  @override
+  Widget build(BuildContext context) => Dialog(
+    backgroundColor: kBgMid,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: Container(
+      width: 360,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            titulo,
+            style: const TextStyle(
+              color: kWhite,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 13)),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton(
+                onPressed: () => Navigator.pop(context, false),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: kGrey,
+                  side: const BorderSide(color: kDivider),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Cancelar'),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: kDanger,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }

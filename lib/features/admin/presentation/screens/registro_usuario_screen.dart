@@ -9,7 +9,6 @@ const _kColor = Color(0xFF7F77DD);
 class RegistroUsuarioScreen extends StatefulWidget {
   final Map<String, dynamic>? usuarioParaEditar;
   const RegistroUsuarioScreen({super.key, this.usuarioParaEditar});
-
   @override
   State<RegistroUsuarioScreen> createState() => _RegistroUsuarioScreenState();
 }
@@ -20,8 +19,8 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
   bool _verPass = false;
   bool _cargando = false;
   String? _rolSeleccionado;
-  String? _miembroSeleccionadoId;
-  List<Map<String, dynamic>> _miembrosSinUsuario = [];
+  int? _miembroId;
+  List<Map<String, dynamic>> _miembros = [];
 
   bool get _esEdicion => widget.usuarioParaEditar != null;
 
@@ -31,9 +30,10 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     if (_esEdicion) {
       _emailCtrl.text = widget.usuarioParaEditar!['email'] ?? '';
       _rolSeleccionado = widget.usuarioParaEditar!['rol'];
-    } else {
-      _cargarMiembrosSinUsuario();
+      // ✅ miembro_id en nueva schema
+      _miembroId = widget.usuarioParaEditar!['miembro_id'] as int?;
     }
+    _cargarMiembros();
   }
 
   @override
@@ -43,17 +43,15 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     super.dispose();
   }
 
-  Future<void> _cargarMiembrosSinUsuario() async {
+  Future<void> _cargarMiembros() async {
     try {
       final data = await _sb
           .from('miembros')
           .select('id, nombre')
-          .isFilter('idUsuario', null);
-      setState(
-        () => _miembrosSinUsuario = List<Map<String, dynamic>>.from(data),
-      );
+          .order('nombre');
+      setState(() => _miembros = List<Map<String, dynamic>>.from(data));
     } catch (e) {
-      debugPrint('Error al cargar miembros: $e');
+      debugPrint('Error miembros: $e');
     }
   }
 
@@ -69,21 +67,19 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     setState(() => _cargando = true);
     try {
       if (!_esEdicion) {
-        final data = <String, dynamic>{
+        // ✅ nueva schema: email, contrasena (campo adicional), rol, activo, miembro_id
+        await _sb.from('usuarios').insert({
           'email': _emailCtrl.text.trim(),
           'contrasena': _passCtrl.text.trim(),
           'rol': _rolSeleccionado ?? 'miembro',
-          'estado': 'activo',
-        };
-        if (_miembroSeleccionadoId != null) {
-          data['miembro_id'] = _miembroSeleccionadoId!;
-        }
-        await _sb.from('usuarios').insert(data);
+          'activo': true,
+          if (_miembroId != null) 'miembro_id': _miembroId,
+        });
       } else {
         final updates = <String, dynamic>{'rol': _rolSeleccionado ?? 'miembro'};
-        if (_passCtrl.text.isNotEmpty) {
+        if (_passCtrl.text.isNotEmpty)
           updates['contrasena'] = _passCtrl.text.trim();
-        }
+        if (_miembroId != null) updates['miembro_id'] = _miembroId;
         await _sb
             .from('usuarios')
             .update(updates)
@@ -104,11 +100,12 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: kDanger));
   }
 
-  Future<void> _darDeBaja() async {
+  Future<void> _toggleActivo() async {
     try {
+      final activo = widget.usuarioParaEditar!['activo'] as bool? ?? true;
       await _sb
           .from('usuarios')
-          .update({'estado': 'inactivo'})
+          .update({'activo': !activo})
           .eq('id', widget.usuarioParaEditar!['id']);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -124,7 +121,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Container(
-            width: 450,
+            width: 460,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: kBgCard,
@@ -167,37 +164,47 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                if (!_esEdicion && _miembrosSinUsuario.isNotEmpty) ...[
-                  DropdownButtonFormField<String>(
-                    initialValue: _miembroSeleccionadoId,
-                    dropdownColor: kBgCard,
-                    style: const TextStyle(color: kWhite),
-                    decoration: _deco(
-                      'Vincular miembro (opcional)',
-                      Icons.person_add_outlined,
-                    ),
-                    hint: const Text(
-                      'Seleccionar miembro...',
-                      style: TextStyle(color: kGrey),
-                    ),
-                    items: _miembrosSinUsuario
-                        .map(
-                          (m) => DropdownMenuItem<String>(
-                            value: m['id'].toString(),
+                // Vincular miembro
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: kBgMid,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: kDivider),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _miembroId,
+                      isExpanded: true,
+                      dropdownColor: kBgMid,
+                      hint: const Text(
+                        'Vincular con miembro (opcional)',
+                        style: TextStyle(color: kGrey, fontSize: 13),
+                      ),
+                      style: const TextStyle(color: kWhite, fontSize: 14),
+                      onChanged: (v) => setState(() => _miembroId = v),
+                      items: [
+                        const DropdownMenuItem<int>(
+                          value: null,
+                          child: Text(
+                            'Sin vincular',
+                            style: TextStyle(color: kGrey),
+                          ),
+                        ),
+                        ..._miembros.map(
+                          (m) => DropdownMenuItem<int>(
+                            value: m['id'] as int,
                             child: Text(
                               m['nombre'] ?? '',
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        )
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => _miembroSeleccionadoId = v),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-
+                ),
+                const SizedBox(height: 16),
                 TextField(
                   controller: _emailCtrl,
                   enabled: !_esEdicion,
@@ -205,7 +212,6 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   decoration: _deco('Email', Icons.email_outlined),
                 ),
                 const SizedBox(height: 16),
-
                 TextField(
                   controller: _passCtrl,
                   obscureText: !_verPass,
@@ -227,28 +233,36 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                       ),
                 ),
                 const SizedBox(height: 16),
-
-                DropdownButtonFormField<String>(
-                  initialValue: _rolSeleccionado,
-                  dropdownColor: kBgCard,
-                  style: const TextStyle(color: kWhite),
-                  decoration: _deco('Rol', Icons.admin_panel_settings_outlined),
-                  hint: const Text(
-                    'Seleccionar rol...',
-                    style: TextStyle(color: kGrey),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: kBgMid,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: kDivider),
                   ),
-                  items: ['admin', 'pastor', 'lider', 'miembro']
-                      .map(
-                        (r) => DropdownMenuItem(
-                          value: r,
-                          child: Text(r.toUpperCase()),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) => setState(() => _rolSeleccionado = v),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _rolSeleccionado,
+                      isExpanded: true,
+                      dropdownColor: kBgMid,
+                      hint: const Text(
+                        'Seleccionar rol...',
+                        style: TextStyle(color: kGrey),
+                      ),
+                      style: const TextStyle(color: kWhite, fontSize: 14),
+                      onChanged: (v) => setState(() => _rolSeleccionado = v),
+                      items: ['admin', 'pastor', 'lider', 'miembro']
+                          .map(
+                            (r) => DropdownMenuItem(
+                              value: r,
+                              child: Text(r.toUpperCase()),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
-
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -276,16 +290,23 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                           ),
                   ),
                 ),
-
                 if (_esEdicion) ...[
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: _darDeBaja,
-                      child: const Text(
-                        'DAR DE BAJA',
-                        style: TextStyle(color: kDanger),
+                      onPressed: _toggleActivo,
+                      child: Text(
+                        (widget.usuarioParaEditar!['activo'] as bool? ?? true)
+                            ? 'DESACTIVAR USUARIO'
+                            : 'ACTIVAR USUARIO',
+                        style: TextStyle(
+                          color:
+                              (widget.usuarioParaEditar!['activo'] as bool? ??
+                                  true)
+                              ? kDanger
+                              : kSuccess,
+                        ),
                       ),
                     ),
                   ),

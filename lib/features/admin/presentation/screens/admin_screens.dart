@@ -3,7 +3,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
 
-// EXPORTACIONES
 export 'admin_miembros_screen.dart';
 export 'admin_grupos_screen.dart';
 export 'admin_cursos_screen.dart';
@@ -11,6 +10,7 @@ export 'admin_usuarios_screen.dart';
 export 'registro_usuario_screen.dart';
 export 'admin_aportes_screen.dart';
 export 'perfil_screen.dart';
+export '../../../lider/presentation/screens/lider_screens.dart';
 
 class _PantallaModulo extends StatelessWidget {
   final String ruta, titulo, subtitulo;
@@ -27,9 +27,6 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final nombre = AppSession.nombre;
-    final rol = AppSession.rol.toUpperCase();
-
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
@@ -49,22 +46,24 @@ class _PantallaModulo extends StatelessWidget {
                   child: Icon(icono, color: color, size: 26),
                 ),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: const TextStyle(
-                        color: kWhite,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: const TextStyle(
+                          color: kWhite,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      subtitulo,
-                      style: const TextStyle(color: kGrey, fontSize: 13),
-                    ),
-                  ],
+                      Text(
+                        subtitulo,
+                        style: const TextStyle(color: kGrey, fontSize: 13),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -82,7 +81,7 @@ class _PantallaModulo extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '$nombre • $rol',
+                      '${AppSession.nombre} • ${AppSession.rol.toUpperCase()}',
                       style: TextStyle(
                         color: color,
                         fontSize: 12,
@@ -119,8 +118,6 @@ class InscripcionScreen extends StatelessWidget {
     color: Colors.green,
   );
 }
-
-// ← MiGrupoScreen ELIMINADA — ahora vive en lider/presentation/screens/mi_grupo_screen.dart
 
 class ReportesScreen extends StatelessWidget {
   const ReportesScreen({super.key});

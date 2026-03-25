@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
-import 'registro_usuario_screen.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
@@ -29,22 +28,15 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      final data = await _sb
-          .from('miembros')
-          .select('*, usuarios!miembro_id(id)')
-          .order('nombre');
+      final data = await _sb.from('miembros').select().order('nombre');
       setState(() {
-        _miembros = List<Map<String, dynamic>>.from(data).map((m) {
-          final usuarios = m['usuarios'] as List?;
-          m['tieneUsuario'] = usuarios != null && usuarios.isNotEmpty;
-          return m;
-        }).toList();
+        _miembros = List<Map<String, dynamic>>.from(data);
         _filtrar();
         _cargando = false;
       });
     } catch (e) {
       setState(() => _cargando = false);
-      _mostrarError('Error al cargar miembros: $e');
+      _msg('Error: $e', error: true);
     }
   }
 
@@ -63,79 +55,41 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
     }).toList();
   }
 
-  void _mostrarError(String msg) {
+  void _msg(String m, {bool error = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: kDanger));
-  }
-
-  void _mostrarExito(String msg) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(msg), backgroundColor: kSuccess));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(m), backgroundColor: error ? kDanger : kSuccess),
+    );
   }
 
   Future<void> _cambiarEstado(Map<String, dynamic> m) async {
-    final nuevoEstado = m['estado'] == 'activo' ? 'inactivo' : 'activo';
-    try {
-      await _sb
-          .from('miembros')
-          .update({'estado': nuevoEstado})
-          .eq('id', m['id']);
-      _mostrarExito('Estado cambiado a $nuevoEstado');
-      _cargar();
-    } catch (e) {
-      _mostrarError('Error: $e');
-    }
+    final nuevo = m['estado'] == 'activo' ? 'inactivo' : 'activo';
+    await _sb.from('miembros').update({'estado': nuevo}).eq('id', m['id']);
+    _msg('Estado cambiado a $nuevo');
+    _cargar();
   }
 
   Future<void> _eliminar(Map<String, dynamic> m) async {
-    final confirma = await showDialog<bool>(
+    final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => _DialogoConfirmar(
+      builder: (_) => _DialogConfirm(
         titulo: 'Eliminar miembro',
-        mensaje:
-            '¿Eliminar a ${m['nombre']}? Esta acción no se puede deshacer.',
-        colorBoton: kDanger,
-        textoBoton: 'Eliminar',
+        mensaje: '¿Eliminar a ${m['nombre']}?',
       ),
     );
-    if (confirma != true) return;
-    try {
-      await _sb.from('miembros').delete().eq('id', m['id']);
-      _mostrarExito('Miembro eliminado');
-      _cargar();
-    } catch (e) {
-      _mostrarError('Error al eliminar: $e');
-    }
+    if (ok != true) return;
+    await _sb.from('miembros').delete().eq('id', m['id']);
+    _msg('Miembro eliminado');
+    _cargar();
   }
 
   void _abrirFormulario({Map<String, dynamic>? miembro}) async {
-    final resultado = await showDialog<bool>(
+    final ok = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => _FormularioMiembro(miembro: miembro),
+      builder: (_) => _FormMiembro(miembro: miembro),
     );
-    if (resultado == true) _cargar();
-  }
-
-  void _abrirGestionUsuario({Map<String, dynamic>? miembro}) async {
-    final resultado = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        if (miembro != null && miembro['tieneUsuario'] == true) {
-          final usuarios = miembro['usuarios'] as List?;
-          if (usuarios != null && usuarios.isNotEmpty) {
-            return RegistroUsuarioScreen(usuarioParaEditar: usuarios[0]);
-          }
-        }
-        return const RegistroUsuarioScreen(usuarioParaEditar: null);
-      },
-    );
-    if (resultado == true) _cargar();
+    if (ok == true) _cargar();
   }
 
   @override
@@ -144,54 +98,57 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
     return SigmarPage(
       rutaActual: '/admin/miembros',
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(movil ? 16 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: _kColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+            if (movil) ...[
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _kColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.people_outlined,
+                      color: _kColor,
+                      size: 22,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.people_outlined,
-                    color: _kColor,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Gestion de Miembros',
-                        style: TextStyle(
-                          color: kWhite,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gestion de Miembros',
+                          style: TextStyle(
+                            color: kWhite,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Administrar todos los miembros de la iglesia',
-                        style: TextStyle(color: kGrey, fontSize: 13),
-                      ),
-                    ],
+                        Text(
+                          'Administrar miembros',
+                          style: TextStyle(color: kGrey, fontSize: 11),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ElevatedButton.icon(
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
                   onPressed: () => _abrirFormulario(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _kColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -203,60 +160,115 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Container(width: 50, height: 3, color: _kColor),
-            const SizedBox(height: 24),
-
-            if (movil)
-              Column(
-                children: [
-                  _Buscador(
-                    onChanged: (v) => setState(() {
-                      _busqueda = v;
-                      _filtrar();
-                    }),
-                  ),
-                  const SizedBox(height: 12),
-                  _FiltroEstado(
-                    valor: _filtroEstado,
-                    onChanged: (v) => setState(() {
-                      _filtroEstado = v;
-                      _filtrar();
-                    }),
-                  ),
-                ],
-              )
-            else
+              ),
+            ] else ...[
               Row(
                 children: [
-                  Expanded(
-                    flex: 3,
-                    child: _Buscador(
-                      onChanged: (v) => setState(() {
-                        _busqueda = v;
-                        _filtrar();
-                      }),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: _kColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.people_outlined,
+                      color: _kColor,
+                      size: 26,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  _FiltroEstado(
-                    valor: _filtroEstado,
-                    onChanged: (v) => setState(() {
-                      _filtroEstado = v;
-                      _filtrar();
-                    }),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Gestion de Miembros',
+                          style: TextStyle(
+                            color: kWhite,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Administrar todos los miembros de la iglesia',
+                          style: TextStyle(color: kGrey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _abrirFormulario(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text(
+                      'Nuevo Miembro',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
+            ],
+            const SizedBox(height: 8),
+            Container(width: 50, height: 3, color: _kColor),
+            const SizedBox(height: 20),
+            movil
+                ? Column(
+                    children: [
+                      _Buscador(
+                        onChanged: (v) => setState(() {
+                          _busqueda = v;
+                          _filtrar();
+                        }),
+                      ),
+                      const SizedBox(height: 10),
+                      _FiltroEstado(
+                        valor: _filtroEstado,
+                        onChanged: (v) => setState(() {
+                          _filtroEstado = v;
+                          _filtrar();
+                        }),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: _Buscador(
+                          onChanged: (v) => setState(() {
+                            _busqueda = v;
+                            _filtrar();
+                          }),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _FiltroEstado(
+                        valor: _filtroEstado,
+                        onChanged: (v) => setState(() {
+                          _filtroEstado = v;
+                          _filtrar();
+                        }),
+                      ),
+                    ],
+                  ),
             const SizedBox(height: 8),
             Text(
               '${_filtrados.length} miembro${_filtrados.length != 1 ? 's' : ''}',
               style: const TextStyle(color: kGrey, fontSize: 12),
             ),
             const SizedBox(height: 16),
-
             if (_cargando)
               const Center(
                 child: Padding(
@@ -273,7 +285,6 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                   onEditar: () => _abrirFormulario(miembro: m),
                   onEstado: () => _cambiarEstado(m),
                   onEliminar: () => _eliminar(m),
-                  onGestionarUsuario: () => _abrirGestionUsuario(miembro: m),
                 ),
               )),
           ],
@@ -296,6 +307,7 @@ class _Buscador extends StatelessWidget {
       prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
       filled: true,
       fillColor: kBgCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -308,7 +320,6 @@ class _Buscador extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: _kColor, width: 2),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     ),
   );
 }
@@ -335,6 +346,7 @@ class _FiltroEstado extends StatelessWidget {
           DropdownMenuItem(value: 'todos', child: Text('Todos')),
           DropdownMenuItem(value: 'activo', child: Text('Activos')),
           DropdownMenuItem(value: 'inactivo', child: Text('Inactivos')),
+          DropdownMenuItem(value: 'visita', child: Text('Visitas')),
         ],
       ),
     ),
@@ -343,13 +355,12 @@ class _FiltroEstado extends StatelessWidget {
 
 class _TarjetaMiembro extends StatefulWidget {
   final Map<String, dynamic> miembro;
-  final VoidCallback onEditar, onEstado, onEliminar, onGestionarUsuario;
+  final VoidCallback onEditar, onEstado, onEliminar;
   const _TarjetaMiembro({
     required this.miembro,
     required this.onEditar,
     required this.onEstado,
     required this.onEliminar,
-    required this.onGestionarUsuario,
   });
   @override
   State<_TarjetaMiembro> createState() => _TarjetaMiembroState();
@@ -362,7 +373,6 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
     final m = widget.miembro;
     final activo = m['estado'] == 'activo';
     final inicial = (m['nombre'] ?? 'M')[0].toUpperCase();
-    final movil = MediaQuery.of(context).size.width < 700;
     return MouseRegion(
       onEnter: (_) => setState(() => _h = true),
       onExit: (_) => setState(() => _h = false),
@@ -377,270 +387,145 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
             color: _h ? _kColor.withValues(alpha: 0.3) : kDivider,
           ),
         ),
-        child: movil
-            ? Column(
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _kColor.withValues(alpha: 0.15),
+                    border: Border.all(color: _kColor.withValues(alpha: 0.4)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      inicial,
+                      style: const TextStyle(
+                        color: _kColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: activo ? kSuccess : kDanger,
+                      border: Border.all(color: kBgMid, width: 2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    m['nombre'] ?? '',
+                    style: const TextStyle(
+                      color: kWhite,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
                   Row(
                     children: [
-                      _Avatar(inicial: inicial, activo: activo),
+                      const Icon(Icons.badge_outlined, color: kGrey, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        m['carnet'] ?? '',
+                        style: const TextStyle(color: kGrey, fontSize: 12),
+                      ),
                       const SizedBox(width: 12),
-                      Expanded(child: _InfoMiembro(m: m)),
-                      _MenuAcciones(
-                        onEditar: widget.onEditar,
-                        onEstado: widget.onEstado,
-                        onEliminar: widget.onEliminar,
-                        onGestionarUsuario: widget.onGestionarUsuario,
-                        activo: activo,
+                      const Icon(Icons.phone_outlined, color: kGrey, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${m['telefono'] ?? ''}',
+                        style: const TextStyle(color: kGrey, fontSize: 12),
                       ),
                     ],
                   ),
-                ],
-              )
-            : Row(
-                children: [
-                  _Avatar(inicial: inicial, activo: activo),
-                  const SizedBox(width: 14),
-                  Expanded(child: _InfoMiembro(m: m)),
-                  _Chips(m: m),
-                  const SizedBox(width: 12),
-                  _MenuAcciones(
-                    onEditar: widget.onEditar,
-                    onEstado: widget.onEstado,
-                    onEliminar: widget.onEliminar,
-                    onGestionarUsuario: widget.onGestionarUsuario,
-                    activo: activo,
+                  Text(
+                    m['direccion'] ?? '',
+                    style: const TextStyle(color: kGrey, fontSize: 11),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
+            ),
+            PopupMenuButton<String>(
+              color: kBgCard,
+              icon: const Icon(Icons.more_vert, color: kGrey, size: 20),
+              onSelected: (v) {
+                if (v == 'editar') widget.onEditar();
+                if (v == 'estado') widget.onEstado();
+                if (v == 'borrar') widget.onEliminar();
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  value: 'editar',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit_outlined, color: _kColor, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'Editar',
+                        style: TextStyle(color: kWhite, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'estado',
+                  child: Row(
+                    children: [
+                      Icon(
+                        activo
+                            ? Icons.block_outlined
+                            : Icons.check_circle_outline,
+                        color: activo ? kDanger : kSuccess,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        activo ? 'Desactivar' : 'Activar',
+                        style: const TextStyle(color: kWhite, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem(
+                  value: 'borrar',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline, color: kDanger, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'Eliminar',
+                        style: TextStyle(color: kDanger, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-class _Avatar extends StatelessWidget {
-  final String inicial;
-  final bool activo;
-  const _Avatar({required this.inicial, required this.activo});
-  @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: _kColor.withValues(alpha: 0.15),
-          border: Border.all(color: _kColor.withValues(alpha: 0.4)),
-        ),
-        child: Center(
-          child: Text(
-            inicial,
-            style: const TextStyle(
-              color: _kColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-        ),
-      ),
-      Positioned(
-        bottom: 0,
-        right: 0,
-        child: Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: activo ? kSuccess : kDanger,
-            border: Border.all(color: kBgMid, width: 2),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-class _InfoMiembro extends StatelessWidget {
-  final Map<String, dynamic> m;
-  const _InfoMiembro({required this.m});
-  @override
-  Widget build(BuildContext context) {
-    final tieneUsuario = m['tieneUsuario'] == true;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              m['nombre'] ?? '',
-              style: const TextStyle(
-                color: kWhite,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 6),
-            if (tieneUsuario)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.4),
-                  ),
-                ),
-                child: const Text(
-                  'USUARIO',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 3),
-        Row(
-          children: [
-            const Icon(Icons.badge_outlined, color: kGrey, size: 12),
-            const SizedBox(width: 4),
-            Text(
-              m['carnet'] ?? '',
-              style: const TextStyle(color: kGrey, fontSize: 12),
-            ),
-            const SizedBox(width: 12),
-            const Icon(Icons.phone_outlined, color: kGrey, size: 12),
-            const SizedBox(width: 4),
-            Text(
-              '${m['telefono'] ?? ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Text(
-          m['direccion'] ?? '',
-          style: const TextStyle(color: kGrey, fontSize: 11),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    );
-  }
-}
-
-class _Chips extends StatelessWidget {
-  final Map<String, dynamic> m;
-  const _Chips({required this.m});
-  @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      _Chip(m['ministerio'] ?? '', const Color(0xFF1D9E75)),
-      const SizedBox(width: 6),
-      _Chip(
-        m['bautizado'] == true ? 'Bautizado' : 'Sin bautismo',
-        m['bautizado'] == true ? kSuccess : kGrey,
-      ),
-    ],
-  );
-}
-
-class _Chip extends StatelessWidget {
-  final String texto;
-  final Color color;
-  const _Chip(this.texto, this.color);
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: color.withValues(alpha: 0.3)),
-    ),
-    child: Text(
-      texto,
-      style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600),
-    ),
-  );
-}
-
-class _MenuAcciones extends StatelessWidget {
-  final VoidCallback onEditar, onEstado, onEliminar, onGestionarUsuario;
-  final bool activo;
-  const _MenuAcciones({
-    required this.onEditar,
-    required this.onEstado,
-    required this.onEliminar,
-    required this.onGestionarUsuario,
-    required this.activo,
-  });
-  @override
-  Widget build(BuildContext context) => PopupMenuButton<String>(
-    color: kBgCard,
-    icon: const Icon(Icons.more_vert, color: kGrey, size: 20),
-    onSelected: (v) {
-      if (v == 'editar') onEditar();
-      if (v == 'estado') onEstado();
-      if (v == 'borrar') onEliminar();
-      if (v == 'usuario') onGestionarUsuario();
-    },
-    itemBuilder: (_) => [
-      const PopupMenuItem(
-        value: 'usuario',
-        child: Row(
-          children: [
-            Icon(Icons.login_outlined, color: _kColor, size: 16),
-            SizedBox(width: 8),
-            Text(
-              'Gestionar Usuario',
-              style: TextStyle(color: kWhite, fontSize: 13),
-            ),
-          ],
-        ),
-      ),
-      const PopupMenuDivider(),
-      const PopupMenuItem(
-        value: 'editar',
-        child: Row(
-          children: [
-            Icon(Icons.edit_outlined, color: _kColor, size: 16),
-            SizedBox(width: 8),
-            Text('Editar', style: TextStyle(color: kWhite, fontSize: 13)),
-          ],
-        ),
-      ),
-      PopupMenuItem(
-        value: 'estado',
-        child: Row(
-          children: [
-            Icon(
-              activo ? Icons.block_outlined : Icons.check_circle_outline,
-              color: activo ? kDanger : kSuccess,
-              size: 16,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              activo ? 'Desactivar' : 'Activar',
-              style: const TextStyle(color: kWhite, fontSize: 13),
-            ),
-          ],
-        ),
-      ),
-      const PopupMenuDivider(),
-      const PopupMenuItem(
-        value: 'borrar',
-        child: Row(
-          children: [
-            Icon(Icons.delete_outline, color: kDanger, size: 16),
-            SizedBox(width: 8),
-            Text('Eliminar', style: TextStyle(color: kDanger, fontSize: 13)),
-          ],
-        ),
-      ),
-    ],
-  );
 }
 
 class _EmptyState extends StatelessWidget {
@@ -670,25 +555,21 @@ class _EmptyState extends StatelessWidget {
   );
 }
 
-// ══════════════════════════════════════════════════════
-//  FORMULARIO CREAR / EDITAR MIEMBRO
-// ══════════════════════════════════════════════════════
-class _FormularioMiembro extends StatefulWidget {
+// ── Formulario ────────────────────────────────────────
+class _FormMiembro extends StatefulWidget {
   final Map<String, dynamic>? miembro;
-  const _FormularioMiembro({this.miembro});
+  const _FormMiembro({this.miembro});
   @override
-  State<_FormularioMiembro> createState() => _FormularioMiembroState();
+  State<_FormMiembro> createState() => _FormMiembroState();
 }
 
-class _FormularioMiembroState extends State<_FormularioMiembro> {
+class _FormMiembroState extends State<_FormMiembro> {
   final _nombreCtrl = TextEditingController();
   final _edadCtrl = TextEditingController();
   final _carnetCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
-  final _ministerioCtrl = TextEditingController();
   final _fechaConvCtrl = TextEditingController();
-
   bool _bautizado = false;
   bool _encuentro = false;
   String _estado = 'activo';
@@ -707,11 +588,13 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
       _carnetCtrl.text = m['carnet'] ?? '';
       _telefonoCtrl.text = '${m['telefono'] ?? ''}';
       _direccionCtrl.text = m['direccion'] ?? '';
-      _ministerioCtrl.text = m['ministerio'] ?? '';
-      _fechaConvCtrl.text = m['fechaConversion'] ?? '';
+      // ✅ nueva columna snake_case
+      _fechaConvCtrl.text = m['fecha_conversion'] ?? '';
       _bautizado = m['bautizado'] ?? false;
-      _encuentro = m['asistioEncuentro'] ?? false;
+      _encuentro = m['asistio_encuentro'] ?? false;
       _estado = m['estado'] ?? 'activo';
+    } else {
+      _fechaConvCtrl.text = DateTime.now().toIso8601String().substring(0, 10);
     }
   }
 
@@ -722,7 +605,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
     _carnetCtrl.dispose();
     _telefonoCtrl.dispose();
     _direccionCtrl.dispose();
-    _ministerioCtrl.dispose();
     _fechaConvCtrl.dispose();
     super.dispose();
   }
@@ -736,16 +618,16 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
       _guardando = true;
       _error = null;
     });
+    // ✅ snake_case en todos los campos
     final datos = {
       'nombre': _nombreCtrl.text.trim(),
       'edad': int.tryParse(_edadCtrl.text.trim()) ?? 0,
       'carnet': _carnetCtrl.text.trim(),
-      'telefono': int.tryParse(_telefonoCtrl.text.trim()) ?? 0,
+      'telefono': _telefonoCtrl.text.trim(),
       'direccion': _direccionCtrl.text.trim(),
-      'ministerio': _ministerioCtrl.text.trim(),
-      'fechaConversion': _fechaConvCtrl.text.trim(),
+      'fecha_conversion': _fechaConvCtrl.text.trim(),
       'bautizado': _bautizado,
-      'asistioEncuentro': _encuentro,
+      'asistio_encuentro': _encuentro,
       'estado': _estado,
     };
     try {
@@ -760,7 +642,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() {
-        _error = 'Error al guardar: $e';
+        _error = 'Error: $e';
         _guardando = false;
       });
     }
@@ -825,7 +707,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Seccion('DATOS PERSONALES'),
+                    _Sec('DATOS PERSONALES'),
                     const SizedBox(height: 12),
                     _Campo(
                       'Nombre completo *',
@@ -854,37 +736,23 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _Campo(
-                            'Telefono',
-                            _telefonoCtrl,
-                            Icons.phone_outlined,
-                            tipo: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _Campo(
-                            'Ministerio',
-                            _ministerioCtrl,
-                            Icons.church_outlined,
-                          ),
-                        ),
-                      ],
+                    _Campo(
+                      'Teléfono',
+                      _telefonoCtrl,
+                      Icons.phone_outlined,
+                      tipo: TextInputType.phone,
                     ),
                     const SizedBox(height: 12),
                     _Campo(
-                      'Direccion',
+                      'Dirección',
                       _direccionCtrl,
                       Icons.location_on_outlined,
                     ),
                     const SizedBox(height: 20),
-                    _Seccion('DATOS ESPIRITUALES'),
+                    _Sec('DATOS ESPIRITUALES'),
                     const SizedBox(height: 12),
                     _Campo(
-                      'Fecha de conversion (AAAA-MM-DD)',
+                      'Fecha de conversión (AAAA-MM-DD)',
                       _fechaConvCtrl,
                       Icons.calendar_today_outlined,
                     ),
@@ -892,7 +760,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                     Row(
                       children: [
                         Expanded(
-                          child: _SwitchField(
+                          child: _Sw(
                             'Bautizado',
                             _bautizado,
                             (v) => setState(() => _bautizado = v),
@@ -900,8 +768,8 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _SwitchField(
-                            'Asistio a encuentro',
+                          child: _Sw(
+                            'Asistió a encuentro',
                             _encuentro,
                             (v) => setState(() => _encuentro = v),
                           ),
@@ -909,7 +777,7 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    _Seccion('ESTADO'),
+                    _Sec('ESTADO'),
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -933,6 +801,10 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                             DropdownMenuItem(
                               value: 'inactivo',
                               child: Text('Inactivo'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'visita',
+                              child: Text('Visita'),
                             ),
                           ],
                         ),
@@ -992,10 +864,6 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: kGrey,
                       side: const BorderSide(color: kDivider),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -1043,12 +911,12 @@ class _FormularioMiembroState extends State<_FormularioMiembro> {
   }
 }
 
-class _Seccion extends StatelessWidget {
-  final String texto;
-  const _Seccion(this.texto);
+class _Sec extends StatelessWidget {
+  final String t;
+  const _Sec(this.t);
   @override
   Widget build(BuildContext context) => Text(
-    texto,
+    t,
     style: const TextStyle(
       color: kGrey,
       fontSize: 11,
@@ -1080,6 +948,7 @@ class _Campo extends StatelessWidget {
       prefixIcon: Icon(icono, color: kGrey, size: 16),
       filled: true,
       fillColor: kBgCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -1092,17 +961,15 @@ class _Campo extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: _kColor, width: 2),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     ),
   );
 }
 
-// Renombrado de _Switch a _SwitchField para evitar conflicto con widget de Flutter
-class _SwitchField extends StatelessWidget {
+class _Sw extends StatelessWidget {
   final String label;
   final bool valor;
   final ValueChanged<bool> onChanged;
-  const _SwitchField(this.label, this.valor, this.onChanged);
+  const _Sw(this.label, this.valor, this.onChanged);
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -1118,30 +985,17 @@ class _SwitchField extends StatelessWidget {
         Switch(
           value: valor,
           onChanged: onChanged,
-          thumbColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) return _kColor;
-            return null;
-          }),
-          trackColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected))
-              return _kColor.withValues(alpha: 0.3);
-            return null;
-          }),
+          activeColor: _kColor,
+          activeTrackColor: _kColor.withValues(alpha: 0.3),
         ),
       ],
     ),
   );
 }
 
-class _DialogoConfirmar extends StatelessWidget {
-  final String titulo, mensaje, textoBoton;
-  final Color colorBoton;
-  const _DialogoConfirmar({
-    required this.titulo,
-    required this.mensaje,
-    required this.textoBoton,
-    required this.colorBoton,
-  });
+class _DialogConfirm extends StatelessWidget {
+  final String titulo, mensaje;
+  const _DialogConfirm({required this.titulo, required this.mensaje});
   @override
   Widget build(BuildContext context) => Dialog(
     backgroundColor: kBgMid,
@@ -1185,16 +1039,16 @@ class _DialogoConfirmar extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colorBoton,
+                  backgroundColor: kDanger,
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text(
-                  textoBoton,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],

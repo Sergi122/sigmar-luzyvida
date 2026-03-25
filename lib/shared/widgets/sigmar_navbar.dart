@@ -19,15 +19,23 @@ class SigmarNavbar extends StatelessWidget {
         return [_Item('MI GRUPO', '/lider/grupo')];
       case 'pastor':
         return [
-          _Item('REPORTES', '/pastor/reportes'),
-          _Item('GUIAS', '/pastor/guias'),
+          _Item('MIEMBROS', '/pastor/miembros'),
+          _Item('GRUPOS', '/pastor/grupos'),
+          _Item('CURSOS', '/pastor/cursos'),
+          _Item('ASISTENCIA', '/pastor/asistencia'),
+          _Item('APORTES', '/pastor/aportes'),
         ];
-      case 'administrador':
+      case 'finanzas':
+        return [
+          _Item('DIEZMOS', '/finanzas/diezmos'),
+          _Item('OFRENDAS', '/finanzas/ofrendas'),
+        ];
       case 'admin':
         return [
           _Item('MIEMBROS', '/admin/miembros'),
           _Item('GRUPOS', '/admin/grupos'),
           _Item('CURSOS', '/admin/cursos'),
+          _Item('MINISTERIOS', '/admin/ministerios'),
           _Item('USUARIOS', '/admin/usuarios'),
           _Item('APORTES', '/admin/aportes'),
         ];
@@ -40,26 +48,20 @@ class SigmarNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Bajamos el breakpoint para que en tablets pequeñas o móviles apaisados no se rompa
     final bool esEscritorio = MediaQuery.of(context).size.width > 1000;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ), // Reducido padding lateral
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
         color: Color(0xFF111111),
         border: Border(bottom: BorderSide(color: kDivider)),
       ),
       child: Row(
         children: [
-          // LOGO
           _buildLogo(context),
-
           const Spacer(),
 
-          // LINKS CENTRALES (Solo Escritorio)
+          // Links desktop
           if (esEscritorio)
             Row(
               children: _todos
@@ -80,7 +82,7 @@ class SigmarNavbar extends StatelessWidget {
 
           if (esEscritorio) const SizedBox(width: 20),
 
-          // BOTÓN DERECHO (Login o Perfil)
+          // Botón derecho
           if (AppSession.autenticado)
             _MenuPerfil(
               esMovil: !esEscritorio,
@@ -92,18 +94,14 @@ class SigmarNavbar extends StatelessWidget {
           else
             _buildBotonLogin(context),
 
-          // MENÚ MÓVIL (Las 3 baritas)
+          // Menú hamburguesa móvil
           if (!esEscritorio) ...[
             const SizedBox(width: 10),
             PopupMenuButton<String>(
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 200),
               color: kBgCard,
-              icon: const Icon(
-                Icons.menu,
-                color: kGold,
-                size: 28,
-              ), // Color Oro para que se note
+              icon: const Icon(Icons.menu, color: kGold, size: 28),
               onSelected: (v) => Navigator.pushReplacementNamed(context, v),
               itemBuilder: (_) => _todos
                   .map(
@@ -134,10 +132,10 @@ class SigmarNavbar extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 'assets/images/logo.jpg',
-                width: 38, // Un poco más pequeño para ganar espacio
+                width: 38,
                 height: 38,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildPlaceholderLogo(),
+                errorBuilder: (_, _, _) => _buildPlaceholderLogo(),
               ),
             ),
             const SizedBox(width: 10),
@@ -205,7 +203,7 @@ class SigmarNavbar extends StatelessWidget {
   }
 }
 
-// --- Soporte para los otros widgets internos ---
+// ─── Modelos y widgets internos ───────────────────────────────────────────────
 
 class _Item {
   final String label, ruta;
@@ -261,16 +259,21 @@ class _MenuPerfil extends StatelessWidget {
   final VoidCallback onCerrar;
   const _MenuPerfil({required this.esMovil, required this.onCerrar});
 
+  /// Color distintivo por rol (coincide con los roles de la BD)
   Color get _c {
     switch (AppSession.rol) {
       case 'miembro':
-        return const Color(0xFF1D9E75);
+        return const Color(0xFF1D9E75); // verde
       case 'lider':
-        return const Color(0xFF378ADD);
+        return const Color(0xFF378ADD); // azul
       case 'pastor':
-        return const Color(0xFFBA7517);
+        return const Color(0xFFBA7517); // naranja dorado
+      case 'finanzas':
+        return const Color(0xFF4CAF50); // verde claro
+      case 'admin':
+        return const Color(0xFF7F77DD); // morado
       default:
-        return const Color(0xFF7F77DD);
+        return const Color(0xFF888888); // gris
     }
   }
 
@@ -279,6 +282,7 @@ class _MenuPerfil extends StatelessWidget {
     final ini = AppSession.nombre.isNotEmpty
         ? AppSession.nombre[0].toUpperCase()
         : 'U';
+
     return PopupMenuButton<String>(
       color: kBgCard,
       offset: const Offset(0, 48),

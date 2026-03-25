@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:ui_web' as ui_web;
+import 'dart:html' as html;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
 import '../../../../shared/widgets/sigmar_footer.dart';
@@ -11,11 +15,35 @@ void _abrir(String url) async {
   }
 }
 
+// Coordenadas de la Iglesia Luz y Vida — El Alto, La Paz, Bolivia
+const _kMapSrc =
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.1!2d-68.185!3d-16.502!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sIglesia+Luz+y+Vida+El+Alto!5e0!3m2!1ses!2sbo!4v1';
+
+// Registro del iframe (web) — se llama una sola vez
+bool _mapaRegistrado = false;
+void _registrarMapa() {
+  if (!kIsWeb || _mapaRegistrado) return;
+  _mapaRegistrado = true;
+  // ignore: undefined_prefixed_name
+  ui_web.platformViewRegistry.registerViewFactory('mapa-luz-vida', (
+    int viewId,
+  ) {
+    final iframe = html.IFrameElement()
+      ..src = _kMapSrc
+      ..style.border = 'none'
+      ..style.width = '100%'
+      ..style.height = '100%'
+      ..allowFullscreen = true;
+    return iframe;
+  });
+}
+
 class SobreScreen extends StatelessWidget {
   const SobreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    _registrarMapa();
     final movil = MediaQuery.of(context).size.width < 800;
     return Scaffold(
       backgroundColor: kBg,
@@ -43,6 +71,8 @@ class SobreScreen extends StatelessWidget {
     );
   }
 }
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 
 class _HeroSobre extends StatelessWidget {
   const _HeroSobre();
@@ -92,6 +122,8 @@ class _HeroSobre extends StatelessWidget {
   }
 }
 
+// ─── Historia ─────────────────────────────────────────────────────────────────
+
 class _SeccionHistoria extends StatelessWidget {
   final bool movil;
   const _SeccionHistoria({required this.movil});
@@ -106,11 +138,11 @@ class _SeccionHistoria extends StatelessWidget {
           const _TituloSeccion('NUESTRA HISTORIA'),
           const SizedBox(height: 40),
           movil
-              ? Column(
+              ? const Column(
                   children: [
-                    const _FotoIglesia(),
-                    const SizedBox(height: 32),
-                    const _TextoHistoria(),
+                    _FotoIglesia(),
+                    SizedBox(height: 32),
+                    _TextoHistoria(),
                   ],
                 )
               : const Row(
@@ -138,7 +170,7 @@ class _FotoIglesia extends StatelessWidget {
         fit: BoxFit.cover,
         height: 320,
         width: double.infinity,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           height: 320,
           decoration: BoxDecoration(
             color: kBgCard,
@@ -205,6 +237,8 @@ class _TextoHistoria extends StatelessWidget {
     );
   }
 }
+
+// ─── Visión y Misión ──────────────────────────────────────────────────────────
 
 class _SeccionVisionMision extends StatelessWidget {
   final bool movil;
@@ -301,6 +335,8 @@ class _VMCard extends StatelessWidget {
     ),
   );
 }
+
+// ─── Línea de tiempo ──────────────────────────────────────────────────────────
 
 class _SeccionLineasTiempo extends StatelessWidget {
   const _SeccionLineasTiempo();
@@ -413,6 +449,8 @@ class _HitoItem extends StatelessWidget {
   );
 }
 
+// ─── Pastores ─────────────────────────────────────────────────────────────────
+
 class _PastorInfo {
   final String nombre, rol, desc, foto;
   const _PastorInfo(this.nombre, this.rol, this.desc, this.foto);
@@ -500,7 +538,7 @@ class _PastorCard extends StatelessWidget {
             width: 90,
             height: 90,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 90,
               height: 90,
               decoration: BoxDecoration(
@@ -549,6 +587,8 @@ class _PastorCard extends StatelessWidget {
     ),
   );
 }
+
+// ─── Valores ──────────────────────────────────────────────────────────────────
 
 class _SeccionValores extends StatelessWidget {
   final bool movil;
@@ -673,6 +713,8 @@ class _ValCard extends StatelessWidget {
   );
 }
 
+// ─── Ubicación ────────────────────────────────────────────────────────────────
+
 class _SeccionUbicacion extends StatelessWidget {
   final bool movil;
   const _SeccionUbicacion({required this.movil});
@@ -687,14 +729,15 @@ class _SeccionUbicacion extends StatelessWidget {
           const _TituloSeccion('ENCUÉNTRANOS'),
           const SizedBox(height: 40),
           movil
-              ? Column(
+              ? const Column(
                   children: [
-                    const _InfoContacto(),
-                    const SizedBox(height: 28),
-                    const _MapaWidget(),
+                    _InfoContacto(),
+                    SizedBox(height: 28),
+                    _MapaWidget(),
                   ],
                 )
               : const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: _InfoContacto()),
                     SizedBox(width: 40),
@@ -801,134 +844,152 @@ class _ContactoItem extends StatelessWidget {
   );
 }
 
-// Mapa simple sin google_maps_flutter (evita dependencia problemática en web)
+// ─── Mapa con iframe real (web) o fallback (móvil/desktop nativo) ─────────────
+
 class _MapaWidget extends StatelessWidget {
   const _MapaWidget();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _abrir('https://maps.app.goo.gl/Ak5iU2Ca3M7LjrnGA'),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          height: 260,
-          decoration: BoxDecoration(
-            color: kBgCard,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: kGold.withValues(alpha: 0.3)),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Fondo con gradiente simulando mapa
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [const Color(0xFF1a2a1a), const Color(0xFF0d1a0d)],
-                  ),
-                ),
-              ),
-              // Cuadrícula de calles simulada
-              CustomPaint(painter: _MapGridPainter()),
-              // Contenido central
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: kGold.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: kGold.withValues(alpha: 0.5),
-                          width: 2,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.location_on,
-                        color: kGold,
-                        size: 36,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Iglesia Luz y Vida',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'El Alto, La Paz, Bolivia',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: kGold,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.map_outlined,
-                            color: Colors.black,
-                            size: 14,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'VER EN GOOGLE MAPS',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 11,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      // En nativo el tap abre Maps; en web el iframe es interactivo solo
+      onTap: kIsWeb
+          ? null
+          : () => _abrir('https://maps.app.goo.gl/Ak5iU2Ca3M7LjrnGA'),
+      child: Container(
+        height: 320,
+        decoration: BoxDecoration(
+          color: kBgCard,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: kGold.withValues(alpha: 0.3)),
         ),
+        clipBehavior: Clip.antiAlias,
+        child: kIsWeb ? _MapaIframe() : _MapaFallback(),
       ),
     );
   }
 }
 
-class _MapGridPainter extends CustomPainter {
+/// Web — iframe real de Google Maps
+class _MapaIframe extends StatelessWidget {
+  _MapaIframe();
+
+  @override
+  Widget build(BuildContext context) {
+    return const HtmlElementView(viewType: 'mapa-luz-vida');
+  }
+}
+
+/// Nativo (Android / Linux desktop) — diseño visual con botón para abrir Maps
+class _MapaFallback extends StatelessWidget {
+  const _MapaFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Fondo
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF1a2a1a), Color(0xFF0d1a0d)],
+            ),
+          ),
+        ),
+        // Cuadrícula
+        CustomPaint(painter: _GridPainter()),
+        // Contenido
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: kGold.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: kGold.withValues(alpha: 0.5),
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(Icons.location_on, color: kGold, size: 38),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                'Iglesia Luz y Vida',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'El Alto, La Paz, Bolivia',
+                style: TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () =>
+                    _abrir('https://maps.app.goo.gl/Ak5iU2Ca3M7LjrnGA'),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: kGold,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.map_outlined, color: Colors.black, size: 15),
+                      SizedBox(width: 6),
+                      Text(
+                        'VER EN GOOGLE MAPS',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final p = Paint()
       ..color = Colors.green.withValues(alpha: 0.08)
       ..strokeWidth = 1;
-
     for (double x = 0; x < size.width; x += 40) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
     }
     for (double y = 0; y < size.height; y += 40) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), p);
     }
   }
 
   @override
   bool shouldRepaint(_) => false;
 }
+
+// ─── Título de sección ────────────────────────────────────────────────────────
 
 class _TituloSeccion extends StatelessWidget {
   final String texto;
