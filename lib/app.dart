@@ -12,9 +12,10 @@ import 'features/admin/presentation/screens/admin_grupos_screen.dart';
 import 'features/admin/presentation/screens/admin_cursos_screen.dart';
 import 'features/admin/presentation/screens/admin_usuarios_screen.dart';
 import 'features/admin/presentation/screens/admin_aportes_screen.dart';
+import 'features/admin/presentation/screens/admin_ministerios_screen.dart';
 import 'features/admin/presentation/screens/perfil_screen.dart';
 
-// ✅ PASTOR / MIEMBRO (Importados desde el archivo que centraliza los módulos)
+// ✅ PASTOR / MIEMBRO / LÍDER
 import 'features/miembro/presentation/screens/miembro_screens.dart';
 
 class SigmarApp extends StatelessWidget {
@@ -27,7 +28,7 @@ class SigmarApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: kBg, //
+        scaffoldBackgroundColor: kBg,
         colorScheme: const ColorScheme.dark(
           primary: kGold,
           secondary: kGoldLight,
@@ -42,13 +43,13 @@ class SigmarApp extends StatelessWidget {
         '/login': (_) => const LoginScreen(),
 
         // --- RUTAS DE ADMIN ---
-        // Definimos '/admin' como el panel de usuarios por defecto
         '/admin': (_) => const AdminUsuariosScreen(),
         '/admin/usuarios': (_) => const AdminUsuariosScreen(),
         '/admin/miembros': (_) => const AdminMiembrosScreen(),
         '/admin/grupos': (_) => const AdminGruposScreen(),
         '/admin/cursos': (_) => const AdminCursosScreen(),
         '/admin/aportes': (_) => const AdminAportesScreen(),
+        '/admin/ministerios': (_) => const AdminMinisteriosScreen(),
 
         // --- RUTAS DE PASTOR ---
         '/pastor': (_) => const ReportesScreen(),
