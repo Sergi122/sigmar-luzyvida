@@ -30,7 +30,6 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     if (_esEdicion) {
       _emailCtrl.text = widget.usuarioParaEditar!['email'] ?? '';
       _rolSeleccionado = widget.usuarioParaEditar!['rol'];
-      // ✅ miembro_id en nueva schema
       _miembroId = widget.usuarioParaEditar!['miembro_id'] as int?;
     }
     _cargarMiembros();
@@ -55,39 +54,59 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
     }
   }
 
+  // ✅ ÚNICO MÉTODO CAMBIADO — usa Edge Function
   Future<void> _guardar() async {
-    if (_emailCtrl.text.isEmpty) {
+    if (_emailCtrl.text.trim().isEmpty) {
       _mostrarError('El email es obligatorio');
       return;
     }
-    if (!_esEdicion && _passCtrl.text.trim().isEmpty) {
-      _mostrarError('La contraseña es obligatoria');
+    if (!_esEdicion && _passCtrl.text.trim().length < 6) {
+      _mostrarError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
+    if (_rolSeleccionado == null) {
+      _mostrarError('Selecciona un rol');
+      return;
+    }
+
     setState(() => _cargando = true);
+
     try {
       if (!_esEdicion) {
-        // ✅ nueva schema: email, contrasena (campo adicional), rol, activo, miembro_id
-        await _sb.from('usuarios').insert({
-          'email': _emailCtrl.text.trim(),
-          'contrasena': _passCtrl.text.trim(),
-          'rol': _rolSeleccionado ?? 'miembro',
-          'activo': true,
-          if (_miembroId != null) 'miembro_id': _miembroId,
-        });
+        // ✅ Edge Function — no cierra la sesión del admin
+        final response = await _sb.functions.invoke(
+          'crear-usuario',
+          body: {
+            'email': _emailCtrl.text.trim(),
+            'password': _passCtrl.text.trim(),
+            'rol': _rolSeleccionado,
+            if (_miembroId != null) 'miembro_id': _miembroId,
+          },
+        );
+
+        if (response.status != 200) {
+          final data = response.data;
+          final msg = (data is Map && data['error'] != null)
+              ? data['error'].toString()
+              : 'Error al crear el usuario.';
+          _mostrarError(msg);
+          return;
+        }
       } else {
-        final updates = <String, dynamic>{'rol': _rolSeleccionado ?? 'miembro'};
-        if (_passCtrl.text.isNotEmpty)
-          updates['contrasena'] = _passCtrl.text.trim();
-        if (_miembroId != null) updates['miembro_id'] = _miembroId;
+        // ✅ Edición: solo actualiza rol y miembro vinculado
+        final updates = <String, dynamic>{
+          'rol': _rolSeleccionado,
+          if (_miembroId != null) 'miembro_id': _miembroId,
+        };
         await _sb
             .from('usuarios')
             .update(updates)
             .eq('id', widget.usuarioParaEditar!['id']);
       }
+
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      _mostrarError('Error: $e');
+      _mostrarError('Error inesperado: $e');
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -164,7 +183,8 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                // Vincular miembro
+
+                // ── Vincular miembro ─────────────────────────────
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
@@ -205,6 +225,8 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // ── Email ────────────────────────────────────────
                 TextField(
                   controller: _emailCtrl,
                   enabled: !_esEdicion,
@@ -212,27 +234,36 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   decoration: _deco('Email', Icons.email_outlined),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _passCtrl,
-                  obscureText: !_verPass,
-                  style: const TextStyle(color: kWhite),
-                  decoration:
-                      _deco(
-                        _esEdicion
-                            ? 'Nueva contraseña (opcional)'
-                            : 'Contraseña',
-                        Icons.lock_outline,
-                      ).copyWith(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _verPass ? Icons.visibility_off : Icons.visibility,
-                            color: kGrey,
+
+                // ── Contraseña (solo creación) ───────────────────
+                if (!_esEdicion) ...[
+                  TextField(
+                    controller: _passCtrl,
+                    obscureText: !_verPass,
+                    style: const TextStyle(color: kWhite),
+                    decoration: _deco('Contraseña', Icons.lock_outline)
+                        .copyWith(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _verPass
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: kGrey,
+                            ),
+                            onPressed: () =>
+                                setState(() => _verPass = !_verPass),
                           ),
-                          onPressed: () => setState(() => _verPass = !_verPass),
                         ),
-                      ),
-                ),
-                const SizedBox(height: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'La contraseña se cambia desde el panel de Supabase.',
+                    style: TextStyle(color: kGrey, fontSize: 11),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // ── Rol ──────────────────────────────────────────
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
@@ -251,18 +282,31 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                       ),
                       style: const TextStyle(color: kWhite, fontSize: 14),
                       onChanged: (v) => setState(() => _rolSeleccionado = v),
-                      items: ['admin', 'pastor', 'lider', 'miembro']
-                          .map(
-                            (r) => DropdownMenuItem(
-                              value: r,
-                              child: Text(r.toUpperCase()),
-                            ),
-                          )
-                          .toList(),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'admin',
+                          child: Text('ADMINISTRADOR'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'pastor',
+                          child: Text('PASTOR'),
+                        ),
+                        DropdownMenuItem(value: 'lider', child: Text('LÍDER')),
+                        DropdownMenuItem(
+                          value: 'miembro',
+                          child: Text('MIEMBRO'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'finanzas',
+                          child: Text('FINANZAS'),
+                        ),
+                      ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // ── Botón guardar ────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   height: 48,
@@ -285,11 +329,13 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                             ),
                           )
                         : Text(
-                            _esEdicion ? 'ACTUALIZAR' : 'REGISTRAR',
+                            _esEdicion ? 'ACTUALIZAR' : 'CREAR USUARIO',
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
+
+                // ── Activar / Desactivar ─────────────────────────
                 if (_esEdicion) ...[
                   const SizedBox(height: 12),
                   SizedBox(
