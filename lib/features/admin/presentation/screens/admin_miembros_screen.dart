@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
@@ -78,9 +80,27 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
       ),
     );
     if (ok != true) return;
+    // Eliminar foto del storage si existe
+    final fotoUrl = m['foto_url'] as String?;
+    if (fotoUrl != null && fotoUrl.isNotEmpty) {
+      try {
+        final path = _extractStoragePath(fotoUrl);
+        if (path != null) {
+          await _sb.storage.from('fotos-miembros').remove([path]);
+        }
+      } catch (_) {}
+    }
     await _sb.from('miembros').delete().eq('id', m['id']);
     _msg('Miembro eliminado');
     _cargar();
+  }
+
+  String? _extractStoragePath(String url) {
+    // Extrae el path relativo del bucket desde la URL pública de Supabase
+    final marker = '/fotos-miembros/';
+    final idx = url.indexOf(marker);
+    if (idx == -1) return null;
+    return url.substring(idx + marker.length);
   }
 
   void _abrirFormulario({Map<String, dynamic>? miembro}) async {
@@ -124,7 +144,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Gestion de Miembros',
+                          'Gestión de Miembros',
                           style: TextStyle(
                             color: kWhite,
                             fontSize: 18,
@@ -183,7 +203,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Gestion de Miembros',
+                          'Gestión de Miembros',
                           style: TextStyle(
                             color: kWhite,
                             fontSize: 24,
@@ -294,6 +314,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   }
 }
 
+// ── Buscador ──────────────────────────────────────────
 class _Buscador extends StatelessWidget {
   final ValueChanged<String> onChanged;
   const _Buscador({required this.onChanged});
@@ -324,6 +345,7 @@ class _Buscador extends StatelessWidget {
   );
 }
 
+// ── Filtro Estado ──────────────────────────────────────
 class _FiltroEstado extends StatelessWidget {
   final String valor;
   final ValueChanged<String> onChanged;
@@ -353,6 +375,7 @@ class _FiltroEstado extends StatelessWidget {
   );
 }
 
+// ── Tarjeta Miembro ────────────────────────────────────
 class _TarjetaMiembro extends StatefulWidget {
   final Map<String, dynamic> miembro;
   final VoidCallback onEditar, onEstado, onEliminar;
@@ -373,6 +396,8 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
     final m = widget.miembro;
     final activo = m['estado'] == 'activo';
     final inicial = (m['nombre'] ?? 'M')[0].toUpperCase();
+    final fotoUrl = m['foto_url'] as String?;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _h = true),
       onExit: (_) => setState(() => _h = false),
@@ -399,15 +424,32 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                     color: _kColor.withValues(alpha: 0.15),
                     border: Border.all(color: _kColor.withValues(alpha: 0.4)),
                   ),
-                  child: Center(
-                    child: Text(
-                      inicial,
-                      style: const TextStyle(
-                        color: _kColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
+                  child: ClipOval(
+                    child: fotoUrl != null && fotoUrl.isNotEmpty
+                        ? Image.network(
+                            fotoUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Center(
+                              child: Text(
+                                inicial,
+                                style: const TextStyle(
+                                  color: _kColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              inicial,
+                              style: const TextStyle(
+                                color: _kColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
                   ),
                 ),
                 Positioned(
@@ -444,14 +486,14 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       const Icon(Icons.badge_outlined, color: kGrey, size: 12),
                       const SizedBox(width: 4),
                       Text(
-                        m['carnet'] ?? '',
+                        m['carnet'] ?? '-',
                         style: const TextStyle(color: kGrey, fontSize: 12),
                       ),
                       const SizedBox(width: 12),
                       const Icon(Icons.phone_outlined, color: kGrey, size: 12),
                       const SizedBox(width: 4),
                       Text(
-                        '${m['telefono'] ?? ''}',
+                        '${m['telefono'] ?? '-'}',
                         style: const TextStyle(color: kGrey, fontSize: 12),
                       ),
                     ],
@@ -528,6 +570,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
   }
 }
 
+// ── Empty State ────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final String busqueda;
   const _EmptyState({required this.busqueda});
@@ -555,7 +598,9 @@ class _EmptyState extends StatelessWidget {
   );
 }
 
-// ── Formulario ────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  FORMULARIO MIEMBRO
+// ══════════════════════════════════════════════════════
 class _FormMiembro extends StatefulWidget {
   final Map<String, dynamic>? miembro;
   const _FormMiembro({this.miembro});
@@ -564,15 +609,26 @@ class _FormMiembro extends StatefulWidget {
 }
 
 class _FormMiembroState extends State<_FormMiembro> {
+  // Controladores
   final _nombreCtrl = TextEditingController();
-  final _edadCtrl = TextEditingController();
   final _carnetCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
+  final _fechaNacCtrl = TextEditingController();
   final _fechaConvCtrl = TextEditingController();
+
+  // Campos booleanos
   bool _bautizado = false;
   bool _encuentro = false;
+
+  // Estado
   String _estado = 'activo';
+
+  // Foto
+  Uint8List? _nuevaFotoBytes;
+  String? _fotoUrlActual;
+  bool _subiendoFoto = false;
+
   bool _guardando = false;
   String? _error;
 
@@ -584,15 +640,15 @@ class _FormMiembroState extends State<_FormMiembro> {
     if (_esEdicion) {
       final m = widget.miembro!;
       _nombreCtrl.text = m['nombre'] ?? '';
-      _edadCtrl.text = '${m['edad'] ?? ''}';
       _carnetCtrl.text = m['carnet'] ?? '';
       _telefonoCtrl.text = '${m['telefono'] ?? ''}';
       _direccionCtrl.text = m['direccion'] ?? '';
-      // ✅ nueva columna snake_case
+      _fechaNacCtrl.text = m['fecha_nacimiento'] ?? '';
       _fechaConvCtrl.text = m['fecha_conversion'] ?? '';
       _bautizado = m['bautizado'] ?? false;
       _encuentro = m['asistio_encuentro'] ?? false;
       _estado = m['estado'] ?? 'activo';
+      _fotoUrlActual = m['foto_url'];
     } else {
       _fechaConvCtrl.text = DateTime.now().toIso8601String().substring(0, 10);
     }
@@ -601,14 +657,56 @@ class _FormMiembroState extends State<_FormMiembro> {
   @override
   void dispose() {
     _nombreCtrl.dispose();
-    _edadCtrl.dispose();
     _carnetCtrl.dispose();
     _telefonoCtrl.dispose();
     _direccionCtrl.dispose();
+    _fechaNacCtrl.dispose();
     _fechaConvCtrl.dispose();
     super.dispose();
   }
 
+  // ── Selección de foto ──────────────────────────────
+  Future<void> _seleccionarFoto() async {
+    final picker = ImagePicker();
+    final xfile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 600,
+      maxHeight: 600,
+      imageQuality: 85,
+    );
+    if (xfile == null) return;
+    final bytes = await xfile.readAsBytes();
+    setState(() => _nuevaFotoBytes = bytes);
+  }
+
+  // ── Subida de foto al Storage ──────────────────────
+  Future<String?> _subirFoto(int miembroId) async {
+    if (_nuevaFotoBytes == null) return _fotoUrlActual;
+    setState(() => _subiendoFoto = true);
+    try {
+      final path =
+          'miembro_$miembroId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await _sb.storage
+          .from('fotos-miembros')
+          .uploadBinary(
+            path,
+            _nuevaFotoBytes!,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
+      final url = _sb.storage.from('fotos-miembros').getPublicUrl(path);
+      return url;
+    } catch (e) {
+      setState(() => _error = 'Error subiendo foto: $e');
+      return _fotoUrlActual;
+    } finally {
+      setState(() => _subiendoFoto = false);
+    }
+  }
+
+  // ── Guardar miembro ────────────────────────────────
   Future<void> _guardar() async {
     if (_nombreCtrl.text.trim().isEmpty || _carnetCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Nombre y carnet son obligatorios.');
@@ -618,26 +716,34 @@ class _FormMiembroState extends State<_FormMiembro> {
       _guardando = true;
       _error = null;
     });
-    // ✅ snake_case en todos los campos
-    final datos = {
-      'nombre': _nombreCtrl.text.trim(),
-      'edad': int.tryParse(_edadCtrl.text.trim()) ?? 0,
-      'carnet': _carnetCtrl.text.trim(),
-      'telefono': _telefonoCtrl.text.trim(),
-      'direccion': _direccionCtrl.text.trim(),
-      'fecha_conversion': _fechaConvCtrl.text.trim(),
-      'bautizado': _bautizado,
-      'asistio_encuentro': _encuentro,
-      'estado': _estado,
-    };
+
     try {
       if (_esEdicion) {
+        // Primero subir foto si hay nueva
+        final fotoUrl = await _subirFoto(widget.miembro!['id'] as int);
+        final datos = _buildDatos(fotoUrl: fotoUrl);
         await _sb
             .from('miembros')
             .update(datos)
             .eq('id', widget.miembro!['id']);
       } else {
-        await _sb.from('miembros').insert(datos);
+        // Insertar sin foto, luego subir foto con el ID obtenido
+        final datos = _buildDatos();
+        final inserted = await _sb
+            .from('miembros')
+            .insert(datos)
+            .select('id')
+            .single();
+        final nuevoId = inserted['id'] as int;
+        if (_nuevaFotoBytes != null) {
+          final fotoUrl = await _subirFoto(nuevoId);
+          if (fotoUrl != null) {
+            await _sb
+                .from('miembros')
+                .update({'foto_url': fotoUrl})
+                .eq('id', nuevoId);
+          }
+        }
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -648,18 +754,36 @@ class _FormMiembroState extends State<_FormMiembro> {
     }
   }
 
+  Map<String, dynamic> _buildDatos({String? fotoUrl}) => {
+    'nombre': _nombreCtrl.text.trim(),
+    'carnet': _carnetCtrl.text.trim(),
+    'telefono': _telefonoCtrl.text.trim(),
+    'direccion': _direccionCtrl.text.trim(),
+    'fecha_nacimiento': _fechaNacCtrl.text.trim().isEmpty
+        ? null
+        : _fechaNacCtrl.text.trim(),
+    'fecha_conversion': _fechaConvCtrl.text.trim().isEmpty
+        ? null
+        : _fechaConvCtrl.text.trim(),
+    'bautizado': _bautizado,
+    'asistio_encuentro': _encuentro,
+    'estado': _estado,
+    if (fotoUrl != null) 'foto_url': fotoUrl,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 560,
+        width: 580,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          maxHeight: MediaQuery.of(context).size.height * 0.88,
         ),
         child: Column(
           children: [
+            // ── Header ──
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
@@ -701,13 +825,29 @@ class _FormMiembroState extends State<_FormMiembro> {
                 ],
               ),
             ),
+            // ── Body scrollable ──
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Sec('DATOS PERSONALES'),
+                    // ── Foto de perfil ──
+                    _SecLabel('FOTO DE PERFIL'),
+                    const SizedBox(height: 12),
+                    _FotoSelector(
+                      fotoUrlActual: _fotoUrlActual,
+                      nuevaFotoBytes: _nuevaFotoBytes,
+                      onSeleccionar: _seleccionarFoto,
+                      onEliminar: () => setState(() {
+                        _nuevaFotoBytes = null;
+                        _fotoUrlActual = null;
+                      }),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Datos personales ──
+                    _SecLabel('DATOS PERSONALES'),
                     const SizedBox(height: 12),
                     _Campo(
                       'Nombre completo *',
@@ -727,20 +867,13 @@ class _FormMiembroState extends State<_FormMiembro> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _Campo(
-                            'Edad',
-                            _edadCtrl,
-                            Icons.cake_outlined,
-                            tipo: TextInputType.number,
+                            'Teléfono',
+                            _telefonoCtrl,
+                            Icons.phone_outlined,
+                            tipo: TextInputType.phone,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 12),
-                    _Campo(
-                      'Teléfono',
-                      _telefonoCtrl,
-                      Icons.phone_outlined,
-                      tipo: TextInputType.phone,
                     ),
                     const SizedBox(height: 12),
                     _Campo(
@@ -748,8 +881,16 @@ class _FormMiembroState extends State<_FormMiembro> {
                       _direccionCtrl,
                       Icons.location_on_outlined,
                     ),
+                    const SizedBox(height: 12),
+                    _Campo(
+                      'Fecha de nacimiento (AAAA-MM-DD)',
+                      _fechaNacCtrl,
+                      Icons.cake_outlined,
+                    ),
                     const SizedBox(height: 20),
-                    _Sec('DATOS ESPIRITUALES'),
+
+                    // ── Datos espirituales ──
+                    _SecLabel('DATOS ESPIRITUALES'),
                     const SizedBox(height: 12),
                     _Campo(
                       'Fecha de conversión (AAAA-MM-DD)',
@@ -777,7 +918,9 @@ class _FormMiembroState extends State<_FormMiembro> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    _Sec('ESTADO'),
+
+                    // ── Estado ──
+                    _SecLabel('ESTADO'),
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -810,6 +953,8 @@ class _FormMiembroState extends State<_FormMiembro> {
                         ),
                       ),
                     ),
+
+                    // ── Error ──
                     if (_error != null) ...[
                       const SizedBox(height: 14),
                       Container(
@@ -846,6 +991,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                 ),
               ),
             ),
+            // ── Footer ──
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -872,7 +1018,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: _guardando ? null : _guardar,
+                    onPressed: (_guardando || _subiendoFoto) ? null : _guardar,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _kColor,
                       foregroundColor: Colors.white,
@@ -885,7 +1031,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                       ),
                       elevation: 0,
                     ),
-                    child: _guardando
+                    child: (_guardando || _subiendoFoto)
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -911,9 +1057,112 @@ class _FormMiembroState extends State<_FormMiembro> {
   }
 }
 
-class _Sec extends StatelessWidget {
+// ══════════════════════════════════════════════════════
+//  WIDGET SELECTOR DE FOTO
+// ══════════════════════════════════════════════════════
+class _FotoSelector extends StatelessWidget {
+  final String? fotoUrlActual;
+  final Uint8List? nuevaFotoBytes;
+  final VoidCallback onSeleccionar;
+  final VoidCallback onEliminar;
+
+  const _FotoSelector({
+    required this.fotoUrlActual,
+    required this.nuevaFotoBytes,
+    required this.onSeleccionar,
+    required this.onEliminar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tieneNueva = nuevaFotoBytes != null;
+    final tieneActual = fotoUrlActual != null && fotoUrlActual!.isNotEmpty;
+    final tieneFoto = tieneNueva || tieneActual;
+
+    return Row(
+      children: [
+        // Vista previa
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _kColor.withValues(alpha: 0.1),
+            border: Border.all(
+              color: tieneFoto ? _kColor.withValues(alpha: 0.5) : kDivider,
+              width: 2,
+            ),
+          ),
+          child: ClipOval(
+            child: tieneNueva
+                ? Image.memory(nuevaFotoBytes!, fit: BoxFit.cover)
+                : tieneActual
+                ? Image.network(
+                    fotoUrlActual!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.person_outline,
+                      color: _kColor,
+                      size: 36,
+                    ),
+                  )
+                : const Icon(Icons.person_outline, color: _kColor, size: 36),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ElevatedButton.icon(
+              onPressed: onSeleccionar,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _kColor.withValues(alpha: 0.15),
+                foregroundColor: _kColor,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: _kColor.withValues(alpha: 0.3)),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+              ),
+              icon: const Icon(Icons.upload_outlined, size: 16),
+              label: Text(
+                tieneFoto ? 'Cambiar foto' : 'Subir foto',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (tieneFoto) ...[
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: onEliminar,
+                child: const Text(
+                  'Eliminar foto',
+                  style: TextStyle(color: kDanger, fontSize: 12),
+                ),
+              ),
+            ],
+            const SizedBox(height: 6),
+            const Text(
+              'JPG o PNG. Máx. 2MB.',
+              style: TextStyle(color: kGrey, fontSize: 11),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+// ── Widgets de apoyo ───────────────────────────────────
+class _SecLabel extends StatelessWidget {
   final String t;
-  const _Sec(this.t);
+  const _SecLabel(this.t);
   @override
   Widget build(BuildContext context) => Text(
     t,
@@ -985,7 +1234,7 @@ class _Sw extends StatelessWidget {
         Switch(
           value: valor,
           onChanged: onChanged,
-          activeColor: _kColor,
+          activeThumbColor: _kColor,
           activeTrackColor: _kColor.withValues(alpha: 0.3),
         ),
       ],

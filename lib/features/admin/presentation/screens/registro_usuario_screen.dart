@@ -194,7 +194,9 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
-                      value: _miembroId,
+                      value: _miembros.any((m) => m['id'] == _miembroId)
+                          ? _miembroId
+                          : null,
                       isExpanded: true,
                       dropdownColor: kBgMid,
                       hint: const Text(

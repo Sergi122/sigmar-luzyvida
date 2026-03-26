@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
@@ -17,16 +19,22 @@ class _PerfilScreenState extends State<PerfilScreen> {
   bool _cargando = true;
   bool _editando = false;
   bool _guardando = false;
+  bool _subiendoFoto = false;
   String? _error;
 
+  // Controladores
   final _nombreCtrl = TextEditingController();
-  final _edadCtrl = TextEditingController();
   final _carnetCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
+  final _fechaNacCtrl = TextEditingController();
   final _fechaConvCtrl = TextEditingController();
   bool _bautizado = false;
   bool _encuentro = false;
+
+  // Foto
+  Uint8List? _nuevaFotoBytes;
+  String? _fotoUrlActual;
 
   @override
   void initState() {
@@ -37,10 +45,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
   @override
   void dispose() {
     _nombreCtrl.dispose();
-    _edadCtrl.dispose();
     _carnetCtrl.dispose();
     _telefonoCtrl.dispose();
     _direccionCtrl.dispose();
+    _fechaNacCtrl.dispose();
     _fechaConvCtrl.dispose();
     super.dispose();
   }
@@ -48,7 +56,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      // ✅ usar miembro_id de AppSession en lugar de idUsuario
       final miembroId = AppSession.miembroId;
       if (miembroId == null) {
         setState(() => _cargando = false);
@@ -71,14 +78,55 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
   void _llenar(Map<String, dynamic> m) {
     _nombreCtrl.text = m['nombre'] ?? '';
-    _edadCtrl.text = '${m['edad'] ?? ''}';
     _carnetCtrl.text = m['carnet'] ?? '';
     _telefonoCtrl.text = '${m['telefono'] ?? ''}';
     _direccionCtrl.text = m['direccion'] ?? '';
-    // ✅ snake_case
+    _fechaNacCtrl.text = m['fecha_nacimiento'] ?? '';
     _fechaConvCtrl.text = m['fecha_conversion'] ?? '';
     _bautizado = m['bautizado'] ?? false;
     _encuentro = m['asistio_encuentro'] ?? false;
+    _fotoUrlActual = m['foto_url'];
+    _nuevaFotoBytes = null;
+  }
+
+  // ── Selección de foto ──────────────────────────────
+  Future<void> _seleccionarFoto() async {
+    final picker = ImagePicker();
+    final xfile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 600,
+      maxHeight: 600,
+      imageQuality: 85,
+    );
+    if (xfile == null) return;
+    final bytes = await xfile.readAsBytes();
+    setState(() => _nuevaFotoBytes = bytes);
+  }
+
+  // ── Subida de foto al Storage ──────────────────────
+  Future<String?> _subirFoto() async {
+    if (_nuevaFotoBytes == null) return _fotoUrlActual;
+    setState(() => _subiendoFoto = true);
+    try {
+      final id = _miembro!['id'] as int;
+      final path = 'miembro_$id/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await _sb.storage
+          .from('fotos-miembros')
+          .uploadBinary(
+            path,
+            _nuevaFotoBytes!,
+            fileOptions: const FileOptions(
+              contentType: 'image/jpeg',
+              upsert: true,
+            ),
+          );
+      return _sb.storage.from('fotos-miembros').getPublicUrl(path);
+    } catch (e) {
+      setState(() => _error = 'Error subiendo foto: $e');
+      return _fotoUrlActual;
+    } finally {
+      setState(() => _subiendoFoto = false);
+    }
   }
 
   Future<void> _guardar() async {
@@ -91,16 +139,25 @@ class _PerfilScreenState extends State<PerfilScreen> {
       _error = null;
     });
     try {
-      // ✅ snake_case
+      // Si eliminó la foto y no hay nueva, foto_url = null
+      final fotoUrl = _nuevaFotoBytes != null
+          ? await _subirFoto()
+          : _fotoUrlActual; // null si la eliminó
+
       final datos = {
         'nombre': _nombreCtrl.text.trim(),
-        'edad': int.tryParse(_edadCtrl.text.trim()) ?? 0,
         'carnet': _carnetCtrl.text.trim(),
         'telefono': _telefonoCtrl.text.trim(),
         'direccion': _direccionCtrl.text.trim(),
-        'fecha_conversion': _fechaConvCtrl.text.trim(),
+        'fecha_nacimiento': _fechaNacCtrl.text.trim().isEmpty
+            ? null
+            : _fechaNacCtrl.text.trim(),
+        'fecha_conversion': _fechaConvCtrl.text.trim().isEmpty
+            ? null
+            : _fechaConvCtrl.text.trim(),
         'bautizado': _bautizado,
         'asistio_encuentro': _encuentro,
+        'foto_url': fotoUrl,
       };
       await _sb.from('miembros').update(datos).eq('id', _miembro!['id']);
       AppSession.miembro?['nombre'] = _nombreCtrl.text.trim();
@@ -108,13 +165,14 @@ class _PerfilScreenState extends State<PerfilScreen> {
         _guardando = false;
         _editando = false;
       });
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Perfil actualizado'),
             backgroundColor: kSuccess,
           ),
         );
+      }
       _cargar();
     } catch (e) {
       setState(() {
@@ -136,6 +194,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Header ──
                   Row(
                     children: [
                       Container(
@@ -208,6 +267,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                   const SizedBox(height: 8),
                   Container(width: 50, height: 3, color: kGold),
                   const SizedBox(height: 24),
+
                   if (_miembro == null)
                     Container(
                       padding: const EdgeInsets.all(20),
@@ -233,17 +293,24 @@ class _PerfilScreenState extends State<PerfilScreen> {
                     _FormEditar(
                       movil: movil,
                       nombreCtrl: _nombreCtrl,
-                      edadCtrl: _edadCtrl,
                       carnetCtrl: _carnetCtrl,
                       telefonoCtrl: _telefonoCtrl,
                       direccionCtrl: _direccionCtrl,
+                      fechaNacCtrl: _fechaNacCtrl,
                       fechaConvCtrl: _fechaConvCtrl,
                       bautizado: _bautizado,
                       encuentro: _encuentro,
                       onBautizado: (v) => setState(() => _bautizado = v),
                       onEncuentro: (v) => setState(() => _encuentro = v),
+                      fotoUrlActual: _fotoUrlActual,
+                      nuevaFotoBytes: _nuevaFotoBytes,
+                      onSeleccionarFoto: _seleccionarFoto,
+                      onEliminarFoto: () => setState(() {
+                        _nuevaFotoBytes = null;
+                        _fotoUrlActual = null;
+                      }),
                       error: _error,
-                      guardando: _guardando,
+                      guardando: _guardando || _subiendoFoto,
                       onGuardar: _guardar,
                     )
                   else
@@ -255,6 +322,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
   }
 }
 
+// ══════════════════════════════════════════════════════
+//  VISTA SOLO LECTURA
+// ══════════════════════════════════════════════════════
 class _VistaInfo extends StatelessWidget {
   final Map<String, dynamic> miembro;
   const _VistaInfo({required this.miembro});
@@ -262,14 +332,17 @@ class _VistaInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inicial = (miembro['nombre'] ?? 'M')[0].toUpperCase();
+    final fotoUrl = miembro['foto_url'] as String?;
+
     return Column(
       children: [
         Center(
           child: Column(
             children: [
+              // Avatar con foto
               Container(
-                width: 80,
-                height: 80,
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: kGold.withValues(alpha: 0.15),
@@ -278,15 +351,32 @@ class _VistaInfo extends StatelessWidget {
                     width: 2,
                   ),
                 ),
-                child: Center(
-                  child: Text(
-                    inicial,
-                    style: const TextStyle(
-                      color: kGold,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                child: ClipOval(
+                  child: fotoUrl != null && fotoUrl.isNotEmpty
+                      ? Image.network(
+                          fotoUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Text(
+                              inicial,
+                              style: const TextStyle(
+                                color: kGold,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            inicial,
+                            style: const TextStyle(
+                              color: kGold,
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -324,11 +414,6 @@ class _VistaInfo extends StatelessWidget {
           children: [
             _InfoCard('Carnet', miembro['carnet'] ?? '-', Icons.badge_outlined),
             _InfoCard(
-              'Edad',
-              '${miembro['edad'] ?? '-'} años',
-              Icons.cake_outlined,
-            ),
-            _InfoCard(
               'Teléfono',
               '${miembro['telefono'] ?? '-'}',
               Icons.phone_outlined,
@@ -338,7 +423,11 @@ class _VistaInfo extends StatelessWidget {
               miembro['direccion'] ?? '-',
               Icons.location_on_outlined,
             ),
-            // ✅ snake_case
+            _InfoCard(
+              'Fecha Nacimiento',
+              miembro['fecha_nacimiento'] ?? '-',
+              Icons.cake_outlined,
+            ),
             _InfoCard(
               'Fecha Conversión',
               miembro['fecha_conversion'] ?? '-',
@@ -351,7 +440,6 @@ class _VistaInfo extends StatelessWidget {
           children: [
             _Badge('Bautizado', miembro['bautizado'] == true),
             const SizedBox(width: 12),
-            // ✅ asistio_encuentro
             _Badge('Asistió a Encuentro', miembro['asistio_encuentro'] == true),
           ],
         ),
@@ -438,16 +526,25 @@ class _Badge extends StatelessWidget {
   );
 }
 
+// ══════════════════════════════════════════════════════
+//  FORMULARIO DE EDICIÓN (PERFIL)
+// ══════════════════════════════════════════════════════
 class _FormEditar extends StatelessWidget {
   final bool movil;
   final TextEditingController nombreCtrl,
-      edadCtrl,
       carnetCtrl,
       telefonoCtrl,
       direccionCtrl,
+      fechaNacCtrl,
       fechaConvCtrl;
   final bool bautizado, encuentro;
   final ValueChanged<bool> onBautizado, onEncuentro;
+  // Foto
+  final String? fotoUrlActual;
+  final Uint8List? nuevaFotoBytes;
+  final VoidCallback onSeleccionarFoto;
+  final VoidCallback onEliminarFoto;
+  // Estado
   final String? error;
   final bool guardando;
   final VoidCallback onGuardar;
@@ -455,15 +552,19 @@ class _FormEditar extends StatelessWidget {
   const _FormEditar({
     required this.movil,
     required this.nombreCtrl,
-    required this.edadCtrl,
     required this.carnetCtrl,
     required this.telefonoCtrl,
     required this.direccionCtrl,
+    required this.fechaNacCtrl,
     required this.fechaConvCtrl,
     required this.bautizado,
     required this.encuentro,
     required this.onBautizado,
     required this.onEncuentro,
+    required this.fotoUrlActual,
+    required this.nuevaFotoBytes,
+    required this.onSeleccionarFoto,
+    required this.onEliminarFoto,
     required this.error,
     required this.guardando,
     required this.onGuardar,
@@ -474,6 +575,21 @@ class _FormEditar extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── Foto ──
+        const Text(
+          'FOTO DE PERFIL',
+          style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
+        ),
+        const SizedBox(height: 14),
+        _FotoSelectorPerfil(
+          fotoUrlActual: fotoUrlActual,
+          nuevaFotoBytes: nuevaFotoBytes,
+          onSeleccionar: onSeleccionarFoto,
+          onEliminar: onEliminarFoto,
+        ),
+        const SizedBox(height: 20),
+
+        // ── Datos personales ──
         const Text(
           'DATOS PERSONALES',
           style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
@@ -487,10 +603,10 @@ class _FormEditar extends StatelessWidget {
                   _campo('Carnet', carnetCtrl, Icons.badge_outlined),
                   const SizedBox(height: 12),
                   _campo(
-                    'Edad',
-                    edadCtrl,
-                    Icons.cake_outlined,
-                    tipo: TextInputType.number,
+                    'Teléfono',
+                    telefonoCtrl,
+                    Icons.phone_outlined,
+                    tipo: TextInputType.phone,
                   ),
                 ],
               )
@@ -502,24 +618,25 @@ class _FormEditar extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _campo(
-                      'Edad',
-                      edadCtrl,
-                      Icons.cake_outlined,
-                      tipo: TextInputType.number,
+                      'Teléfono',
+                      telefonoCtrl,
+                      Icons.phone_outlined,
+                      tipo: TextInputType.phone,
                     ),
                   ),
                 ],
               ),
         const SizedBox(height: 12),
-        _campo(
-          'Teléfono',
-          telefonoCtrl,
-          Icons.phone_outlined,
-          tipo: TextInputType.phone,
-        ),
-        const SizedBox(height: 12),
         _campo('Dirección', direccionCtrl, Icons.location_on_outlined),
+        const SizedBox(height: 12),
+        _campo(
+          'Fecha de nacimiento (AAAA-MM-DD)',
+          fechaNacCtrl,
+          Icons.cake_outlined,
+        ),
         const SizedBox(height: 20),
+
+        // ── Datos espirituales ──
         const Text(
           'DATOS ESPIRITUALES',
           style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
@@ -548,6 +665,8 @@ class _FormEditar extends StatelessWidget {
                   ),
                 ],
               ),
+
+        // ── Error ──
         if (error != null) ...[
           const SizedBox(height: 14),
           Container(
@@ -645,10 +764,109 @@ class _FormEditar extends StatelessWidget {
             Switch(
               value: valor,
               onChanged: onChanged,
-              activeColor: kGold,
+              activeThumbColor: kGold,
               activeTrackColor: kGold.withValues(alpha: 0.3),
             ),
           ],
         ),
       );
+}
+
+// ── Selector de foto para perfil ──────────────────────
+class _FotoSelectorPerfil extends StatelessWidget {
+  final String? fotoUrlActual;
+  final Uint8List? nuevaFotoBytes;
+  final VoidCallback onSeleccionar;
+  final VoidCallback onEliminar;
+
+  const _FotoSelectorPerfil({
+    required this.fotoUrlActual,
+    required this.nuevaFotoBytes,
+    required this.onSeleccionar,
+    required this.onEliminar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tieneNueva = nuevaFotoBytes != null;
+    final tieneActual = fotoUrlActual != null && fotoUrlActual!.isNotEmpty;
+    final tieneFoto = tieneNueva || tieneActual;
+
+    return Row(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: kGold.withValues(alpha: 0.1),
+            border: Border.all(
+              color: tieneFoto ? kGold.withValues(alpha: 0.5) : kDivider,
+              width: 2,
+            ),
+          ),
+          child: ClipOval(
+            child: tieneNueva
+                ? Image.memory(nuevaFotoBytes!, fit: BoxFit.cover)
+                : tieneActual
+                ? Image.network(
+                    fotoUrlActual!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.person_outline,
+                      color: kGold,
+                      size: 36,
+                    ),
+                  )
+                : const Icon(Icons.person_outline, color: kGold, size: 36),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ElevatedButton.icon(
+              onPressed: onSeleccionar,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kGold.withValues(alpha: 0.12),
+                foregroundColor: kGold,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: kGold.withValues(alpha: 0.3)),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+              ),
+              icon: const Icon(Icons.upload_outlined, size: 16),
+              label: Text(
+                tieneFoto ? 'Cambiar foto' : 'Subir foto',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (tieneFoto) ...[
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: onEliminar,
+                child: const Text(
+                  'Eliminar foto',
+                  style: TextStyle(color: kDanger, fontSize: 12),
+                ),
+              ),
+            ],
+            const SizedBox(height: 6),
+            const Text(
+              'JPG o PNG. Máx. 2MB.',
+              style: TextStyle(color: kGrey, fontSize: 11),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
