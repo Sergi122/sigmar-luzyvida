@@ -616,11 +616,20 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
               itemCount: _filtrados.length,
               itemBuilder: (_, i) {
                 final fila = _filtrados[i];
-                final m = fila['miembros'] as Map;
-                final nombre = m['nombre'] as String? ?? '';
+                // PROTECCIÓN: Si Supabase oculta al miembro por RLS, esto será null
+                final datosRaw = fila['miembros'];
+
+                if (datosRaw == null) return const SizedBox.shrink();
+
+                // Extraemos el mapa (venga como Lista o Mapa)
+                final Map m = (datosRaw is List) ? datosRaw.first : datosRaw;
+
+                final nombre = m['nombre'] as String? ?? 'Sin nombre';
                 final telefono = m['telefono'] as String? ?? '';
                 final bautizado = m['bautizado'] as bool? ?? false;
+
                 return Container(
+                  // ... (aquí sigue tu diseño del Row)
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -827,12 +836,21 @@ class _TabAsistencia extends StatelessWidget {
             child: ListView.builder(
               itemCount: miembros.length,
               itemBuilder: (_, i) {
-                final m = miembros[i]['miembros'] as Map;
+                final fila =
+                    miembros[i]; // Aquí la variable se llama 'miembros'
+                final datosRaw = fila['miembros'];
+
+                // PROTECCIÓN: Si el miembro es null, no dibujamos la fila para evitar error
+                if (datosRaw == null) return const SizedBox.shrink();
+
+                final Map m = (datosRaw is List) ? datosRaw.first : datosRaw;
+
                 final idMiembro = m['id'] as int;
                 final nombre = m['nombre'] as String? ?? '';
                 final estaPresente = presente(idMiembro);
 
                 return Container(
+                  // ... (aquí sigue tu diseño del checkbox)
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
