@@ -873,10 +873,11 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
       setState(() => _miembroAAgregar = null);
       _cargar();
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: kDanger),
         );
+      }
     }
   }
 

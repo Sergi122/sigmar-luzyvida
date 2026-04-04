@@ -191,7 +191,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: _kColor.withOpacity(0.12),
+                    color: _kColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
@@ -407,8 +407,8 @@ class _TarjetaCurso extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _estadoColor.withOpacity(0.12),
-              border: Border.all(color: _estadoColor.withOpacity(0.4)),
+              color: _estadoColor.withValues(alpha: 0.12),
+              border: Border.all(color: _estadoColor.withValues(alpha: 0.4)),
             ),
             child: Center(
               child: Text(
@@ -768,7 +768,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: _kColor.withOpacity(0.15),
+                      color: _kColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -823,7 +823,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                               color: kBgCard,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: _kColor.withOpacity(0.3),
+                                color: _kColor.withValues(alpha: 0.3),
                               ),
                             ),
                             child: Column(
@@ -925,10 +925,10 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: kDanger.withOpacity(0.1),
+                                      color: kDanger.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: kDanger.withOpacity(0.3),
+                                        color: kDanger.withValues(alpha: 0.3),
                                       ),
                                     ),
                                     child: Row(
@@ -1008,7 +1008,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                       height: 34,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: color.withOpacity(0.12),
+                                        color: color.withValues(alpha: 0.12),
                                       ),
                                       child: Center(
                                         child: Text(
@@ -1052,10 +1052,10 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                         vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: color.withOpacity(0.1),
+                                        color: color.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(4),
                                         border: Border.all(
-                                          color: color.withOpacity(0.3),
+                                          color: color.withValues(alpha: 0.3),
                                         ),
                                       ),
                                       child: Text(
@@ -1236,7 +1236,7 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: kGold.withOpacity(0.15),
+                    color: kGold.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -1271,9 +1271,9 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kGold.withOpacity(0.06),
+                color: kGold.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: kGold.withOpacity(0.2)),
+                border: Border.all(color: kGold.withValues(alpha: 0.2)),
               ),
               child: const Text(
                 'El curso seguirá activo para nuevas inscripciones.\n'
@@ -1427,7 +1427,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: kGold.withOpacity(0.15),
+                      color: kGold.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.history, color: kGold, size: 18),
@@ -1491,7 +1491,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                         color: kBgCard,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isOpen ? kGold.withOpacity(0.4) : kDivider,
+                          color: isOpen ? kGold.withValues(alpha: 0.4) : kDivider,
                         ),
                       ),
                       child: Column(
@@ -1512,7 +1512,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: kGold.withOpacity(0.12),
+                                      color: kGold.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Icon(
@@ -1667,7 +1667,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                                     vertical: 2,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: color.withOpacity(0.1),
+                                                color: color.withValues(alpha: 0.1),
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -1932,7 +1932,7 @@ class _FormCursoState extends State<_FormCurso> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: _kColor.withOpacity(0.15),
+                      color: _kColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
@@ -2165,9 +2165,9 @@ class _FormCursoState extends State<_FormCurso> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: kDanger.withOpacity(0.1),
+                          color: kDanger.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: kDanger.withOpacity(0.3)),
+                          border: Border.all(color: kDanger.withValues(alpha: 0.3)),
                         ),
                         child: Text(
                           _error!,
@@ -2258,7 +2258,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: kGrey.withOpacity(0.4), size: 36),
+          Icon(icon, color: kGrey.withValues(alpha: 0.4), size: 36),
           const SizedBox(height: 10),
           Text(mensaje, style: const TextStyle(color: kGrey)),
         ],
@@ -2275,9 +2275,9 @@ class _BadgeEstado extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(4),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Text(
       estado.toUpperCase(),
@@ -2420,7 +2420,7 @@ class _Sw extends StatelessWidget {
           value: valor,
           onChanged: onChanged,
           activeThumbColor: _kColor,
-          activeTrackColor: _kColor.withOpacity(0.3),
+          activeTrackColor: _kColor.withValues(alpha: 0.3),
         ),
       ],
     ),

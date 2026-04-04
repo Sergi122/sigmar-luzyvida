@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
 import 'core/constants/app_colors.dart';
 
-// Pantallas Base
 import 'features/home/presentation/screens/inicio_screen.dart';
 import 'features/sobre/presentation/screens/sobre_screen.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 
-// ✅ ADMIN
-import 'features/admin/presentation/screens/admin_miembros_screen.dart';
-import 'features/admin/presentation/screens/admin_grupos_screen.dart';
-import 'features/admin/presentation/screens/admin_cursos_screen.dart';
-import 'features/admin/presentation/screens/admin_usuarios_screen.dart';
-import 'features/admin/presentation/screens/admin_aportes_screen.dart';
-import 'features/admin/presentation/screens/admin_ministerios_screen.dart';
-import 'features/admin/presentation/screens/perfil_screen.dart';
-
-// ✅ PASTOR / MIEMBRO / LÍDER
 import 'features/miembro/presentation/screens/miembro_screens.dart';
+import 'features/admin/presentation/screens/admin_screens.dart';
+import 'features/pastor/presentation/screens/pastor_screens.dart';
 
 class SigmarApp extends StatelessWidget {
   const SigmarApp({super.key});
@@ -37,32 +28,29 @@ class SigmarApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        // --- RUTAS PÚBLICAS ---
         '/': (_) => const InicioScreen(),
         '/sobre': (_) => const SobreScreen(),
         '/login': (_) => const LoginScreen(),
 
-        // --- RUTAS DE ADMIN ---
-        '/admin': (_) => const AdminUsuariosScreen(),
-        '/admin/usuarios': (_) => const AdminUsuariosScreen(),
-        '/admin/miembros': (_) => const AdminMiembrosScreen(),
-        '/admin/grupos': (_) => const AdminGruposScreen(),
-        '/admin/cursos': (_) => const AdminCursosScreen(),
-        '/admin/aportes': (_) => const AdminAportesScreen(),
-        '/admin/ministerios': (_) => const AdminMinisteriosScreen(),
+        '/admin': (_) => AdminUsuariosScreen(),
+        '/admin/usuarios': (_) => AdminUsuariosScreen(),
+        '/admin/miembros': (_) => AdminMiembrosScreen(),
+        '/admin/grupos': (_) => AdminGruposScreen(),
+        '/admin/cursos': (_) => AdminCursosScreen(),
+        '/admin/aportes': (_) => AdminAportesScreen(),
+        '/admin/ministerios': (_) => AdminMinisteriosScreen(),
+        '/perfil': (_) => PerfilScreen(),
 
-        // --- RUTAS DE PASTOR ---
-        '/pastor': (_) => const ReportesScreen(),
-        '/pastor/reportes': (_) => const ReportesScreen(),
-        '/pastor/guias': (_) => const GuiasScreen(),
+        '/pastor': (_) => PastorMiembrosScreen(),
+        '/pastor/miembros': (_) => PastorMiembrosScreen(),
+        '/pastor/grupos': (_) => PastorGruposScreen(),
+        '/pastor/cursos': (_) => PastorCursosScreen(),
+        '/pastor/asistencia': (_) => PastorAsistenciaScreen(),
+        '/pastor/aportes': (_) => PastorAportesScreen(),
 
-        // --- RUTAS DE MIEMBRO / LÍDER ---
-        '/miembro': (_) => const InscripcionScreen(),
-        '/miembro/inscripcion': (_) => const InscripcionScreen(),
-        '/lider/grupo': (_) => const MiGrupoScreen(),
-
-        // --- GENERAL ---
-        '/perfil': (_) => const PerfilScreen(),
+        '/miembro': (_) => InscripcionScreen(),
+        '/miembro/inscripcion': (_) => InscripcionScreen(),
+        '/lider/grupo': (_) => MiGrupoScreen(),
       },
     );
   }

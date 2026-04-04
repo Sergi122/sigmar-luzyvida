@@ -9,6 +9,7 @@ export 'admin_cursos_screen.dart';
 export 'admin_usuarios_screen.dart';
 export 'registro_usuario_screen.dart';
 export 'admin_aportes_screen.dart';
+export 'admin_ministerios_screen.dart';
 export 'perfil_screen.dart';
 export '../../../lider/presentation/screens/lider_screens.dart';
 
