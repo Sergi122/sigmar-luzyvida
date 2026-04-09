@@ -24,7 +24,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
   int? _grupoSeleccionado;
   bool _cargando = true;
   bool _cargandoAsistencia = false;
-  int _menuActivo = 3;
+  final int _menuActivo = 3;
 
   // Filtro por fecha
   DateTime? _fechaSeleccionada;

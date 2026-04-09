@@ -1,0 +1,765 @@
+================================================================================
+                    SIGMAR - SISTEMA DE GESTIÓN IGLESIA LUZ Y VIDA
+                              Resumen Completo del Proyecto
+================================================================================
+
+Fecha del reporte: 2026-04-07
+Total de archivos .dart: 29
+Líneas totales estimadas: ~18,000
+
+================================================================================
+                                   ÍNDICE
+================================================================================
+
+1. Estructura del Proyecto
+2. Archivos Root (lib/)
+3. Core (lib/core/)
+4. Shared Widgets (lib/shared/widgets/)
+5. Features por Módulo
+6. Base de Datos (Tablas inferidas)
+7. Paquetes y Dependencias
+8. Características Técnicas
+
+================================================================================
+                        1. ESTRUCTURA DEL PROYECTO
+================================================================================
+
+lib/
+├── main.dart
+├── app.dart
+├── core/
+│   ├── session.dart
+│   └── constants/
+│       └── app_colors.dart
+├── shared/
+│   └── widgets/
+│       ├── sigmar_page.dart
+│       ├── dashboard_shell.dart
+│       ├── sigmar_navbar.dart
+│       └── sigmar_footer.dart
+└── features/
+    ├── auth/
+    │   └── presentation/
+    │       └── screens/
+    │           └── login_screen.dart
+    ├── home/
+    │   └── presentation/
+    │       └── screens/
+    │           └── inicio_screen.dart
+    ├── sobre/
+    │   └── presentation/
+    │       └── screens/
+    │           └── sobre_screen.dart
+    ├── miembro/
+    │   └── presentation/
+    │       └── screens/
+    │           └── miembro_screens.dart
+    ├── lider/
+    │   └── presentation/
+    │       └── screens/
+    │           ├── lider_screens.dart
+    │           └── mi_grupo_screen.dart
+    ├── pastor/
+    │   └── presentation/
+    │       └── screens/
+    │           ├── pastor_screens.dart
+    │           ├── pastor_miembros_screen.dart
+    │           ├── pastor_grupos_screen.dart
+    │           ├── pastor_cursos_screen.dart
+    │           ├── pastor_asistencia_screen.dart
+    │           └── pastor_aportes_screen.dart
+    └── admin/
+        └── presentation/
+            └── screens/
+                ├── admin_screens.dart
+                ├── admin_usuarios_screen.dart
+                ├── admin_miembros_screen.dart
+                ├── admin_grupos_screen.dart
+                ├── admin_cursos_screen.dart
+                ├── admin_ministerios_screen.dart
+                ├── admin_aportes_screen.dart
+                ├── registro_usuario_screen.dart
+                └── perfil_screen.dart
+
+================================================================================
+                        2. ARCHIVOS ROOT (lib/)
+================================================================================
+
+------------------------------------------------------------------------------
+ARCHIVO: main.dart
+LÍNEAS: 13
+------------------------------------------------------------------------------
+FUNCIONALIDAD:
+- Punto de entrada de la aplicación
+- Inicializa Supabase con:
+  * URL: https://uacxdrzuylhcxkpewzug.supabase.co
+  * AnonKey: sb_publishable_qI7702sYFZuEZZbgQqOlSg_L8zbxHYn
+- Ejecuta SigmarApp como widget raíz
+
+------------------------------------------------------------------------------
+ARCHIVO: app.dart
+LÍNEAS: 58
+------------------------------------------------------------------------------
+FUNCIONALIDAD:
+- Configura MaterialApp con título "SIGMAR — Luz y Vida"
+- Tema oscuro con Material 3
+- Colores principales: kGold (primario), kBgCard (surface)
+- Define 19 rutas de navegación:
+  * Públicas: /, /sobre, /login
+  * Admin: /admin, /admin/usuarios, /admin/miembros, /admin/grupos,
+           /admin/cursos, /admin/aportes, /admin/ministerios, /perfil
+  * Pastor: /pastor, /pastor/miembros, /pastor/grupos, /pastor/cursos,
+            /pastor/asistencia, /pastor/aportes
+  * Miembro: /miembro, /miembro/inscripcion
+  * Líder: /lider/grupo
+
+================================================================================
+                        3. CORE (lib/core/)
+================================================================================
+
+------------------------------------------------------------------------------
+ARCHIVO: session.dart
+LÍNEAS: 16
+------------------------------------------------------------------------------
+CLASE: AppSession (estática)
+PROPIEDADES:
+- usuario: Map<String, dynamic>? - Datos del usuario autenticado
+- miembro: Map<String, dynamic>? - Datos del miembro vinculado
+- autenticado: bool - Getter que verifica si hay usuario
+- rol: String - Getter que retorna rol en minúsculas
+- nombre: String - Getter que retorna nombre del miembro o email
+- miembroId: int? - Getter que retorna ID del miembro
+MÉTODOS:
+- cerrar(): void - Limpia usuario y miembro de la sesión
+
+------------------------------------------------------------------------------
+ARCHIVO: constants/app_colors.dart
+LÍNEAS: 16
+------------------------------------------------------------------------------
+COLORES DEFINIDOS:
+- kBg: #1A1A1A (Fondo principal)
+- kBgMid: #222222 (Fondo intermedio)
+- kBgCard: #2A2A2A (Fondo de cards)
+- kGold: #D4940A (Dorado principal)
+- kGoldLight: #EDB52A (Dorado claro)
+- kGoldDark: #AA7200 (Dorado oscuro)
+- kWhite: #F5F5F5 (Blanco)
+- kGrey: #AAAAAA (Gris)
+- kDivider: #333333 (Divisores)
+- kDanger: #B03A2E (Rojo para errores/eliminar)
+- kSuccess: #1E8449 (Verde para éxitos)
+
+================================================================================
+                    4. SHARED WIDGETS (lib/shared/widgets/)
+================================================================================
+
+------------------------------------------------------------------------------
+ARCHIVO: sigmar_page.dart
+LÍNEAS: 39
+------------------------------------------------------------------------------
+CLASE: SigmarPage (StatelessWidget)
+PROPÓSITO: Layout base para pantallas públicas
+PARÁMETROS:
+- rutaActual: String - Ruta actual para destacar en navbar
+- child: Widget - Contenido de la pantalla
+- mostrarFooter: bool - Si muestra el footer (default: true)
+ESTRUCTURA:
+- Scaffold con backgroundColor: kBg
+- Column con: SigmarNavbar + Expanded(ScrollView(child + footer))
+
+------------------------------------------------------------------------------
+ARCHIVO: dashboard_shell.dart
+LÍNEAS: 502
+------------------------------------------------------------------------------
+CLASE: DashboardShell (StatelessWidget)
+PROPÓSITO: Shell para usuarios autenticados con sidebar/dashboard
+PARÁMETROS:
+- nombreUsuario: String - Nombre para mostrar
+- rol: String - Rol del usuario
+- menuItems: List<MenuItemData> - Items del menú
+- body: Widget - Contenido principal
+- indiceActivo: int - Índice del item activo
+- onMenuTap: ValueChanged<int> - Callback al seleccionar menú
+
+COMPONENTES INTERNOS:
+- _Sidebar (desktop) - Sidebar fijo de 220px con logo, menú, footer usuario
+- _Drawer (móvil) - Drawer hamburguesa con mismo contenido
+- _MenuItem - Item de menú con hover y estado activo
+- _TopBar - Barra superior con logo, rol badge, avatar usuario
+- _SidebarFooter - Footer con avatar, nombre, rol, botón cerrar sesión
+
+COLOR POR ROL:
+- miembro: #1D9E75 (teal)
+- lider: #378ADD (azul)
+- pastor: #BA7517 (ambar)
+- admin: #7F77DD (morado)
+
+------------------------------------------------------------------------------
+ARCHIVO: sigmar_navbar.dart
+LÍNEAS: 364
+------------------------------------------------------------------------------
+CLASE: SigmarNavbar (StatelessWidget)
+PROPÓSITO: Navbar responsive con menú dinámico según rol
+ESTRUCTURA:
+- Logo LUZ Y VIDA con imagen assets/images/logo.jpg
+- Menú desktop: Links horizontales
+- Menú móvil: PopupMenuButton con ícono hamburguesa
+- Botón derecha: Perfil autenticado o "INICIAR SESION"
+
+MENÚ POR ROL:
+- Invitado: INICIO, QUIENES SOMOS
+- miembro: INICIO, QUIENES SOMOS, INSCRIPCION
+- lider: INICIO, QUIENES SOMOS, MI GRUPO
+- pastor: INICIO, QUIENES SOMOS, MIEMBROS, GRUPOS, CURSOS, ASISTENCIA, APORTES
+- finanzas: INICIO, QUIENES SOMOS, DIEZMOS, OFRENDAS
+- admin: INICIO, QUIENES SOMOS, MIEMBROS, GRUPOS, CURSOS, MINISTERIOS, USUARIOS, APORTES
+
+CLASES INTERNAS:
+- _Item: Modelo label/ruta
+- _NavLink: Link de navegación con hover y estado activo
+- _MenuPerfil: Popup de perfil con nombre, rol, opciones perfil/salir
+
+------------------------------------------------------------------------------
+ARCHIVO: sigmar_footer.dart
+LÍNEAS: 376
+------------------------------------------------------------------------------
+CLASE: SigmarFooter (StatelessWidget)
+PROPÓSITO: Footer informativo de la iglesia
+SECCIONES:
+1. Logo Footer: Imagen + "LUZ Y VIDA - Somos Familia" + descripción
+2. Contacto: Dirección (El Alto, La Paz, Bolivia), email, teléfono, website
+3. Horarios: Domingo 9:00 AM, Domingo 5:00 PM, Miércoles 5:00 AM
+4. Redes: Facebook, Instagram, YouTube (con links reales)
+
+FUNCIONALIDAD:
+- url_launcher para abrir links externos
+- Diseño responsive (1 columna móvil, 4 columnas desktop)
+- Copyright: "Derechos Reservados | somosluzyvida.net®"
+- Versión: SIGMAR v1.0
+
+================================================================================
+                    5. FEATURES POR MÓDULO
+================================================================================
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: AUTH (features/auth/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: login_screen.dart (272 líneas)
+FUNCIONALIDAD:
+- Login con email y contraseña usando Supabase Auth
+- Query a tabla 'usuarios' con join a 'miembros'
+- Guarda sesión en AppSession
+- Redirección por rol:
+  * admin → /admin
+  * pastor → /pastor
+  * otros → /
+UI:
+- Desktop: Panel izquierdo con logo grande, panel derecho con formulario
+- Móvil: Solo formulario centrado
+- Toggle ver contraseña
+- Validaciones de campos vacíos
+- Manejo de errores de autenticación
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: HOME (features/home/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: inicio_screen.dart (557 líneas)
+FUNCIONALIDAD:
+- Página principal pública
+SECCIONES:
+1. Hero Section: Imagen fondo, overlay oscuro, título bienvenida, botón "QUIÉNES SOMOS"
+2. Banner Versículo: Juan 1:12 con gradiente dorado
+3. Ministerio Matrimonios: Descripción + slider 2 fotos
+4. Ministerio Jóvenes: Descripción + slider 2 fotos
+5. Ministerio Adultos: Descripción + slider 2 fotos
+6. Ministerio Niños: Descripción + slider 2 fotos
+7. Banner Únete: "¿Tienes el Verdadero Amor de Dios?" + botón
+8. Footer
+
+COMPONENTES:
+- _HeroSection: Hero con imagen y indicators de slide
+- _BannerVersiculo: Versículo bíblico
+- _MinisterioSection: Sección con slider de fotos (4 fotos cíclicas)
+- _SeparadorOndas: CustomPainter con ondas doradas
+- _BannerUnete: Call-to-action final
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: SOBRE (features/sobre/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: sobre_screen.dart (1015 líneas)
+FUNCIONALIDAD:
+- Página "Quiénes Somos" completa
+SECCIONES:
+1. Hero: Gradiente dorado con título "¿QUIÉNES SOMOS?"
+2. Historia:
+   - Fundación: 13 de diciembre de 1987
+   - Fundadores: Pastor Rogelio Calle Chavez y John Felix Apaza Apasa
+   - Primera reunión: Domicilio de hermana Catalina Apasa Apasa
+   - Modelo: Celular "Modelo de los 12" (ganar, consolidar, discipular, enviar)
+3. Visión: "Expandir el reino de Dios desde El Alto..."
+4. Misión: "Somos una Iglesia de la Gran Comisión..."
+5. Línea de Tiempo: 4 hitos (1987, 1990, 2000, 2010)
+6. Pastores: 3 cards (Rogelio Calle, John Felix Apaza, Equipo Pastoral)
+7. Valores: 6 cards (Fe, Familia, Servicio, Amor, Unidad, Discipulado)
+8. Ubicación:
+   - Información de contacto
+   - Google Maps iframe (web) o fallback visual (nativo)
+9. Footer
+
+FEATURES TÉCNICAS:
+- ui_web.platformViewRegistry para iframe en web
+- html.IFrameElement para Google Maps
+- CustomPainter _GridPainter para fondo de mapa fallback
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: MIEMBRO (features/miembro/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: miembro_screens.dart (146 líneas)
+FUNCIONALIDAD:
+- Export de pantallas
+- InscripcionScreen: Placeholder para inscripción a cursos
+- ReportesScreen: Placeholder para reportes
+- GuiasScreen: Placeholder para asignación de guías
+ESTADO: Módulos en desarrollo (solo muestra mensaje)
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: LIDER (features/lider/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: lider_screens.dart (5 líneas)
+- Exporta mi_grupo_screen.dart
+
+ARCHIVO: mi_grupo_screen.dart (~10000 líneas - NO LEÍDO COMPLETO)
+FUNCIONALIDAD (según estructura):
+- Gestión del grupo celular asignado al líder
+- Ver lista de miembros del grupo
+- Tomar asistencia
+- Ver reportes del grupo
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: PASTOR (features/pastor/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: pastor_screens.dart (6 líneas)
+- Exporta 5 pantallas del pastor
+
+ARCHIVO: pastor_miembros_screen.dart (~400 líneas)
+FUNCIONALIDAD:
+- Lista completa de miembros de la iglesia
+- Búsqueda por nombre o carnet
+- Filtro por estado (todos/activo/inactivo)
+- Diálogo de detalle de miembro
+- DashboardShell con menú 5 items
+CAMPOS MOSTRADOS:
+- id, nombre, carnet, telefono, direccion, estado, bautizado,
+  asistio_encuentro, fecha_conversion
+
+ARCHIVO: pastor_grupos_screen.dart (~300 líneas)
+FUNCIONALIDAD:
+- Lista de grupos de la iglesia
+- Búsqueda por nombre
+- Muestra: nombre, líder (join con miembros), lugar, día_semana, hora, estado
+- Clic para ver miembros del grupo
+- DashboardShell con menú 5 items
+
+ARCHIVO: pastor_cursos_screen.dart (~300 líneas)
+FUNCIONALIDAD:
+- Lista de cursos disponibles
+- Búsqueda por nombre
+- Muestra: nombre, guía (join), aula, horas, día_semana, hora, estado
+- Diálogo de inscritos
+- DashboardShell con menú 5 items
+
+ARCHIVO: pastor_asistencia_screen.dart (~1000 líneas)
+FUNCIONALIDAD:
+- Reporte de asistencia por grupo
+- Selector de grupo (dropdown)
+- Filtro por fecha (bottom sheet en móvil, dialog en desktop)
+- Stats: Total, Presentes, Ausentes
+- Gráfico circular (fl_chart) con distribución
+- Lista de últimos 200 registros
+- Exportar PDF con:
+  * Encabezado con nombre grupo y fecha
+  * Stats resumen
+  * Tabla con todos los registros
+DEPENDENCIAS: fl_chart, pdf, printing, intl
+
+ARCHIVO: pastor_aportes_screen.dart (~1000 líneas)
+FUNCIONALIDAD:
+- Reporte de diezmos y ofrendas
+- Tabs: DIEZMOS / OFRENDAS
+- Resumen cards: Total Diezmos, Total Ofrendas, Total General
+- Gráfico línea: Diezmos por mes
+- Gráfico barras: Ofrendas por mes
+- Lista últimos 10 registros
+- Exportar PDF de diezmos y ofrendas
+DEPENDENCIAS: fl_chart, pdf, printing, intl
+
+─────────────────────────────────────────────────────────────────────────────
+MODULE: ADMIN (features/admin/)
+─────────────────────────────────────────────────────────────────────────────
+
+ARCHIVO: admin_screens.dart (146 líneas)
+- Exporta 8 pantallas admin
+- Incluye InscripcionScreen, ReportesScreen, GuiasScreen
+
+ARCHIVO: admin_usuarios_screen.dart (314 líneas)
+FUNCIONALIDAD:
+- CRUD de usuarios del sistema
+- Lista con búsqueda (email o nombre de miembro)
+- Columnas: Avatar, Nombre, Email, Rol badge, Estado badge, Acciones
+- Acciones: Editar, Toggle Activo/Inactivo
+- Botón "Nuevo Usuario" abre registro_usuario_screen.dart
+FEATURES:
+- Join con tabla miembros para obtener nombre
+- Toggle activo usa campo booleano
+- Colores por rol en avatars
+
+ARCHIVO: admin_miembros_screen.dart (~1300 líneas)
+FUNCIONALIDAD:
+- Gestión completa de miembros
+- Lista con búsqueda (nombre/carnet)
+- Filtro estado: todos/activo/inactivo/visita
+- CRUD completo con foto de perfil
+- Subida de fotos a storage 'fotos-miembros'
+- Formulario con secciones:
+  1. Foto de perfil (ImagePicker, upload binary)
+  2. Datos personales (nombre, carnet, teléfono, dirección, fecha nacimiento)
+  3. Datos espirituales (fecha conversión, bautizado, asistio_encuentro)
+  4. Estado (activo/inactivo/visita)
+- Acciones: Editar, Cambiar estado, Eliminar (con confirmación)
+- Eliminar foto del storage al eliminar miembro
+
+ARCHIVO: admin_grupos_screen.dart (~1100 líneas)
+FUNCIONALIDAD:
+- Gestión de grupos celulares
+- Lista con búsqueda por nombre
+- CRUD completo:
+  * Nombre
+  * Lugar de reunión
+  * Día de la semana (dropdown 7 días)
+  * Hora
+  * Líder (dropdown de miembros activos)
+  * Estado (activo/inactivo)
+- Dialog "Ver/Agregar miembros":
+  * Lista miembros actuales del grupo
+  * Dropdown para agregar nuevo miembro
+  * Tabla intermedia: grupo_miembros (id_grupo, id_miembro)
+- Acciones: Editar, Ver miembros, Eliminar
+
+ARCHIVO: admin_cursos_screen.dart (~1000 líneas)
+FUNCIONALIDAD:
+- Gestión de cursos PERMANENTES
+- Lista con búsqueda y filtro estado
+- CRUD completo:
+  * Nombre
+  * Aula
+  * Horas duración
+  * Día de la semana
+  * Hora
+  * Guía (dropdown miembros)
+  * Estado
+  * Precio curso
+  * Precio libro
+- FEATURES AVANZADOS:
+  * "Cerrar período actual": Crea snapshot en periodos_curso
+  * "Ver historial": Muestra períodos anteriores completados
+  * "Gestionar inscritos": Agrega/quita miembros del período ACTIVO
+- Tablas relacionadas:
+  * inscripciones (id_miembro, id_curso, estado, periodo_id)
+  * periodos_curso (id_curso, nombre, fecha_fin, total_inscritos, total_completados)
+
+ARCHIVO: admin_ministerios_screen.dart (~600 líneas)
+FUNCIONALIDAD:
+- Gestión de ministerios
+- Lista con búsqueda
+- CRUD: Nombre, Descripción, Estado
+- Gestión de miembros por ministerio:
+  * Tabla ministerio_miembros (id_ministerio, id_miembro, rol_ministerio)
+  * Roles: líder, miembro, etc.
+- Acciones: Editar, Gestionar miembros, Toggle estado, Eliminar
+
+ARCHIVO: admin_aportes_screen.dart (~700 líneas)
+FUNCIONALIDAD:
+- Gestión de diezmos y ofrendas
+- Tabs: DIEZMOS / OFRENDAS
+DIEZMOS:
+- Registro: Miembro (dropdown), Monto, Fecha, Observación
+- Lista con editar/eliminar
+- Totalizador por fecha
+OFRENDAS:
+- Registro: Tipo, Monto, Fecha, Descripción
+- Lista con eliminar
+- Totalizador por fecha
+- Sin vinculación a miembro (ofrendas generales)
+
+ARCHIVO: registro_usuario_screen.dart (390 líneas)
+FUNCIONALIDAD:
+- Formulario crear/editar usuario
+CAMPOS:
+- Email (solo creación)
+- Contraseña (solo creación, min 6 caracteres)
+- Rol: admin/pastor/lider/miembro/finanzas
+- Vincular miembro (dropdown opcional)
+CREACIÓN:
+- Usa Edge Function 'crear-usuario'
+- No cierra sesión del admin actual
+EDICIÓN:
+- Update directo de rol y miembro_id
+- Opción activar/desactivar usuario
+
+ARCHIVO: perfil_screen.dart (873 líneas)
+FUNCIONALIDAD:
+- Ver y editar perfil propio
+VISTA SOLO LECTURA:
+- Avatar con foto (redonda, inicial si no hay foto)
+- Nombre, estado badge
+- Cards: Carnet, Teléfono, Dirección, Fecha Nacimiento, Fecha Conversión
+- Badges: Bautizado, Asistió a Encuentro
+FORMULARIO EDICIÓN:
+- Foto selector (subir/eliminar)
+- Campos editables: nombre, carnet, teléfono, dirección, fechas
+- Toggles: bautizado, asistio_encuentro
+- Subida de foto a storage 'fotos-miembros'
+- Actualiza AppSession.miembro después de guardar
+
+================================================================================
+                    6. BASE DE DATOS (TABLAS INFERIDAS)
+================================================================================
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: usuarios
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: UUID (PK, Supabase Auth)
+- email: VARCHAR
+- rol: VARCHAR (admin/pastor/lider/miembro/finanzas)
+- miembro_id: INT (FK → miembros.id, nullable)
+- activo: BOOLEAN (default true)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: miembros
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK, auto-increment)
+- nombre: VARCHAR
+- carnet: VARCHAR (nullable)
+- telefono: VARCHAR (nullable)
+- direccion: TEXT (nullable)
+- fecha_nacimiento: DATE (nullable)
+- fecha_conversion: DATE (nullable)
+- bautizado: BOOLEAN (default false)
+- asistio_encuentro: BOOLEAN (default false)
+- estado: VARCHAR (activo/inactivo/visita)
+- foto_url: TEXT (nullable, URL pública de Supabase Storage)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: grupos
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- nombre: VARCHAR
+- lugar: VARCHAR
+- dia_semana: VARCHAR (lunes-martes-miercoles-jueves-viernes-sabado-domingo)
+- hora: VARCHAR
+- id_lider: INT (FK → miembros.id, nullable)
+- estado: VARCHAR (activo/inactivo)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: grupo_miembros
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_grupo: INT (FK → grupos.id)
+- id_miembro: INT (FK → miembros.id)
+- UNIQUE(id_grupo, id_miembro)
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: cursos
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- nombre: VARCHAR
+- aula: VARCHAR
+- horas: INT (nullable)
+- dia_semana: VARCHAR
+- hora: VARCHAR
+- id_guia: INT (FK → miembros.id, nullable)
+- estado: VARCHAR (activo/inactivo)
+- precio_curso: DECIMAL (nullable)
+- precio_libro: DECIMAL (nullable)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: inscripciones
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_miembro: INT (FK → miembros.id)
+- id_curso: INT (FK → cursos.id)
+- estado: VARCHAR (activo/completado/retirado)
+- fecha_inicio: DATE
+- periodo_id: INT (FK → periodos_curso.id, nullable)
+- UNIQUE(id_miembro, id_curso, periodo_id)
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: periodos_curso
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_curso: INT (FK → cursos.id)
+- nombre: VARCHAR (ej: "Marzo 2026", "Período 1-2026")
+- fecha_fin: DATE
+- total_inscritos: INT
+- total_completados: INT
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: ministerios
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- nombre: VARCHAR
+- descripcion: TEXT (nullable)
+- estado: VARCHAR (activo/inactivo)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: ministerio_miembros
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_ministerio: INT (FK → ministerios.id)
+- id_miembro: INT (FK → miembros.id)
+- rol_ministerio: VARCHAR (lider/miembro/coordenador, etc.)
+- UNIQUE(id_ministerio, id_miembro)
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: diezmos
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_miembro: INT (FK → miembros.id)
+- monto: DECIMAL
+- fecha: DATE
+- observacion: TEXT (nullable)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: ofrendas
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- monto: DECIMAL
+- fecha: DATE
+- tipo: VARCHAR (general/construccion/mision, etc.)
+- descripcion: TEXT (nullable)
+- created_at: TIMESTAMP
+
+─────────────────────────────────────────────────────────────────────────────
+TABLA: asistencia
+─────────────────────────────────────────────────────────────────────────────
+COLUMNAS:
+- id: INT (PK)
+- id_grupo: INT (FK → grupos.id)
+- id_miembro: INT (FK → miembros.id)
+- fecha: TIMESTAMP
+- presente: BOOLEAN
+- created_at: TIMESTAMP
+
+================================================================================
+                    7. PAQUETES Y DEPENDENCIAS
+================================================================================
+
+DEPENDENCIAS PRINCIPALES (pubspec.yaml inferido):
+- supabase_flutter: ^2.x.x (Backend BaaS)
+- flutter/material: Incluido en SDK
+- image_picker: ^1.x.x (Seleccionar imágenes de galería)
+- url_launcher: ^6.x.x (Abrir URLs externas)
+- fl_chart: ^0.x.x (Gráficos estadísticos)
+- pdf: ^3.x.x (Generar documentos PDF)
+- printing: ^5.x.x (Imprimir/exportar PDF)
+- intl: ^0.x.x (Internacionalización, formato fechas)
+
+DEPENDENCIAS WEB (solo web):
+- dart:ui_web (platformViewRegistry para iframes)
+- dart:html (IFrameElement para Google Maps)
+
+================================================================================
+                    8. CARACTERÍSTICAS TÉCNICAS
+================================================================================
+
+─────────────────────────────────────────────────────────────────────────────
+ARQUITECTURA
+─────────────────────────────────────────────────────────────────────────────
+- Patrón: Feature-first architecture
+- Organización: features/{modulo}/presentation/screens/
+- Shared: Componentes reutilizables en shared/widgets/
+- Core: Configuración y utilidades en core/
+
+─────────────────────────────────────────────────────────────────────────────
+AUTENTICACIÓN
+─────────────────────────────────────────────────────────────────────────────
+- Supabase Auth con email/password
+- Session estática en AppSession
+- Roles: admin, pastor, lider, miembro, finanzas
+- Edge Function 'crear-usuario' para crear usuarios sin invalidar sesión
+
+─────────────────────────────────────────────────────────────────────────────
+STORAGE
+─────────────────────────────────────────────────────────────────────────────
+- Bucket: 'fotos-miembros'
+- Path pattern: miembro_{id}/{timestamp}.jpg
+- URLs públicas via getPublicUrl()
+- Upload: uploadBinary con FileOptions (contentType, upsert)
+
+─────────────────────────────────────────────────────────────────────────────
+RESPONSIVE DESIGN
+─────────────────────────────────────────────────────────────────────────────
+- Breakpoints:
+  * < 600px: Móvil (1 columna, drawer hamburguesa)
+  * 600-800px: Tablet pequeña
+  * 800-1000px: Tablet grande
+  * > 1000px: Desktop (sidebar fijo, múltiples columnas)
+- MediaQuery.of(context).size.width para detectar breakpoint
+
+─────────────────────────────────────────────────────────────────────────────
+EXPORTACIÓN PDF
+─────────────────────────────────────────────────────────────────────────────
+- Librerías: pdf + printing
+- Formato: A4 con márgenes 40px
+- Componentes:
+  * Header con título, fecha, grupo
+  * Stats cards con totales
+  * Tablas con bordes y filas alternas
+- Método: Printing.layoutPdf() para preview nativo
+
+─────────────────────────────────────────────────────────────────────────────
+GRÁFICOS
+─────────────────────────────────────────────────────────────────────────────
+- Librería: fl_chart
+- Tipos usados:
+  * PieChart: Distribución presentes/ausentes
+  * LineChart: Diezmos por mes (línea curva con área debajo)
+  * BarChart: Ofrendas por mes (barras verticales)
+
+─────────────────────────────────────────────────────────────────────────────
+EDGE FUNCTIONS
+─────────────────────────────────────────────────────────────────────────────
+- Function: 'crear-usuario'
+- Propósito: Crear usuario en Supabase Auth sin cerrar sesión actual
+- Parámetros: email, password, rol, miembro_id (opcional)
+- Retorna: { error?: string } o éxito 200
+
+================================================================================
+                                   FIN DEL REPORTE
+================================================================================
+Generado automáticamente - Proyecto SIGMAR v1.0
+Iglesia Cristiana "Luz y Vida en las Naciones" - El Alto, Bolivia

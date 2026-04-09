@@ -429,7 +429,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                         ? Image.network(
                             fotoUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Center(
+                            errorBuilder: (_, _, _) => Center(
                               child: Text(
                                 inicial,
                                 style: const TextStyle(
@@ -1100,7 +1100,7 @@ class _FotoSelector extends StatelessWidget {
                 ? Image.network(
                     fotoUrlActual!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.person_outline,
                       color: _kColor,
                       size: 36,

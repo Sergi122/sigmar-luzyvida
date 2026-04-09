@@ -19,7 +19,7 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
   bool _cargando = true;
   String _busqueda = '';
   String _filtroEstado = 'todos';
-  int _menuActivo = 0;
+  final int _menuActivo = 0;
 
   final _menuItems = [
     MenuItemData('Miembros', Icons.people_outline),

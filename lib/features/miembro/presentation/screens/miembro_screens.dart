@@ -1,1 +1,1 @@
-export '../../../admin/presentation/screens/admin_screens.dart';
+export 'inscripcion_screen.dart';

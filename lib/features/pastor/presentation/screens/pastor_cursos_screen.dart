@@ -18,7 +18,7 @@ class _PastorCursosScreenState extends State<PastorCursosScreen> {
   List<Map<String, dynamic>> _filtrados = [];
   bool _cargando = true;
   String _busqueda = '';
-  int _menuActivo = 2;
+  final int _menuActivo = 2;
 
   final _menuItems = [
     MenuItemData('Miembros', Icons.people_outline),

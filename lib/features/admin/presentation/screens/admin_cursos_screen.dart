@@ -502,7 +502,7 @@ class _TarjetaCurso extends StatelessWidget {
                             size: 12,
                           ),
                           Text(
-                            'Bs ${(precioCurso as num).toStringAsFixed(2)}',
+                            'Bs ${precioCurso.toStringAsFixed(2)}',
                             style: const TextStyle(color: kGold, fontSize: 11),
                           ),
                           const SizedBox(width: 10),
@@ -516,7 +516,7 @@ class _TarjetaCurso extends StatelessWidget {
                           ),
                           const SizedBox(width: 3),
                           Text(
-                            'Libro: Bs ${(precioLibro as num).toStringAsFixed(2)}',
+                            'Libro: Bs ${precioLibro.toStringAsFixed(2)}',
                             style: const TextStyle(color: kGold, fontSize: 11),
                           ),
                         ],

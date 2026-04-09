@@ -48,8 +48,8 @@ class SigmarApp extends StatelessWidget {
         '/pastor/asistencia': (_) => PastorAsistenciaScreen(),
         '/pastor/aportes': (_) => PastorAportesScreen(),
 
-        '/miembro': (_) => InscripcionScreen(),
-        '/miembro/inscripcion': (_) => InscripcionScreen(),
+        '/miembro': (_) => MiembroInscripcionScreen(),
+        '/miembro/inscripcion': (_) => MiembroInscripcionScreen(),
         '/lider/grupo': (_) => MiGrupoScreen(),
       },
     );

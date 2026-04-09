@@ -235,8 +235,9 @@ class _PerfilScreenState extends State<PerfilScreen> {
                           onPressed: () => setState(() {
                             _editando = !_editando;
                             _error = null;
-                            if (!_editando && _miembro != null)
+                            if (!_editando && _miembro != null) {
                               _llenar(_miembro!);
+                            }
                           }),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _editando ? kBgCard : kGold,
@@ -356,7 +357,7 @@ class _VistaInfo extends StatelessWidget {
                       ? Image.network(
                           fotoUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Center(
+                          errorBuilder: (_, _, _) => Center(
                             child: Text(
                               inicial,
                               style: const TextStyle(
@@ -812,7 +813,7 @@ class _FotoSelectorPerfil extends StatelessWidget {
                 ? Image.network(
                     fotoUrlActual!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (_, _, _) => const Icon(
                       Icons.person_outline,
                       color: kGold,
                       size: 36,

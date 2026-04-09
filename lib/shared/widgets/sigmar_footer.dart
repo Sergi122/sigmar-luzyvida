@@ -4,8 +4,9 @@ import '../../core/constants/app_colors.dart';
 
 void _abrir(String url) async {
   final uri = Uri.parse(url);
-  if (await canLaunchUrl(uri))
+  if (await canLaunchUrl(uri)) {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
 }
 
 class SigmarFooter extends StatelessWidget {
@@ -113,7 +114,7 @@ class _LogoFooter extends StatelessWidget {
                 width: 52,
                 height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 52,
                   height: 52,
                   decoration: const BoxDecoration(
@@ -239,9 +240,12 @@ class _HorariosFooter extends StatelessWidget {
                 children: [
                   Icon(Icons.location_on, color: kGold, size: 13),
                   SizedBox(width: 6),
-                  Text(
-                    '¡Todos son bienvenidos!',
-                    style: TextStyle(color: kGold, fontSize: 12),
+                  Flexible(
+                    child: Text(
+                      '¡Todos son bienvenidos!',
+                      style: TextStyle(color: kGold, fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

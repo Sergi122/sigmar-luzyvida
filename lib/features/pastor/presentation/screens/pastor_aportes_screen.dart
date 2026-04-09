@@ -22,7 +22,7 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
   bool _cargando = true;
-  int _menuActivo = 4;
+  final int _menuActivo = 4;
 
   List<Map<String, dynamic>> _diezmos = [];
   List<Map<String, dynamic>> _ofrendas = [];

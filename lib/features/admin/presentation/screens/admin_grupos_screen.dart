@@ -600,13 +600,13 @@ class _FormGrupoState extends State<_FormGrupo> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _Campo(
+                    _campo(
                       'Nombre del grupo *',
                       _nombreCtrl,
                       Icons.group_outlined,
                     ),
                     const SizedBox(height: 12),
-                    _Campo(
+                    _campo(
                       'Lugar de reunión',
                       _lugarCtrl,
                       Icons.location_on_outlined,
@@ -643,7 +643,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _Campo(
+                    _campo(
                       'Hora (ej: 19:00)',
                       _horaCtrl,
                       Icons.access_time_outlined,
@@ -793,7 +793,7 @@ class _FormGrupoState extends State<_FormGrupo> {
     );
   }
 
-  Widget _Campo(String label, TextEditingController ctrl, IconData icon) =>
+  Widget _campo(String label, TextEditingController ctrl, IconData icon) =>
       TextField(
         controller: ctrl,
         style: const TextStyle(color: kWhite, fontSize: 14),
