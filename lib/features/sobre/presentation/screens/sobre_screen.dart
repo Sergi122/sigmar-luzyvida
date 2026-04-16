@@ -15,9 +15,9 @@ void _abrir(String url) async {
   }
 }
 
-// Coordenadas de la Iglesia Luz y Vida — El Alto, La Paz, Bolivia
+// Coordenadas de Somos Luz y Vida — El Alto, La Paz, Bolivia
 const _kMapSrc =
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3824.1!2d-68.185!3d-16.502!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sIglesia+Luz+y+Vida+El+Alto!5e0!3m2!1ses!2sbo!4v1';
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d961.0!2d-68.2242291!3d-16.5184448!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915edfe356c1f83f%3A0x51c5e49a949e6ad1!2sSomos+Luz+y+Vida!5e0!3m2!1ses!2sbo!4v1';
 
 // Registro del iframe (web) — se llama una sola vez
 bool _mapaRegistrado = false;
