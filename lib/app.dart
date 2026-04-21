@@ -32,8 +32,7 @@ class SigmarApp extends StatelessWidget {
         '/sobre': (_) => const SobreScreen(),
         '/login': (_) => const LoginScreen(),
 
-        '/admin': (_) => AdminUsuariosScreen(),
-        '/admin/usuarios': (_) => AdminUsuariosScreen(),
+        '/admin': (_) => AdminMiembrosScreen(),
         '/admin/miembros': (_) => AdminMiembrosScreen(),
         '/admin/grupos': (_) => AdminGruposScreen(),
         '/admin/cursos': (_) => AdminCursosScreen(),

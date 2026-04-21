@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
@@ -18,7 +19,7 @@ class InicioScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _HeroSection(movil: movil),
+                  _HeroMensajes(movil: movil),
                   _BannerVersiculo(),
                   _MinisterioSection(
                     titulo: 'Matrimonios – Familias',
@@ -31,8 +32,11 @@ class InicioScreen extends StatelessWidget {
                         'hogar, nuestras relaciones, nuestras finanzas, nuestra salud avanza '
                         'de la mano de Dios.',
                     imagenes: const [
-                      'assets/images/hero1.png',
-                      'assets/images/hero2.png',
+                      'assets/images/Familia1.png',
+                      'assets/images/Familia2.png',
+                      'assets/images/Familia3.png',
+                      'assets/images/Familia4.png',
+                      'assets/images/Familia5.png',
                     ],
                     invertido: false,
                     movil: movil,
@@ -47,8 +51,10 @@ class InicioScreen extends StatelessWidget {
                         'lindas amistades y apoyo entre nosotros, así desarrollamos nuestro '
                         'liderazgo para alcanzar nuestras metas en cada área de nuestras vidas.',
                     imagenes: const [
-                      'assets/images/hero3.png',
-                      'assets/images/hero4.png',
+                      'assets/images/Jove1.png',
+                      'assets/images/Jove2.png',
+                      'assets/images/Jove3.png',
+                      'assets/images/Jove4.png',
                     ],
                     invertido: true,
                     movil: movil,
@@ -62,8 +68,10 @@ class InicioScreen extends StatelessWidget {
                         'bajo la guía de la Palabra de Dios sirviendo a la iglesia sin desmayar, '
                         'y siendo buenos consejeros para nuestros jóvenes.',
                     imagenes: const [
-                      'assets/images/hero5.png',
-                      'assets/images/hero1.png',
+                      'assets/images/adul1.png',
+                      'assets/images/adul2.png',
+                      'assets/images/adul3.png',
+                      'assets/images/adul4.png',
                     ],
                     invertido: false,
                     movil: movil,
@@ -78,8 +86,9 @@ class InicioScreen extends StatelessWidget {
                         'de los padres, para que crezcan saludables emocionalmente llenos de '
                         'alegría y bendición de Dios.',
                     imagenes: const [
-                      'assets/images/hero2.png',
-                      'assets/images/hero3.png',
+                      'assets/images/nino1.png',
+                      'assets/images/nino2.png',
+                      'assets/images/nino3.png',
                     ],
                     invertido: true,
                     movil: movil,
@@ -96,24 +105,77 @@ class InicioScreen extends StatelessWidget {
   }
 }
 
-// ── Hero ──────────────────────────────────────────────
-class _HeroSection extends StatelessWidget {
+// ── Hero: imagen fija + mensajes/versículos rotativos ─
+class _HeroMensajes extends StatefulWidget {
   final bool movil;
-  const _HeroSection({required this.movil});
+  const _HeroMensajes({required this.movil});
+
+  @override
+  State<_HeroMensajes> createState() => _HeroMensajesState();
+}
+
+class _HeroMensajesState extends State<_HeroMensajes> {
+  static const _slides = [
+    (
+      titulo: '¡Bienvenido, Te Estábamos Esperando!',
+      sub: '¡Ya somos muchas vidas transformadas por el amor de Dios!',
+    ),
+    (
+      titulo: '"Todo lo puedo en Cristo que me fortalece."',
+      sub: 'Filipenses 4:13 — Ven y descubre lo que Dios tiene para ti.',
+    ),
+    (
+      titulo: '¿Buscas un lugar donde pertenecer?',
+      sub:
+          'Aquí encontrarás familia, amor y el propósito que Dios tiene para tu vida.',
+    ),
+    (
+      titulo:
+          '"Porque donde están dos o tres congregados en mi nombre, allí estoy yo."',
+      sub: 'Mateo 18:20 — Únete a nuestra familia y siéntelo.',
+    ),
+    (
+      titulo: '¡Dios tiene un plan extraordinario para tu vida!',
+      sub: 'Da el primer paso y forma parte de esta gran familia.',
+    ),
+    (
+      titulo: '"El Señor es mi pastor; nada me faltará."',
+      sub: 'Salmos 23:1 — Encuentra descanso y plenitud en Su presencia.',
+    ),
+  ];
+
+  int _actual = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      setState(() => _actual = (_actual + 1) % _slides.length);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final slide = _slides[_actual];
+
     return SizedBox(
       width: double.infinity,
-      height: movil ? 420 : 540,
+      height: widget.movil ? 420 : 540,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Imagen de fondo
+          // ── Imagen fija ──
           Image.asset(
-            'assets/images/hero1.png',
+            'assets/images/equipo_pastoral.png',
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
+            errorBuilder: (_, __, ___) => Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -127,91 +189,115 @@ class _HeroSection extends StatelessWidget {
               ),
             ),
           ),
-          // Overlay oscuro
-          Container(color: Colors.black.withOpacity(0.65)),
-          // Barra dorada superior
+
+          // ── Overlay oscuro ──
+          Container(color: Colors.black.withOpacity(0.62)),
+
+          // ── Barra dorada superior ──
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: Container(height: 5, color: kGold),
           ),
-          // Contenido
+
+          // ── Texto central animado ──
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '¡Bienvenido Te Estábamos Esperando!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: kWhite,
-                      fontSize: movil ? 28 : 48,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '¡Ya Somos Muchas Vidas Transformadas por El Amor de Dios!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: kGrey,
-                      fontSize: movil ? 14 : 18,
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Wrap(
-                    spacing: 14,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () =>
-                            Navigator.pushReplacementNamed(context, '/sobre'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: kGold,
-                          side: const BorderSide(color: kGold),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                          ),
+              padding: const EdgeInsets.symmetric(horizontal: 36),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 700),
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: SlideTransition(
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(0, 0.1),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(parent: anim, curve: Curves.easeOut),
                         ),
-                        child: const Text('QUIÉNES SOMOS'),
-                      ),
-                    ],
+                    child: child,
                   ),
-                ],
+                ),
+                child: Column(
+                  key: ValueKey(_actual),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      slide.titulo,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: kWhite,
+                        fontSize: widget.movil ? 22 : 40,
+                        fontWeight: FontWeight.bold,
+                        height: 1.3,
+                        shadows: const [
+                          Shadow(blurRadius: 10, color: Colors.black87),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Container(width: 60, height: 3, color: kGold),
+                    const SizedBox(height: 18),
+                    Text(
+                      slide.sub,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: kGrey,
+                        fontSize: widget.movil ? 13 : 17,
+                        height: 1.65,
+                      ),
+                    ),
+                    const SizedBox(height: 34),
+                    OutlinedButton(
+                      onPressed: () =>
+                          Navigator.pushReplacementNamed(context, '/sobre'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: kGold,
+                        side: const BorderSide(color: kGold, width: 1.5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      child: const Text(
+                        'QUIÉNES SOMOS',
+                        style: TextStyle(letterSpacing: 1.2),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          // Indicadores
+
+          // ── Indicadores ──
           Positioned(
-            bottom: 20,
+            bottom: 18,
             left: 0,
             right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ...List.generate(
-                  5,
-                  (i) => Container(
+              children: List.generate(
+                _slides.length,
+                (i) => GestureDetector(
+                  onTap: () => setState(() => _actual = i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 350),
                     margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: i == 0 ? 22 : 8,
+                    width: i == _actual ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == 0 ? kGold : kGrey.withOpacity(0.35),
+                      color: i == _actual ? kGold : kGrey.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -254,7 +340,7 @@ class _BannerVersiculo extends StatelessWidget {
   }
 }
 
-// ── Sección ministerio con slider de fotos ─────────────
+// ── Sección ministerio ─────────────────────────────────
 class _MinisterioSection extends StatefulWidget {
   final String titulo, descripcion;
   final List<String> imagenes;
@@ -275,17 +361,13 @@ class _MinisterioSection extends StatefulWidget {
 class _MinisterioSectionState extends State<_MinisterioSection> {
   int _actual = 0;
 
-  void _anterior() {
-    setState(() {
-      _actual = (_actual - 1 + widget.imagenes.length) % widget.imagenes.length;
-    });
-  }
+  void _anterior() => setState(
+    () => _actual =
+        (_actual - 1 + widget.imagenes.length) % widget.imagenes.length,
+  );
 
-  void _siguiente() {
-    setState(() {
-      _actual = (_actual + 1) % widget.imagenes.length;
-    });
-  }
+  void _siguiente() =>
+      setState(() => _actual = (_actual + 1) % widget.imagenes.length);
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +377,6 @@ class _MinisterioSectionState extends State<_MinisterioSection> {
       onAnterior: _anterior,
       onSiguiente: _siguiente,
     );
-
     final texto = _TextoMinisterio(
       titulo: widget.titulo,
       descripcion: widget.descripcion,
@@ -345,31 +426,37 @@ class _SliderFotos extends StatelessWidget {
       children: [
         Stack(
           children: [
-            // Imagen principal
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: AspectRatio(
                 aspectRatio: 4 / 3,
-                child: Image.asset(
-                  imagenes[actual],
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    color: kBgCard,
-                    child: const Center(
-                      child: Icon(Icons.image_outlined, color: kGold, size: 64),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 400),
+                  child: Image.asset(
+                    imagenes[actual],
+                    key: ValueKey(imagenes[actual]),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: kBgCard,
+                      child: const Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          color: kGold,
+                          size: 64,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-            // Botón anterior
             Positioned(
               left: 8,
               top: 0,
               bottom: 0,
               child: Center(child: _BtnSlider(Icons.chevron_left, onAnterior)),
             ),
-            // Botón siguiente
             Positioned(
               right: 8,
               top: 0,
@@ -381,23 +468,21 @@ class _SliderFotos extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        // Indicadores
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...List.generate(
-              imagenes.length,
-              (i) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: i == actual ? 20 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: i == actual ? kGold : kGrey.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+          children: List.generate(
+            imagenes.length,
+            (i) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: i == actual ? 20 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: i == actual ? kGold : kGrey.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(4),
               ),
             ),
-          ],
+          ),
         ),
       ],
     );
@@ -408,6 +493,7 @@ class _BtnSlider extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   const _BtnSlider(this.icon, this.onTap);
+
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
@@ -453,28 +539,26 @@ class _TextoMinisterio extends StatelessWidget {
   }
 }
 
-// ── Separador de ondas ─────────────────────────────────
+// ── Separador ondas ────────────────────────────────────
 class _SeparadorOndas extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(double.infinity, 60),
-      painter: _OndasPainter(),
-    );
-  }
+  Widget build(BuildContext context) => CustomPaint(
+    size: const Size(double.infinity, 60),
+    painter: _OndasPainter(),
+  );
 }
 
 class _OndasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final p1 = Paint()
+    final paint = Paint()
       ..color = kGold.withOpacity(0.2)
       ..style = PaintingStyle.fill;
-    final path1 = Path()
+    final path = Path()
       ..moveTo(0, size.height * 0.3)
       ..quadraticBezierTo(
         size.width * 0.25,
-        size.height * 0.0,
+        0,
         size.width * 0.5,
         size.height * 0.4,
       )
@@ -487,7 +571,7 @@ class _OndasPainter extends CustomPainter {
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
-    canvas.drawPath(path1, p1);
+    canvas.drawPath(path, paint);
   }
 
   @override

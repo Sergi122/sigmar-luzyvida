@@ -15,11 +15,9 @@ void _abrir(String url) async {
   }
 }
 
-// Coordenadas de Somos Luz y Vida — El Alto, La Paz, Bolivia
 const _kMapSrc =
     'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d961.0!2d-68.2242291!3d-16.5184448!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915edfe356c1f83f%3A0x51c5e49a949e6ad1!2sSomos+Luz+y+Vida!5e0!3m2!1ses!2sbo!4v1';
 
-// Registro del iframe (web) — se llama una sola vez
 bool _mapaRegistrado = false;
 void _registrarMapa() {
   if (!kIsWeb || _mapaRegistrado) return;
@@ -170,7 +168,7 @@ class _FotoIglesia extends StatelessWidget {
         fit: BoxFit.cover,
         height: 320,
         width: double.infinity,
-        errorBuilder: (_, _, _) => Container(
+        errorBuilder: (_, __, ___) => Container(
           height: 320,
           decoration: BoxDecoration(
             color: kBgCard,
@@ -202,19 +200,32 @@ class _FotoIglesia extends StatelessWidget {
 
 class _TextoHistoria extends StatelessWidget {
   const _TextoHistoria();
+
   @override
   Widget build(BuildContext context) {
     const parrafos = [
-      'La Congregación Cristiana "Luz y Vida en las Naciones" fue fundada oficialmente el 13 de diciembre de 1987 en la ciudad de El Alto, departamento de La Paz, Bolivia. Sus fundadores, el Pastor Rogelio Calle Chavez y el líder John Felix Apaza Apasa, junto a sus respectivas familias, iniciaron las primeras reuniones en el domicilio de la hermana Catalina Apasa Apasa.',
-      'Desde sus inicios, la congregación se estableció con el propósito de predicar el evangelio de Jesucristo y formar una comunidad basada en principios bíblicos. A lo largo de los años, la iglesia ha desarrollado un enfoque ministerial centrado en la extensión del Reino de Dios, promoviendo la enseñanza de la Palabra bajo fundamentos de fe, confraternidad cristiana y crecimiento espiritual.',
-      'Como estrategia de crecimiento y organización, la iglesia adopta el modelo celular conocido como "Modelo de los 12", estructurado en cuatro etapas: ganar, consolidar, discipular y enviar. Bajo el lema "Luz y Vida, Somos Familia", la congregación enfatiza la familia como base esencial de su estructura espiritual y organizativa.',
+      'Luz y Vida Somos Familia existe porque Dios tiene un Amor Grande para ti, para nuestra ciudad de El Alto, para Bolivia y para las naciones. Somos fruto de ese amor de Dios que un día llegó a nuestras vidas para darnos esperanza y una vida nueva.',
+
+      'En la segunda semana de diciembre de 1987, dos amigos en Cristo — John Apaza y Rogelio Calle — junto a algunos niños, decidieron salir a la Plaza La Paz a predicar el evangelio de Jesucristo. Con una guitarra, un bombo pequeño, un pandero y folletos con la Palabra de Dios, empezaron a predicar con gran decisión de ser usados por el Señor.',
+
+      'En esa primera salida se convirtieron personas que jamás habían escuchado del amor de Dios. Por la tarde visitaron a un enfermo y comenzaron a invitar a las reuniones que se realizaban en una pequeña habitación de 4×4 en la casa de la Hermana Catalina Apaza, invitando también a los estudiantes del colegio Ballivián que quedaba al frente.',
+
+      'Así pasó el tiempo y nuestro Amado Padre Celestial fue añadiendo a la iglesia naciente niños y adolescentes que, sin dinero pero con gran amor a Dios y fe en Jesucristo, proclamaban salvación para sus familias y amigos. El Señor había dado Su promesa: "Este puñado tan pequeño se multiplicará por mil... Yo soy el Señor, yo haré que se realice pronto, a su debido tiempo." Isaías 60:22.',
+
+      'En 1996, el Señor derramó un avivamiento especial sobre aquella pequeña iglesia. Cada mañana, de lunes a viernes en las madrugadas, se reunían a orar e interceder por la salvación de los perdidos y por la ciudad de El Alto. La pasión por evangelizar se manifestó con teatros, mimos, payasos, grupos de coreografía "Nacidos para amar", saliendo a calles y plazas donde Dios abría puertas.',
+
+      'La iglesia también impulsó la obra misionera apoyando a misioneros en diferentes países. La Hermana Judith levantó una obra en la República Checa, cumpliendo así la visión "Luz y Vida en las Naciones". A lo largo de los años hemos pasado por alegrías y victorias, dificultades y tristezas, pero entendemos que nada nos separará del amor de Dios.',
+
+      'El crecimiento nos llevó de la habitación de 4×4 al pasaje Libertad en la zona 16 de Julio, luego a la calle Nery, a la sede de comerciantes en el callejón J. J. Pérez, por una Wally y la Capilla del Seminario Teológico, hasta llegar al Auditorio del CIAB que el Señor preparó para nosotros. Sin embargo, el anhelo es la pronta construcción de la GRAN CASA para la FAMILIA LUZ Y VIDA — un templo para las naciones.',
+
+      'Hoy levantamos ministerios de servicio: Ujieres, Maestros, Alabanza, Sonido, Decoraciones, Sacramentos, Finanzas, Misiones, Coreografía, Danza, Manos Abiertas, Audiovisual, y los GruposVIDA — nuestras células de crecimiento. En nuestros corazones late alcanzar a nuestra generación, ganar a toda Bolivia y compartir el evangelio porque con Dios siempre hay un nuevo comienzo para todos. ¡Somos una gran familia para las familias!',
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Una Historia de Fe y Amor',
+          'Una Historia de Fe, Amor y Transformación',
           style: TextStyle(
             color: kGold,
             fontSize: 20,
@@ -224,12 +235,34 @@ class _TextoHistoria extends StatelessWidget {
         const SizedBox(height: 8),
         Container(width: 50, height: 3, color: kGold),
         const SizedBox(height: 20),
+        // Versículo destacado
+        Container(
+          padding: const EdgeInsets.all(18),
+          margin: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: kGold, width: 4)),
+            color: kGold.withValues(alpha: 0.06),
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+            ),
+          ),
+          child: const Text(
+            '"Este puñado tan pequeño se multiplicará por mil; este pequeño número será una gran nación. Yo soy el Señor, yo haré que se realice pronto, a su debido tiempo." — Isaías 60:22',
+            style: TextStyle(
+              color: kGoldLight,
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
+              height: 1.7,
+            ),
+          ),
+        ),
         ...parrafos.map(
           (t) => Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
               t,
-              style: const TextStyle(color: kGrey, fontSize: 14, height: 1.75),
+              style: const TextStyle(color: kGrey, fontSize: 14, height: 1.8),
             ),
           ),
         ),
@@ -346,22 +379,32 @@ class _SeccionLineasTiempo extends StatelessWidget {
       _Hito(
         '1987',
         'Fundación',
-        'El Pastor Rogelio Calle Chavez y John Felix Apaza Apasa fundan la iglesia el 13 de diciembre en El Alto, Bolivia.',
+        'John Apaza y Rogelio Calle salen a predicar el evangelio a la Plaza La Paz el 13 de diciembre. Las primeras reuniones se realizan en la casa de la Hna. Catalina Apaza.',
       ),
       _Hito(
         '1990',
         'Crecimiento',
-        'La congregación crece y se establece formalmente en El Alto, La Paz.',
+        'La congregación crece con niños, adolescentes y jóvenes que proclaman salvación con gran fe y amor a Dios.',
+      ),
+      _Hito(
+        '1996',
+        'Avivamiento',
+        'El Señor derrama un avivamiento especial. La iglesia se reúne madrugadas de lunes a viernes en oración e intercesión. Teatros, mimos, coreografías salen a las calles.',
       ),
       _Hito(
         '2000',
         'Expansión',
-        'Se multiplican los grupos celulares bajo el Modelo de los 12.',
+        'Se multiplican los GruposVIDA (células) bajo el Modelo de los 12: ganar, consolidar, discipular y enviar. Apoyo a obras misioneras en el exterior.',
       ),
       _Hito(
         '2010',
         'Consolidación',
-        'La iglesia consolida sus ministerios de jóvenes, matrimonios y niños.',
+        'La iglesia consolida sus ministerios: Jóvenes, Matrimonios, Adultos, Niños, Alabanza, Misiones, Manos Abiertas y más.',
+      ),
+      _Hito(
+        'HOY',
+        'Seguimos Avanzando',
+        'Con la promesa de Isaías 60:22 en el corazón, la familia Luz y Vida avanza hacia la construcción de su Gran Casa y la expansión en las naciones.',
       ),
     ];
     return Container(
@@ -538,7 +581,7 @@ class _PastorCard extends StatelessWidget {
             width: 90,
             height: 90,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
+            errorBuilder: (_, __, ___) => Container(
               width: 90,
               height: 90,
               decoration: BoxDecoration(
@@ -768,21 +811,31 @@ class _InfoContacto extends StatelessWidget {
         const SizedBox(height: 6),
         Container(width: 50, height: 3, color: kGold),
         const SizedBox(height: 20),
+
+        // ── Horarios ──
         _ContactoItem(
           Icons.location_on_outlined,
           'El Alto, La Paz, Bolivia',
           'https://maps.app.goo.gl/a9MojcjXDnCtAN2d6',
         ),
-        const _ContactoItem(
-          Icons.access_time_outlined,
-          'Domingo 9:00 AM y 6:00 PM',
-          null,
+
+        // Domingo
+        const _HorarioItem(
+          icon: Icons.calendar_today_outlined,
+          dia: 'Domingo',
+          horas: '9:00 AM  •  5:00 PM',
+          detalle: 'Culto General',
         ),
-        const _ContactoItem(
-          Icons.access_time_outlined,
-          'Miércoles — Estudio Bíblico',
-          null,
+
+        // Miércoles — dos turnos
+        const _HorarioItem(
+          icon: Icons.calendar_today_outlined,
+          dia: 'Miércoles',
+          horas: '5:30 AM  •  7:00 PM',
+          detalle: 'Oración e Intercesión',
         ),
+
+        const SizedBox(height: 8),
         _ContactoItem(
           Icons.facebook,
           'facebook.com/luzyvidasomosfamilia',
@@ -806,6 +859,77 @@ class _InfoContacto extends StatelessWidget {
       ],
     );
   }
+}
+
+// Widget de horario con dos líneas (día + horas)
+class _HorarioItem extends StatelessWidget {
+  final IconData icon;
+  final String dia, horas, detalle;
+  const _HorarioItem({
+    required this.icon,
+    required this.dia,
+    required this.horas,
+    required this.detalle,
+  });
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, color: kGold, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    dia,
+                    style: const TextStyle(
+                      color: kWhite,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: kGold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: kGold.withValues(alpha: 0.4)),
+                    ),
+                    child: Text(
+                      detalle,
+                      style: const TextStyle(
+                        color: kGold,
+                        fontSize: 10,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 3),
+              Text(
+                horas,
+                style: const TextStyle(color: kGrey, fontSize: 13, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _ContactoItem extends StatelessWidget {
@@ -844,7 +968,7 @@ class _ContactoItem extends StatelessWidget {
   );
 }
 
-// ─── Mapa con iframe real (web) o fallback (móvil/desktop nativo) ─────────────
+// ─── Mapa ─────────────────────────────────────────────────────────────────────
 
 class _MapaWidget extends StatelessWidget {
   const _MapaWidget();
@@ -852,7 +976,6 @@ class _MapaWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // En nativo el tap abre Maps; en web el iframe es interactivo solo
       onTap: kIsWeb
           ? null
           : () => _abrir('https://maps.app.goo.gl/Ak5iU2Ca3M7LjrnGA'),
@@ -864,32 +987,27 @@ class _MapaWidget extends StatelessWidget {
           border: Border.all(color: kGold.withValues(alpha: 0.3)),
         ),
         clipBehavior: Clip.antiAlias,
-        child: kIsWeb ? _MapaIframe() : _MapaFallback(),
+        child: kIsWeb ? _MapaIframe() : const _MapaFallback(),
       ),
     );
   }
 }
 
-/// Web — iframe real de Google Maps
 class _MapaIframe extends StatelessWidget {
   _MapaIframe();
-
   @override
   Widget build(BuildContext context) {
     return const HtmlElementView(viewType: 'mapa-luz-vida');
   }
 }
 
-/// Nativo (Android / Linux desktop) — diseño visual con botón para abrir Maps
 class _MapaFallback extends StatelessWidget {
   const _MapaFallback();
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Fondo
         Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -899,9 +1017,7 @@ class _MapaFallback extends StatelessWidget {
             ),
           ),
         ),
-        // Cuadrícula
         CustomPaint(painter: _GridPainter()),
-        // Contenido
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -989,7 +1105,7 @@ class _GridPainter extends CustomPainter {
   bool shouldRepaint(_) => false;
 }
 
-// ─── Título de sección ────────────────────────────────────────────────────────
+// ─── Título sección ───────────────────────────────────────────────────────────
 
 class _TituloSeccion extends StatelessWidget {
   final String texto;

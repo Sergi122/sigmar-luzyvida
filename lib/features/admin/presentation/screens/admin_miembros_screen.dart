@@ -8,6 +8,17 @@ import '../../../../shared/widgets/sigmar_page.dart';
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
 
+// ── Helper: extrae el Map de usuario sin importar si Supabase
+//    lo devuelve como objeto {} o como lista [{}]
+Map<String, dynamic>? _extractUser(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is Map<String, dynamic>) return raw;
+  if (raw is List && raw.isNotEmpty && raw.first is Map<String, dynamic>) {
+    return raw.first as Map<String, dynamic>;
+  }
+  return null;
+}
+
 class AdminMiembrosScreen extends StatefulWidget {
   const AdminMiembrosScreen({super.key});
   @override
@@ -30,7 +41,10 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      final data = await _sb.from('miembros').select().order('nombre');
+      final data = await _sb
+          .from('miembros')
+          .select('*, usuarios(id, email, rol, activo)')
+          .order('nombre');
       setState(() {
         _miembros = List<Map<String, dynamic>>.from(data);
         _filtrar();
@@ -80,14 +94,12 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
       ),
     );
     if (ok != true) return;
-    // Eliminar foto del storage si existe
     final fotoUrl = m['foto_url'] as String?;
     if (fotoUrl != null && fotoUrl.isNotEmpty) {
       try {
         final path = _extractStoragePath(fotoUrl);
-        if (path != null) {
+        if (path != null)
           await _sb.storage.from('fotos-miembros').remove([path]);
-        }
       } catch (_) {}
     }
     await _sb.from('miembros').delete().eq('id', m['id']);
@@ -96,7 +108,6 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   }
 
   String? _extractStoragePath(String url) {
-    // Extrae el path relativo del bucket desde la URL pública de Supabase
     final marker = '/fotos-miembros/';
     final idx = url.indexOf(marker);
     if (idx == -1) return null;
@@ -391,12 +402,34 @@ class _TarjetaMiembro extends StatefulWidget {
 
 class _TarjetaMiembroState extends State<_TarjetaMiembro> {
   bool _h = false;
+
+  Color _colorRol(String? rol) {
+    switch (rol?.toLowerCase()) {
+      case 'admin':
+        return const Color(0xFF7F77DD);
+      case 'pastor':
+        return const Color(0xFFBA7517);
+      case 'lider':
+        return const Color(0xFF378ADD);
+      case 'finanzas':
+        return const Color(0xFF1D9E75);
+      default:
+        return const Color(0xFF888888);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final m = widget.miembro;
     final activo = m['estado'] == 'activo';
     final inicial = (m['nombre'] ?? 'M')[0].toUpperCase();
     final fotoUrl = m['foto_url'] as String?;
+    final user = _extractUser(m['usuarios']);
+    final tieneUsuario = user != null;
+    final userActivo = user?['activo'] as bool? ?? true;
+    final rol = user?['rol'] as String?;
+    final email = user?['email'] as String?;
+    final colorRol = _colorRol(rol);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _h = true),
@@ -429,7 +462,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                         ? Image.network(
                             fotoUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Center(
+                            errorBuilder: (_, __, ___) => Center(
                               child: Text(
                                 inicial,
                                 style: const TextStyle(
@@ -472,13 +505,62 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    m['nombre'] ?? '',
-                    style: const TextStyle(
-                      color: kWhite,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          m['nombre'] ?? '',
+                          style: const TextStyle(
+                            color: kWhite,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (tieneUsuario && rol != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorRol.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            rol.toUpperCase(),
+                            style: TextStyle(
+                              color: colorRol,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (!userActivo) ...[
+                          const SizedBox(width: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: kDanger.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'INACTIVO',
+                              style: TextStyle(
+                                color: kDanger,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 3),
                   Row(
@@ -498,11 +580,30 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       ),
                     ],
                   ),
-                  Text(
-                    m['direccion'] ?? '',
-                    style: const TextStyle(color: kGrey, fontSize: 11),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  if (tieneUsuario && email != null)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.email_outlined,
+                          color: kGrey,
+                          size: 11,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            email,
+                            style: const TextStyle(color: kGrey, fontSize: 11),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Text(
+                      m['direccion'] ?? '',
+                      style: const TextStyle(color: kGrey, fontSize: 11),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
@@ -609,30 +710,36 @@ class _FormMiembro extends StatefulWidget {
 }
 
 class _FormMiembroState extends State<_FormMiembro> {
-  // Controladores
   final _nombreCtrl = TextEditingController();
   final _carnetCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _direccionCtrl = TextEditingController();
   final _fechaNacCtrl = TextEditingController();
   final _fechaConvCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  // ✅ Campo para cambiar contraseña al editar (dejar vacío = no cambia)
+  final _nuevaPassCtrl = TextEditingController();
 
-  // Campos booleanos
   bool _bautizado = false;
   bool _encuentro = false;
-
-  // Estado
   String _estado = 'activo';
 
-  // Foto
   Uint8List? _nuevaFotoBytes;
   String? _fotoUrlActual;
   bool _subiendoFoto = false;
+
+  bool _verPass = false;
+  bool _verNuevaPass = false;
+  String? _rolSeleccionado;
+  String? _usuarioId; // UUID → String
+  bool _usuarioActivo = true;
 
   bool _guardando = false;
   String? _error;
 
   bool get _esEdicion => widget.miembro != null;
+  bool get _tieneUsuario => _usuarioId != null;
 
   @override
   void initState() {
@@ -649,6 +756,14 @@ class _FormMiembroState extends State<_FormMiembro> {
       _encuentro = m['asistio_encuentro'] ?? false;
       _estado = m['estado'] ?? 'activo';
       _fotoUrlActual = m['foto_url'];
+
+      final user = _extractUser(m['usuarios']);
+      if (user != null) {
+        _usuarioId = user['id']?.toString();
+        _emailCtrl.text = user['email'] ?? '';
+        _rolSeleccionado = user['rol'] as String?;
+        _usuarioActivo = user['activo'] as bool? ?? true;
+      }
     } else {
       _fechaConvCtrl.text = DateTime.now().toIso8601String().substring(0, 10);
     }
@@ -662,10 +777,12 @@ class _FormMiembroState extends State<_FormMiembro> {
     _direccionCtrl.dispose();
     _fechaNacCtrl.dispose();
     _fechaConvCtrl.dispose();
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    _nuevaPassCtrl.dispose();
     super.dispose();
   }
 
-  // ── Selección de foto ──────────────────────────────
   Future<void> _seleccionarFoto() async {
     final picker = ImagePicker();
     final xfile = await picker.pickImage(
@@ -675,12 +792,12 @@ class _FormMiembroState extends State<_FormMiembro> {
       imageQuality: 85,
     );
     if (xfile == null) return;
+    setState(() => _nuevaFotoBytes = null);
     final bytes = await xfile.readAsBytes();
     setState(() => _nuevaFotoBytes = bytes);
   }
 
-  // ── Subida de foto al Storage ──────────────────────
-  Future<String?> _subirFoto(int miembroId) async {
+  Future<String?> _subirFoto(dynamic miembroId) async {
     if (_nuevaFotoBytes == null) return _fotoUrlActual;
     setState(() => _subiendoFoto = true);
     try {
@@ -696,8 +813,7 @@ class _FormMiembroState extends State<_FormMiembro> {
               upsert: true,
             ),
           );
-      final url = _sb.storage.from('fotos-miembros').getPublicUrl(path);
-      return url;
+      return _sb.storage.from('fotos-miembros').getPublicUrl(path);
     } catch (e) {
       setState(() => _error = 'Error subiendo foto: $e');
       return _fotoUrlActual;
@@ -706,45 +822,143 @@ class _FormMiembroState extends State<_FormMiembro> {
     }
   }
 
-  // ── Guardar miembro ────────────────────────────────
   Future<void> _guardar() async {
     if (_nombreCtrl.text.trim().isEmpty || _carnetCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Nombre y carnet son obligatorios.');
       return;
     }
+    if (_emailCtrl.text.trim().isEmpty) {
+      setState(() => _error = 'El email es obligatorio.');
+      return;
+    }
+    // Al crear: contraseña obligatoria
+    if (!_tieneUsuario && _passCtrl.text.trim().length < 6) {
+      setState(
+        () => _error = 'La contraseña debe tener al menos 6 caracteres.',
+      );
+      return;
+    }
+    // Al editar: si escribió nueva contraseña, validar largo mínimo
+    if (_tieneUsuario &&
+        _nuevaPassCtrl.text.trim().isNotEmpty &&
+        _nuevaPassCtrl.text.trim().length < 6) {
+      setState(
+        () => _error = 'La nueva contraseña debe tener al menos 6 caracteres.',
+      );
+      return;
+    }
+    if (_rolSeleccionado == null) {
+      setState(() => _error = 'Selecciona un rol para el usuario.');
+      return;
+    }
+
     setState(() {
       _guardando = true;
       _error = null;
     });
 
     try {
+      dynamic miembroId;
+
       if (_esEdicion) {
-        // Primero subir foto si hay nueva
-        final fotoUrl = await _subirFoto(widget.miembro!['id'] as int);
-        final datos = _buildDatos(fotoUrl: fotoUrl);
+        miembroId = widget.miembro!['id'];
+        final fotoUrl = await _subirFoto(miembroId);
         await _sb
             .from('miembros')
-            .update(datos)
-            .eq('id', widget.miembro!['id']);
+            .update(_buildDatos(fotoUrl: fotoUrl))
+            .eq('id', miembroId);
       } else {
-        // Insertar sin foto, luego subir foto con el ID obtenido
-        final datos = _buildDatos();
         final inserted = await _sb
             .from('miembros')
-            .insert(datos)
+            .insert(_buildDatos())
             .select('id')
             .single();
-        final nuevoId = inserted['id'] as int;
+        miembroId = inserted['id'];
         if (_nuevaFotoBytes != null) {
-          final fotoUrl = await _subirFoto(nuevoId);
+          final fotoUrl = await _subirFoto(miembroId);
           if (fotoUrl != null) {
             await _sb
                 .from('miembros')
                 .update({'foto_url': fotoUrl})
-                .eq('id', nuevoId);
+                .eq('id', miembroId);
           }
         }
       }
+
+      if (miembroId != null) {
+        if (_tieneUsuario) {
+          // ── Actualizar usuario existente ──
+          await _sb
+              .from('usuarios')
+              .update({
+                'email': _emailCtrl.text.trim(),
+                'rol': _rolSeleccionado,
+                'activo': _usuarioActivo,
+              })
+              .eq('id', _usuarioId!);
+
+          // ── Cambiar contraseña si el campo no está vacío ──
+          final nuevaPass = _nuevaPassCtrl.text.trim();
+          if (nuevaPass.isNotEmpty) {
+            try {
+              final response = await _sb.functions.invoke(
+                'cambiar-contrasena',
+                body: {'usuario_id': _usuarioId, 'password': nuevaPass},
+              );
+              if (response.status != 200) {
+                final data = response.data;
+                final msg = (data is Map && data['error'] != null)
+                    ? data['error'].toString()
+                    : 'Error al cambiar la contraseña.';
+                setState(() {
+                  _error =
+                      'Datos guardados, pero error al cambiar contraseña: $msg';
+                  _guardando = false;
+                });
+                return;
+              }
+            } catch (e) {
+              setState(() {
+                _error =
+                    'Datos guardados, pero error al cambiar contraseña: $e';
+                _guardando = false;
+              });
+              return;
+            }
+          }
+        } else {
+          // ── Crear usuario nuevo ──
+          try {
+            final response = await _sb.functions.invoke(
+              'crear-usuario',
+              body: {
+                'email': _emailCtrl.text.trim(),
+                'password': _passCtrl.text.trim(),
+                'rol': _rolSeleccionado,
+                'miembro_id': miembroId,
+              },
+            );
+            if (response.status != 200) {
+              final data = response.data;
+              final msg = (data is Map && data['error'] != null)
+                  ? data['error'].toString()
+                  : 'Error al crear el usuario.';
+              setState(() {
+                _error = 'Miembro guardado, pero error al crear usuario: $msg';
+                _guardando = false;
+              });
+              return;
+            }
+          } catch (e) {
+            setState(() {
+              _error = 'Miembro guardado, pero error al crear usuario: $e';
+              _guardando = false;
+            });
+            return;
+          }
+        }
+      }
+
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() {
@@ -770,6 +984,49 @@ class _FormMiembroState extends State<_FormMiembro> {
     'estado': _estado,
     if (fotoUrl != null) 'foto_url': fotoUrl,
   };
+
+  // ── Campo contraseña reutilizable ──────────────────
+  Widget _campoPaso({
+    required TextEditingController ctrl,
+    required String label,
+    required bool ver,
+    required VoidCallback onToggle,
+    String? hint,
+  }) => TextField(
+    controller: ctrl,
+    obscureText: !ver,
+    style: const TextStyle(color: kWhite, fontSize: 14),
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: hint,
+      hintStyle: const TextStyle(color: kGrey, fontSize: 12),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+      prefixIcon: const Icon(Icons.lock_outline, color: kGrey, size: 16),
+      filled: true,
+      fillColor: kBgCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: kDivider),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: kDivider),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: _kColor, width: 2),
+      ),
+      suffixIcon: IconButton(
+        icon: Icon(
+          ver ? Icons.visibility_off : Icons.visibility,
+          color: kGrey,
+          size: 18,
+        ),
+        onPressed: onToggle,
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -825,14 +1082,15 @@ class _FormMiembroState extends State<_FormMiembro> {
                 ],
               ),
             ),
-            // ── Body scrollable ──
+
+            // ── Body ──
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Foto de perfil ──
+                    // ── Foto ──
                     _SecLabel('FOTO DE PERFIL'),
                     const SizedBox(height: 12),
                     _FotoSelector(
@@ -953,6 +1211,106 @@ class _FormMiembroState extends State<_FormMiembro> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
+
+                    // ════════════════════════════════════════
+                    //  ACCESO AL SISTEMA
+                    // ════════════════════════════════════════
+                    _SecLabel('ACCESO AL SISTEMA'),
+                    const SizedBox(height: 12),
+
+                    // Switch activo/inactivo — solo si ya tiene usuario
+                    if (_tieneUsuario) ...[
+                      _Sw(
+                        'Usuario activo',
+                        _usuarioActivo,
+                        (v) => setState(() => _usuarioActivo = v),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Email — siempre visible
+                    _Campo(
+                      'Email *',
+                      _emailCtrl,
+                      Icons.email_outlined,
+                      tipo: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // ── Contraseña ──
+                    if (!_tieneUsuario) ...[
+                      // CREAR: contraseña obligatoria
+                      _campoPaso(
+                        ctrl: _passCtrl,
+                        label: 'Contraseña *',
+                        ver: _verPass,
+                        onToggle: () => setState(() => _verPass = !_verPass),
+                      ),
+                      const SizedBox(height: 12),
+                    ] else ...[
+                      // EDITAR: campo opcional para cambiar contraseña
+                      _campoPaso(
+                        ctrl: _nuevaPassCtrl,
+                        label: 'Nueva contraseña',
+                        hint: 'Dejar vacío para no cambiar',
+                        ver: _verNuevaPass,
+                        onToggle: () =>
+                            setState(() => _verNuevaPass = !_verNuevaPass),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Mínimo 6 caracteres. Dejar vacío para mantener la contraseña actual.',
+                        style: const TextStyle(color: kGrey, fontSize: 10),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Rol — siempre visible
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: kBgCard,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: kDivider),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _rolSeleccionado,
+                          isExpanded: true,
+                          dropdownColor: kBgCard,
+                          hint: const Text(
+                            'Seleccionar rol...',
+                            style: TextStyle(color: kGrey, fontSize: 13),
+                          ),
+                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          onChanged: (v) =>
+                              setState(() => _rolSeleccionado = v),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'admin',
+                              child: Text('ADMINISTRADOR'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'pastor',
+                              child: Text('PASTOR'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'lider',
+                              child: Text('LÍDER'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'miembro',
+                              child: Text('MIEMBRO'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'finanzas',
+                              child: Text('FINANZAS'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
                     // ── Error ──
                     if (_error != null) ...[
@@ -991,6 +1349,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                 ),
               ),
             ),
+
             // ── Footer ──
             Container(
               padding: const EdgeInsets.all(16),
@@ -1058,14 +1417,13 @@ class _FormMiembroState extends State<_FormMiembro> {
 }
 
 // ══════════════════════════════════════════════════════
-//  WIDGET SELECTOR DE FOTO
+//  SELECTOR DE FOTO
 // ══════════════════════════════════════════════════════
 class _FotoSelector extends StatelessWidget {
   final String? fotoUrlActual;
   final Uint8List? nuevaFotoBytes;
   final VoidCallback onSeleccionar;
   final VoidCallback onEliminar;
-
   const _FotoSelector({
     required this.fotoUrlActual,
     required this.nuevaFotoBytes,
@@ -1078,10 +1436,8 @@ class _FotoSelector extends StatelessWidget {
     final tieneNueva = nuevaFotoBytes != null;
     final tieneActual = fotoUrlActual != null && fotoUrlActual!.isNotEmpty;
     final tieneFoto = tieneNueva || tieneActual;
-
     return Row(
       children: [
-        // Vista previa
         Container(
           width: 80,
           height: 80,
@@ -1100,7 +1456,7 @@ class _FotoSelector extends StatelessWidget {
                 ? Image.network(
                     fotoUrlActual!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => const Icon(
+                    errorBuilder: (_, __, ___) => const Icon(
                       Icons.person_outline,
                       color: _kColor,
                       size: 36,

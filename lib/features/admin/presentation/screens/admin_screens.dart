@@ -6,8 +6,6 @@ import '../../../../shared/widgets/sigmar_page.dart';
 export 'admin_miembros_screen.dart';
 export 'admin_grupos_screen.dart';
 export 'admin_cursos_screen.dart';
-export 'admin_usuarios_screen.dart';
-export 'registro_usuario_screen.dart';
 export 'admin_aportes_screen.dart';
 export 'admin_ministerios_screen.dart';
 export 'perfil_screen.dart';
@@ -28,34 +26,35 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final movil = MediaQuery.of(context).size.width < 600;
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: EdgeInsets.all(movil ? 16 : 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: movil ? 42 : 52,
+                  height: movil ? 42 : 52,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icono, color: color, size: 26),
+                  child: Icon(icono, color: color, size: movil ? 22 : 26),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         titulo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: kWhite,
-                          fontSize: 24,
+                          fontSize: movil ? 18 : 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -36,7 +36,6 @@ class SigmarNavbar extends StatelessWidget {
           _Item('GRUPOS', '/admin/grupos'),
           _Item('CURSOS', '/admin/cursos'),
           _Item('MINISTERIOS', '/admin/ministerios'),
-          _Item('USUARIOS', '/admin/usuarios'),
           _Item('APORTES', '/admin/aportes'),
         ];
       default:
@@ -51,10 +50,16 @@ class SigmarNavbar extends StatelessWidget {
     final bool esEscritorio = MediaQuery.of(context).size.width > 1000;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      // ── Altura aumentada ──
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
       decoration: const BoxDecoration(
         color: Color(0xFF111111),
-        border: Border(bottom: BorderSide(color: kDivider)),
+        border: Border(
+          bottom: BorderSide(
+            color: kGold,
+            width: 2,
+          ), // borde dorado más visible
+        ),
       ),
       child: Row(
         children: [
@@ -67,7 +72,7 @@ class SigmarNavbar extends StatelessWidget {
               children: _todos
                   .map(
                     (r) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: _NavLink(
                         label: r.label,
                         ruta: r.ruta,
@@ -80,7 +85,7 @@ class SigmarNavbar extends StatelessWidget {
                   .toList(),
             ),
 
-          if (esEscritorio) const SizedBox(width: 20),
+          if (esEscritorio) const SizedBox(width: 24),
 
           // Botón derecho
           if (AppSession.autenticado)
@@ -101,7 +106,7 @@ class SigmarNavbar extends StatelessWidget {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 200),
               color: kBgCard,
-              icon: const Icon(Icons.menu, color: kGold, size: 28),
+              icon: const Icon(Icons.menu, color: kGold, size: 30),
               onSelected: (v) => Navigator.pushReplacementNamed(context, v),
               itemBuilder: (_) => _todos
                   .map(
@@ -128,17 +133,18 @@ class SigmarNavbar extends StatelessWidget {
         cursor: SystemMouseCursors.click,
         child: Row(
           children: [
+            // ── Logo más grande ──
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               child: Image.asset(
                 'assets/images/logo.jpg',
-                width: 38,
-                height: 38,
+                width: 56, // antes 38
+                height: 56, // antes 38
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _buildPlaceholderLogo(),
+                errorBuilder: (_, __, ___) => _buildPlaceholderLogo(),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 14),
             const Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,14 +153,19 @@ class SigmarNavbar extends StatelessWidget {
                   'LUZ Y VIDA',
                   style: TextStyle(
                     color: kGold,
-                    fontSize: 13,
+                    fontSize: 17, // antes 13
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
+                    letterSpacing: 2,
                   ),
                 ),
+                SizedBox(height: 2),
                 Text(
                   'Somos Familia',
-                  style: TextStyle(color: kGrey, fontSize: 9),
+                  style: TextStyle(
+                    color: kGrey,
+                    fontSize: 11, // antes 9
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),
@@ -166,8 +177,8 @@ class SigmarNavbar extends StatelessWidget {
 
   Widget _buildPlaceholderLogo() {
     return Container(
-      width: 38,
-      height: 38,
+      width: 56,
+      height: 56,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(colors: [kGold, kGoldDark]),
@@ -177,7 +188,7 @@ class SigmarNavbar extends StatelessWidget {
           'LV',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 12,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -191,13 +202,17 @@ class SigmarNavbar extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: kGold,
         foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         elevation: 0,
       ),
       child: const Text(
         'INICIAR SESION',
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
       ),
     );
   }
@@ -241,12 +256,13 @@ class _NavLinkState extends State<_NavLink> {
               widget.label,
               style: TextStyle(
                 color: activo ? kGold : (_h ? kGoldLight : kGrey),
-                fontSize: 11,
+                fontSize: 13, // antes 11
                 fontWeight: activo ? FontWeight.bold : FontWeight.w500,
+                letterSpacing: 0.8,
               ),
             ),
-            const SizedBox(height: 2),
-            if (activo) Container(width: 16, height: 2, color: kGold),
+            const SizedBox(height: 4),
+            if (activo) Container(width: 20, height: 2, color: kGold),
           ],
         ),
       ),
@@ -259,21 +275,20 @@ class _MenuPerfil extends StatelessWidget {
   final VoidCallback onCerrar;
   const _MenuPerfil({required this.esMovil, required this.onCerrar});
 
-  /// Color distintivo por rol (coincide con los roles de la BD)
   Color get _c {
     switch (AppSession.rol) {
       case 'miembro':
-        return const Color(0xFF1D9E75); // verde
+        return const Color(0xFF1D9E75);
       case 'lider':
-        return const Color(0xFF378ADD); // azul
+        return const Color(0xFF378ADD);
       case 'pastor':
-        return const Color(0xFFBA7517); // naranja dorado
+        return const Color(0xFFBA7517);
       case 'finanzas':
-        return const Color(0xFF4CAF50); // verde claro
+        return const Color(0xFF4CAF50);
       case 'admin':
-        return const Color(0xFF7F77DD); // morado
+        return const Color(0xFF7F77DD);
       default:
-        return const Color(0xFF888888); // gris
+        return const Color(0xFF888888);
     }
   }
 
@@ -285,7 +300,7 @@ class _MenuPerfil extends StatelessWidget {
 
     return PopupMenuButton<String>(
       color: kBgCard,
-      offset: const Offset(0, 48),
+      offset: const Offset(0, 56),
       onSelected: (v) {
         if (v == 'perfil') Navigator.pushNamed(context, '/perfil');
         if (v == 'salir') onCerrar();
@@ -326,7 +341,7 @@ class _MenuPerfil extends StatelessWidget {
         children: [
           if (!esMovil) ...[
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: _c.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -336,26 +351,26 @@ class _MenuPerfil extends StatelessWidget {
                 AppSession.rol.toUpperCase(),
                 style: TextStyle(
                   color: _c,
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
           ],
           CircleAvatar(
-            radius: 17,
+            radius: 20,
             backgroundColor: _c.withOpacity(0.2),
             child: Text(
               ini,
               style: TextStyle(
                 color: _c,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: 16,
               ),
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down, color: kGrey, size: 16),
+          const Icon(Icons.keyboard_arrow_down, color: kGrey, size: 18),
         ],
       ),
     );
