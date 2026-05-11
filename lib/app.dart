@@ -10,7 +10,8 @@ import 'features/admin/presentation/screens/admin_screens.dart';
 import 'features/pastor/presentation/screens/pastor_screens.dart';
 
 class SigmarApp extends StatelessWidget {
-  const SigmarApp({super.key});
+  final String inicioRoute;
+  const SigmarApp({super.key, this.inicioRoute = '/'});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class SigmarApp extends StatelessWidget {
           surface: kBgCard,
         ),
       ),
-      initialRoute: '/',
+      initialRoute: inicioRoute,
       routes: {
         '/': (_) => const InicioScreen(),
         '/sobre': (_) => const SobreScreen(),

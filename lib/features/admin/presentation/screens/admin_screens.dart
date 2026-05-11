@@ -26,35 +26,34 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 600;
     return SigmarPage(
       rutaActual: ruta,
       child: Padding(
-        padding: EdgeInsets.all(movil ? 16 : 32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: movil ? 42 : 52,
-                  height: movil ? 42 : 52,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icono, color: color, size: movil ? 22 : 26),
+                  child: Icon(icono, color: color, size: 26),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         titulo,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: kWhite,
-                          fontSize: movil ? 18 : 24,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -12,6 +12,7 @@ class SigmarNavbar extends StatelessWidget {
   ];
 
   List<_Item> get _rutasRol {
+    if (!AppSession.autenticado) return [];
     switch (AppSession.rol) {
       case 'miembro':
         return [_Item('INSCRIPCION', '/miembro/inscripcion')];
@@ -91,9 +92,11 @@ class SigmarNavbar extends StatelessWidget {
           if (AppSession.autenticado)
             _MenuPerfil(
               esMovil: !esEscritorio,
-              onCerrar: () {
-                AppSession.cerrar();
-                Navigator.pushReplacementNamed(context, '/');
+              onCerrar: () async {
+                await AppSession.cerrar();
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, '/');
+                }
               },
             )
           else

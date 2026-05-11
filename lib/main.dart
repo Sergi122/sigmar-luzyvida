@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app.dart';
+import 'core/session.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -8,5 +9,8 @@ void main() async {
     url: 'https://uacxdrzuylhcxkpewzug.supabase.co',
     anonKey: 'sb_publishable_qI7702sYFZuEZZbgQqOlSg_L8zbxHYn',
   );
-  runApp(const SigmarApp());
+
+  final sesionActiva = await AppSession.cargarSesion();
+
+  runApp(SigmarApp(inicioRoute: '/'));
 }

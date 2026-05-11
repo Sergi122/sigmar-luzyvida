@@ -58,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // 💾 GUARDAR SESIÓN
       AppSession.usuario = data;
       AppSession.miembro = data['miembros'];
+      await AppSession.guardarSesion();
 
       if (!mounted) return;
 
