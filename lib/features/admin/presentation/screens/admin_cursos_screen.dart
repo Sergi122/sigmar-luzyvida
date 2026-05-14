@@ -161,7 +161,10 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
       ),
     );
     if (ok != true) return;
-    await _sb.from('cursos').delete().eq('id', c['id']);
+    final deleted = await _sb.from('cursos').delete().eq('id', c['id']);
+    if (deleted == null || deleted.isEmpty) {
+      throw Exception('No se eliminó ningún curso. Verifique que tenga permiso y que el curso exista.');
+    }
     _msg('Curso eliminado');
     _cargar();
   }
@@ -1491,7 +1494,9 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                         color: kBgCard,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isOpen ? kGold.withValues(alpha: 0.4) : kDivider,
+                          color: isOpen
+                              ? kGold.withValues(alpha: 0.4)
+                              : kDivider,
                         ),
                       ),
                       child: Column(
@@ -1667,7 +1672,9 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                                     vertical: 2,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: color.withValues(alpha: 0.1),
+                                                color: color.withValues(
+                                                  alpha: 0.1,
+                                                ),
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
@@ -1857,9 +1864,15 @@ class _FormCursoState extends State<_FormCurso> {
     try {
       int cursoId;
       if (_esEdicion) {
-        await _sb.from('cursos').update(datos).eq('id', widget.curso!['id']);
+        final updated = await _sb.from('cursos').update(datos).eq('id', widget.curso!['id']);
+        if (updated == null || updated.isEmpty) {
+          throw Exception('No se actualizó ningún curso. Verifique que tenga permiso y que el curso exista.');
+        }
         cursoId = widget.curso!['id'] as int;
-        await _sb.from('curso_requisitos').delete().eq('id_curso', cursoId);
+        final deletedReqs = await _sb.from('curso_requisitos').delete().eq('id_curso', cursoId);
+        if (deletedReqs == null || deletedReqs.isEmpty) {
+          // It's okay if there were no requisitos to delete; not an error.
+        }
       } else {
         final inserted = await _sb
             .from('cursos')
@@ -1880,7 +1893,7 @@ class _FormCursoState extends State<_FormCurso> {
 
   Future<void> _guardarRequisitos(int cursoId) async {
     if (_prerequisitosSeleccionados.isNotEmpty) {
-      await _sb
+      final insertedReqs = await _sb
           .from('curso_requisitos')
           .insert(
             _prerequisitosSeleccionados
@@ -1894,13 +1907,19 @@ class _FormCursoState extends State<_FormCurso> {
                 )
                 .toList(),
           );
+      if (insertedReqs == null || insertedReqs.isEmpty) {
+        throw Exception('No se pudieron guardar los requisitos del curso.');
+      }
     } else if (_requiereBautismo || _requiereEncuentro) {
-      await _sb.from('curso_requisitos').insert({
+      final insertedReq = await _sb.from('curso_requisitos').insert({
         'id_curso': cursoId,
         'id_curso_prerequisito': null,
         'requiere_bautismo': _requiereBautismo,
         'requiere_encuentro': _requiereEncuentro,
       });
+      if (insertedReq == null || insertedReq.isEmpty) {
+        throw Exception('No se pudieron guardar los requisitos del curso.');
+      }
     }
   }
 
@@ -2167,7 +2186,9 @@ class _FormCursoState extends State<_FormCurso> {
                         decoration: BoxDecoration(
                           color: kDanger.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: kDanger.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: kDanger.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Text(
                           _error!,
