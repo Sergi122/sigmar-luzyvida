@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_layout.dart';
 import '../../../../shared/widgets/sigmar_page.dart';
 import 'registro_usuario_screen.dart';
 
@@ -73,11 +74,11 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 800;
+    final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
     return SigmarPage(
       rutaActual: '/admin/usuarios',
       child: Padding(
-        padding: EdgeInsets.all(movil ? 16 : 28),
+        padding: EdgeInsets.all(movil ? kMobilePadding : kDesktopPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

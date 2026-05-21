@@ -32,11 +32,11 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
   Map<String, double> _ofrendasPorMes = {};
 
   final _menuItems = [
-    MenuItemData('Miembros', Icons.people_outline),
-    MenuItemData('Grupos', Icons.group_outlined),
-    MenuItemData('Cursos', Icons.school_outlined),
-    MenuItemData('Asistencia', Icons.calendar_today_outlined),
-    MenuItemData('Aportes', Icons.attach_money_outlined),
+    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
+    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
+    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
+    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
+    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
   ];
 
   @override

@@ -4,29 +4,27 @@ import '../../../../core/constants/app_layout.dart';
 import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
-export 'inscripcion_screen.dart';
-
-class MiembroDashboardScreen extends StatelessWidget {
-  const MiembroDashboardScreen({super.key});
+class LiderDashboardScreen extends StatelessWidget {
+  const LiderDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
-    const Color _kColor = Color(0xFF1D9E75); // teal for miembro
+    const Color _kColor = Color(0xFF378ADD); // blue for lider
 
     return DashboardShell(
       nombreUsuario: AppSession.nombre,
-      rol: 'miembro',
+      rol: 'lider',
       menuItems: [
-        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/miembro'),
-        MenuItemData(label: 'Mis Cursos', icono: Icons.school, ruta: '/miembro/inscripcion'),
+        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/lider'),
+        MenuItemData(label: 'Mi Grupo', icono: Icons.group, ruta: '/lider/grupo'),
         MenuItemData(label: 'Mi Perfil', icono: Icons.person, ruta: '/perfil'),
       ],
       indiceActivo: 0,
       onMenuTap: (index) {
         final rutas = [
-          '/miembro',
-          '/miembro/inscripcion',
+          '/lider',
+          '/lider/grupo',
           '/perfil',
         ];
         if (index < rutas.length) {
@@ -49,7 +47,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
-                    Icons.person_outline,
+                    Icons.group_outlined,
                     color: _kColor,
                     size: 24,
                   ),
@@ -60,7 +58,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Mi Panel de Miembro',
+                        'Gestión de Grupo',
                         style: TextStyle(
                           color: kWhite,
                           fontSize: 24,
@@ -86,16 +84,16 @@ class MiembroDashboardScreen extends StatelessWidget {
                       _buildQuickCard(
                         icon: Icons.home,
                         label: 'Inicio',
-                        description: 'Página principal de miembro',
+                        description: 'Página principal de líder',
                         onTap: () {},
                         color: _kColor,
                       ),
                       const SizedBox(height: 16),
                       _buildQuickCard(
-                        icon: Icons.school,
-                        label: 'Mis Cursos',
-                        description: 'Inscribirse a cursos',
-                        onTap: () => Navigator.pushNamed(context, '/miembro/inscripcion'),
+                        icon: Icons.group,
+                        label: 'Mi Grupo',
+                        description: 'Ver y gestionar mi grupo',
+                        onTap: () => Navigator.pushNamed(context, '/lider/grupo'),
                         color: _kColor,
                       ),
                       const SizedBox(height: 16),
@@ -114,7 +112,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                         child: _buildQuickCard(
                           icon: Icons.home,
                           label: 'Inicio',
-                          description: 'Página principal de miembro',
+                          description: 'Página principal de líder',
                           onTap: () {},
                           color: _kColor,
                         ),
@@ -122,10 +120,10 @@ class MiembroDashboardScreen extends StatelessWidget {
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildQuickCard(
-                          icon: Icons.school,
-                          label: 'Mis Cursos',
-                          description: 'Inscribirse a cursos',
-                          onTap: () => Navigator.pushNamed(context, '/miembro/inscripcion'),
+                          icon: Icons.group,
+                          label: 'Mi Grupo',
+                          description: 'Ver y gestionar mi grupo',
+                          onTap: () => Navigator.pushNamed(context, '/lider/grupo'),
                           color: _kColor,
                         ),
                       ),

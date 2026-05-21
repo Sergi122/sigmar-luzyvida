@@ -23,7 +23,6 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
   bool _cargando = true;
   String? _error;
 
-  // Fecha seleccionada para asistencia (hoy por defecto)
   DateTime _fechaAsist = DateTime.now();
 
   @override
@@ -55,7 +54,6 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
         return;
       }
 
-      // 1. Grupo del líder
       final grupos = await _sb
           .from('grupos')
           .select()
@@ -73,10 +71,7 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
 
       _grupo = Map<String, dynamic>.from(grupos.first);
 
-      // 2. Miembros del grupo
       await _cargarMiembros();
-
-      // 3. Asistencia del día seleccionado
       await _cargarAsistencia();
 
       setState(() => _cargando = false);
@@ -124,7 +119,6 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
     final yaPresente = _presente(idMiembro);
     try {
       if (yaPresente) {
-        // Marcar ausente (update)
         await _sb
             .from('asistencia')
             .update({'presente': false})
@@ -132,7 +126,6 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
             .eq('id_miembro', idMiembro)
             .eq('fecha', fecha);
       } else {
-        // Upsert — si no existe lo crea, si existe lo marca presente
         await _sb.from('asistencia').upsert({
           'id_miembro': idMiembro,
           'id_grupo': _grupo!['id'],
@@ -150,7 +143,6 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
 
   // ── Buscar miembro para agregar ───────────────────────────
   Future<void> _abrirAgregarMiembro() async {
-    // IDs ya en el grupo
     final idsActuales = _miembros
         .map((m) => (m['miembros'] as Map)['id'] as int)
         .toSet();
@@ -200,6 +192,46 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
     await _cargarMiembros();
     setState(() {});
     _msg('$nombre quitado del grupo');
+  }
+
+  // ── Editar datos del grupo ──────────────────────────────────
+  // FIX: eliminada variable 'ok' sin usar; guard mounted antes de _cargar/_msg
+  Future<void> _abrirEditarGrupo() async {
+    if (_grupo == null) return;
+
+    final nombreCtrl = TextEditingController(text: _grupo!['nombre']);
+    final lugarCtrl = TextEditingController(text: _grupo!['lugar']);
+    final horaCtrl = TextEditingController(text: _grupo!['hora']);
+    final String diaSeleccionado = _grupo!['dia_semana'] ?? 'lunes';
+
+    await showDialog<bool>(
+      context: context,
+      builder: (_) => _DialogEditarGrupo(
+        nombreCtrl: nombreCtrl,
+        lugarCtrl: lugarCtrl,
+        horaCtrl: horaCtrl,
+        diaInicial: diaSeleccionado,
+        onGuardar: (nombre, lugar, hora, dia) async {
+          try {
+            await _sb
+                .from('grupos')
+                .update({
+                  'nombre': nombre,
+                  'lugar': lugar,
+                  'hora': hora,
+                  'dia_semana': dia,
+                })
+                .eq('id', _grupo!['id']);
+
+            if (!mounted) return; // FIX: guard mounted tras await
+            await _cargar();
+            _msg('Grupo actualizado');
+          } catch (e) {
+            _msg('Error al guardar: $e', error: true);
+          }
+        },
+      ),
+    );
   }
 
   // ── Seleccionar fecha asistencia ──────────────────────────
@@ -337,10 +369,12 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
                   controller: _tab,
                   children: [
                     // ── TAB INTEGRANTES ──────────────────
+                    // FIX: se pasa onEditarGrupo al widget hijo
                     _TabIntegrantes(
                       miembros: _miembros,
                       onAgregar: _abrirAgregarMiembro,
                       onEliminar: _eliminarDelGrupo,
+                      onEditarGrupo: _abrirEditarGrupo,
                     ),
                     // ── TAB ASISTENCIA ───────────────────
                     _TabAsistencia(
@@ -508,11 +542,16 @@ class _TabIntegrantes extends StatefulWidget {
   final List<Map<String, dynamic>> miembros;
   final VoidCallback onAgregar;
   final Future<void> Function(Map<String, dynamic>) onEliminar;
+  // FIX: callback para editar grupo, accesible desde este widget
+  final VoidCallback? onEditarGrupo;
+
   const _TabIntegrantes({
     required this.miembros,
     required this.onAgregar,
     required this.onEliminar,
+    this.onEditarGrupo,
   });
+
   @override
   State<_TabIntegrantes> createState() => _TabIntegrantesState();
 }
@@ -589,23 +628,29 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
         ),
         const SizedBox(height: 16),
 
+        // FIX: se eliminó const del Expanded, y se usa widget.onEditarGrupo
         if (widget.miembros.isEmpty)
-          const Expanded(
+          Expanded(
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.group_off_outlined, color: kGrey, size: 48),
-                  SizedBox(height: 12),
-                  Text(
+                  const Icon(Icons.group_off_outlined, color: kGrey, size: 48),
+                  const SizedBox(height: 12),
+                  const Text(
                     'No hay integrantes en tu grupo',
                     style: TextStyle(color: kGrey),
                   ),
-                  SizedBox(height: 4),
-                  Text(
+                  const SizedBox(height: 4),
+                  const Text(
                     'Usa el botón Agregar para añadir miembros',
                     style: TextStyle(color: kGrey, fontSize: 12),
                   ),
+                  if (widget.onEditarGrupo != null)
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, color: kGrey),
+                      onPressed: widget.onEditarGrupo,
+                    ),
                 ],
               ),
             ),
@@ -616,12 +661,10 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
               itemCount: _filtrados.length,
               itemBuilder: (_, i) {
                 final fila = _filtrados[i];
-                // PROTECCIÓN: Si Supabase oculta al miembro por RLS, esto será null
                 final datosRaw = fila['miembros'];
 
                 if (datosRaw == null) return const SizedBox.shrink();
 
-                // Extraemos el mapa (venga como Lista o Mapa)
                 final Map m = (datosRaw is List) ? datosRaw.first : datosRaw;
 
                 final nombre = m['nombre'] as String? ?? 'Sin nombre';
@@ -629,7 +672,6 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
                 final bautizado = m['bautizado'] as bool? ?? false;
 
                 return Container(
-                  // ... (aquí sigue tu diseño del Row)
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -742,7 +784,6 @@ class _TabAsistencia extends StatelessWidget {
 
     return Column(
       children: [
-        // Selector de fecha + estadística
         Row(
           children: [
             Expanded(
@@ -802,7 +843,6 @@ class _TabAsistencia extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // Indicación
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -836,11 +876,9 @@ class _TabAsistencia extends StatelessWidget {
             child: ListView.builder(
               itemCount: miembros.length,
               itemBuilder: (_, i) {
-                final fila =
-                    miembros[i]; // Aquí la variable se llama 'miembros'
+                final fila = miembros[i];
                 final datosRaw = fila['miembros'];
 
-                // PROTECCIÓN: Si el miembro es null, no dibujamos la fila para evitar error
                 if (datosRaw == null) return const SizedBox.shrink();
 
                 final Map m = (datosRaw is List) ? datosRaw.first : datosRaw;
@@ -850,7 +888,6 @@ class _TabAsistencia extends StatelessWidget {
                 final estaPresente = presente(idMiembro);
 
                 return Container(
-                  // ... (aquí sigue tu diseño del checkbox)
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -895,7 +932,6 @@ class _TabAsistencia extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // Badge estado
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -917,7 +953,6 @@ class _TabAsistencia extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Toggle
                       GestureDetector(
                         onTap: () => onToggle(idMiembro),
                         child: AnimatedContainer(
@@ -990,7 +1025,6 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabecera
             Row(
               children: [
                 Container(
@@ -1025,7 +1059,6 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
             ),
             const SizedBox(height: 16),
 
-            // Buscador
             TextField(
               autofocus: true,
               onChanged: (v) => setState(() => _busqueda = v),
@@ -1062,7 +1095,6 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
             ),
             const SizedBox(height: 8),
 
-            // Lista
             Expanded(
               child: _filtrados.isEmpty
                   ? const Center(
@@ -1233,5 +1265,180 @@ class _DialogConfirm extends StatelessWidget {
         ],
       ),
     ),
+  );
+}
+
+class _DialogEditarGrupo extends StatefulWidget {
+  final TextEditingController nombreCtrl, lugarCtrl, horaCtrl;
+  final String diaInicial;
+  final Future<void> Function(
+    String nombre,
+    String lugar,
+    String hora,
+    String dia,
+  )
+  onGuardar;
+
+  // FIX: se eliminó el parámetro 'key' que nunca se usaba (unused_element_parameter)
+  const _DialogEditarGrupo({
+    required this.nombreCtrl,
+    required this.lugarCtrl,
+    required this.horaCtrl,
+    required this.diaInicial,
+    required this.onGuardar,
+  });
+
+  @override
+  State<_DialogEditarGrupo> createState() => _DialogEditarGrupoState();
+}
+
+class _DialogEditarGrupoState extends State<_DialogEditarGrupo> {
+  late String _diaSeleccionado;
+
+  @override
+  void initState() {
+    super.initState();
+    _diaSeleccionado = widget.diaInicial;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dias = [
+      'lunes',
+      'martes',
+      'miercoles',
+      'jueves',
+      'viernes',
+      'sabado',
+      'domingo',
+    ];
+
+    return Dialog(
+      backgroundColor: kBgMid,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // FIX: Icons.edit_group no existe → Icons.edit_outlined
+                const Icon(Icons.edit_outlined, color: _kColor, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Editar Grupo',
+                  style: TextStyle(
+                    color: kWhite,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close, color: kGrey),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _campo('Nombre del Grupo', widget.nombreCtrl),
+            const SizedBox(height: 16),
+            _campo('Lugar / Dirección', widget.lugarCtrl),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: _campo('Hora', widget.horaCtrl)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Día de semana',
+                        style: TextStyle(color: kGrey, fontSize: 12),
+                      ),
+                      const SizedBox(height: 4),
+                      DropdownButton<String>(
+                        value: _diaSeleccionado,
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        dropdownColor: kBgCard,
+                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        items: dias
+                            .map(
+                              (d) => DropdownMenuItem(
+                                value: d,
+                                child: Text(d.toUpperCase()),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (v) => setState(() => _diaSeleccionado = v!),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  widget.onGuardar(
+                    widget.nombreCtrl.text.trim(),
+                    widget.lugarCtrl.text.trim(),
+                    widget.horaCtrl.text.trim(),
+                    _diaSeleccionado,
+                  );
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'GUARDAR CAMBIOS',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _campo(String label, TextEditingController ctrl) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(color: kGrey, fontSize: 12)),
+      const SizedBox(height: 4),
+      TextField(
+        controller: ctrl,
+        style: const TextStyle(color: kWhite),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: kBgCard,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: kDivider),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: kDivider),
+          ),
+        ),
+      ),
+    ],
   );
 }

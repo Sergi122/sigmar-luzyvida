@@ -69,8 +69,15 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacementNamed(context, '/admin');
       } else if (rol == 'pastor') {
         Navigator.pushReplacementNamed(context, '/pastor');
+      } else if (rol == 'lider') {
+        Navigator.pushReplacementNamed(context, '/lider');
+      } else if (rol == 'miembro') {
+        Navigator.pushReplacementNamed(context, '/miembro');
+      } else if (rol == 'finanzas') {
+        Navigator.pushReplacementNamed(context, '/finanzas');
       } else {
-        Navigator.pushReplacementNamed(context, '/');
+        // Default to miembro dashboard if role not recognized
+        Navigator.pushReplacementNamed(context, '/miembro');
       }
     } catch (e) {
       setState(() {

@@ -21,11 +21,11 @@ class _PastorGruposScreenState extends State<PastorGruposScreen> {
   final int _menuActivo = 1;
 
   final _menuItems = [
-    MenuItemData('Miembros', Icons.people_outline),
-    MenuItemData('Grupos', Icons.group_outlined),
-    MenuItemData('Cursos', Icons.school_outlined),
-    MenuItemData('Asistencia', Icons.calendar_today_outlined),
-    MenuItemData('Aportes', Icons.attach_money_outlined),
+    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
+    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
+    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
+    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
+    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
   ];
 
   @override
@@ -383,13 +383,13 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
     final ancho = MediaQuery.of(context).size.width;
     return Dialog(
       backgroundColor: kBgCard,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: EdgeInsets.symmetric(
-        horizontal: ancho < 600 ? 16 : 80,
+        horizontal: ancho < 600 ? 16 : 100,
         vertical: 24,
       ),
       child: Container(
-        width: ancho < 600 ? double.infinity : 480,
+        width: ancho < 600 ? double.infinity : 550,
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.8,
         ),
@@ -418,13 +418,13 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
                         widget.grupo['nombre'] ?? '',
                         style: const TextStyle(
                           color: kWhite,
-                          fontSize: 16,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'Líder: ${lider?['nombre'] ?? 'Sin líder'}',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -442,7 +442,7 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
               'Miembros (${_miembros.length})',
               style: const TextStyle(
                 color: kWhite,
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),

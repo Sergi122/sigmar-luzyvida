@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/constants/app_colors.dart';
+import 'core/session.dart';
 
 import 'features/home/presentation/screens/inicio_screen.dart';
 import 'features/sobre/presentation/screens/sobre_screen.dart';
@@ -8,6 +9,7 @@ import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/miembro/presentation/screens/miembro_screens.dart';
 import 'features/admin/presentation/screens/admin_screens.dart';
 import 'features/pastor/presentation/screens/pastor_screens.dart';
+import 'features/finanzas/presentation/screens/finanzas_dashboard_screen.dart';
 
 class SigmarApp extends StatelessWidget {
   final String inicioRoute;
@@ -29,8 +31,8 @@ class SigmarApp extends StatelessWidget {
       ),
       initialRoute: inicioRoute,
       routes: {
-        '/': (_) => const InicioScreen(),
-        '/sobre': (_) => const SobreScreen(),
+        '/': (_) => _buildPublicPage(context, const InicioScreen()),
+        '/sobre': (_) => _buildPublicPage(context, const SobreScreen()),
         '/login': (_) => const LoginScreen(),
 
         '/admin': (_) => AdminMiembrosScreen(),
@@ -48,10 +50,38 @@ class SigmarApp extends StatelessWidget {
         '/pastor/asistencia': (_) => PastorAsistenciaScreen(),
         '/pastor/aportes': (_) => PastorAportesScreen(),
 
-        '/miembro': (_) => MiembroInscripcionScreen(),
+        '/miembro': (_) => MiembroDashboardScreen(),
         '/miembro/inscripcion': (_) => MiembroInscripcionScreen(),
+        '/lider': (_) => LiderDashboardScreen(),
         '/lider/grupo': (_) => MiGrupoScreen(),
+        '/finanzas': (_) => FinanzasDashboardScreen(),
+        '/finanzas/aportes': (_) => PastorAportesScreen(),
       },
     );
+  }
+
+  Widget _buildPublicPage(BuildContext context, Widget publicPage) {
+    if (AppSession.autenticado) {
+      return _redirectPorRol(context);
+    }
+    return publicPage;
+  }
+
+  Widget _redirectPorRol(BuildContext context) {
+    final rol = AppSession.rol;
+    switch (rol) {
+      case 'admin':
+        return const AdminMiembrosScreen();
+      case 'pastor':
+        return const PastorMiembrosScreen();
+      case 'lider':
+        return const LiderDashboardScreen();
+      case 'miembro':
+        return const MiembroDashboardScreen();
+      case 'finanzas':
+        return const FinanzasDashboardScreen();
+      default:
+        return const MiembroDashboardScreen();
+    }
   }
 }

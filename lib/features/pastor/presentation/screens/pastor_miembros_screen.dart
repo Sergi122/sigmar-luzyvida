@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_layout.dart';
 import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
@@ -22,11 +23,11 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
   final int _menuActivo = 0;
 
   final _menuItems = [
-    MenuItemData('Miembros', Icons.people_outline),
-    MenuItemData('Grupos', Icons.group_outlined),
-    MenuItemData('Cursos', Icons.school_outlined),
-    MenuItemData('Asistencia', Icons.calendar_today_outlined),
-    MenuItemData('Aportes', Icons.attach_money_outlined),
+    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
+    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
+    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
+    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
+    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
   ];
 
   @override
@@ -99,7 +100,7 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 600;
+    final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
     return DashboardShell(
       nombreUsuario: AppSession.nombre,
       rol: 'Pastor',
@@ -111,7 +112,7 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
         onRefresh: _cargar,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.all(movil ? 14 : 28),
+          padding: EdgeInsets.all(movil ? kMobilePadding : kDesktopPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -399,17 +400,17 @@ class _DialogDetalleMiembro extends StatelessWidget {
     final ancho = MediaQuery.of(context).size.width;
     return Dialog(
       backgroundColor: kBgCard,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: EdgeInsets.symmetric(
-        horizontal: ancho < 600 ? 16 : 80,
+        horizontal: ancho < 600 ? 16 : 100,
         vertical: 24,
       ),
       child: Container(
-        width: ancho < 600 ? double.infinity : 480,
+        width: ancho < 600 ? double.infinity : 550,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          maxHeight: MediaQuery.of(context).size.height * 0.9,
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -418,8 +419,8 @@ class _DialogDetalleMiembro extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 50,
-                    height: 50,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _kColor.withValues(alpha: 0.15),
@@ -431,12 +432,12 @@ class _DialogDetalleMiembro extends StatelessWidget {
                         style: const TextStyle(
                           color: _kColor,
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 24,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,26 +446,26 @@ class _DialogDetalleMiembro extends StatelessWidget {
                           miembro['nombre'] ?? '',
                           style: const TextStyle(
                             color: kWhite,
-                            fontSize: 18,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const Text(
                           'Miembro de la iglesia',
-                          style: TextStyle(color: kGrey, fontSize: 12),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: kGrey),
+                    icon: const Icon(Icons.close, color: kGrey, size: 24),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Container(width: double.infinity, height: 1, color: kDivider),
-              const SizedBox(height: 14),
+              const SizedBox(height: 20),
               _Dato(
                 icon: Icons.badge,
                 label: 'Carnet',
@@ -501,7 +502,7 @@ class _DialogDetalleMiembro extends StatelessWidget {
                 valor: (miembro['estado'] ?? 'activo').toString().toUpperCase(),
                 esEstado: true,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
@@ -509,12 +510,15 @@ class _DialogDetalleMiembro extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: kGrey,
                     side: const BorderSide(color: kDivider),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Cerrar'),
+                  child: const Text(
+                    'Cerrar',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -539,23 +543,23 @@ class _Dato extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: _kColor, size: 18),
-          const SizedBox(width: 10),
+          Icon(icon, color: _kColor, size: 22),
+          const SizedBox(width: 12),
           SizedBox(
-            width: 85,
+            width: 100,
             child: Text(
               '$label:',
-              style: const TextStyle(color: kGrey, fontSize: 13),
+              style: const TextStyle(color: kGrey, fontSize: 15),
             ),
           ),
           Expanded(
             child: Text(
               valor,
-              style: const TextStyle(color: kWhite, fontSize: 13),
+              style: const TextStyle(color: kWhite, fontSize: 15),
             ),
           ),
         ],

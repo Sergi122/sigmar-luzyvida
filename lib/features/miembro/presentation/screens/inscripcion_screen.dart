@@ -189,9 +189,8 @@ class _MiembroInscripcionScreenState extends State<MiembroInscripcionScreen> {
       nombreUsuario: AppSession.nombre,
       rol: AppSession.rol,
       menuItems: const [
-        // ¡CÓDIGO CORREGIDO AQUÍ! (String primero, IconData después)
-        MenuItemData('Inicio', Icons.home),
-        MenuItemData('Inscripción', Icons.school),
+        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/'),
+        MenuItemData(label: 'Inscripción', icono: Icons.school, ruta: '/miembro/inscripcion'),
       ],
       indiceActivo: 1,
       onMenuTap: (i) {

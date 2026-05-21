@@ -44,7 +44,11 @@ class SigmarNavbar extends StatelessWidget {
     }
   }
 
-  List<_Item> get _todos => [..._rutasBase, ..._rutasRol];
+  List<_Item> get _todos {
+    if (!AppSession.autenticado) return _rutasBase;
+    if (AppSession.rol == 'miembro') return [..._rutasBase, ..._rutasRol];
+    return _rutasRol;
+  }
 
   @override
   Widget build(BuildContext context) {

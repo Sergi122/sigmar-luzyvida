@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_layout.dart';
 
 /// Shell reutilizable para todos los roles autenticados.
 /// Recibe la lista de items del menú y el body de la pantalla activa.
@@ -23,7 +24,7 @@ class DashboardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movil = MediaQuery.of(context).size.width < 800;
+    final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
     return Scaffold(
       backgroundColor: kBg,
       drawer: movil
@@ -497,5 +498,10 @@ class _SidebarFooter extends StatelessWidget {
 class MenuItemData {
   final String label;
   final IconData icono;
-  const MenuItemData(this.label, this.icono);
+  final String ruta;
+  const MenuItemData({
+    required this.label,
+    required this.icono,
+    required this.ruta,
+  });
 }

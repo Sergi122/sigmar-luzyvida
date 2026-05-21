@@ -107,7 +107,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
           .from('inscripciones')
           .select('id, estado')
           .eq('id_curso', c['id'] as int)
-          .isFilter('periodo_id', null);
+          .isFilter('id_periodo', null);
 
       final total = (inscritos as List).length;
       final completados = inscritos
@@ -135,7 +135,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
         for (final id in ids) {
           await _sb
               .from('inscripciones')
-              .update({'periodo_id': periodoId})
+              .update({'id_periodo': periodoId})
               .eq('id', id);
         }
       }
@@ -161,12 +161,13 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
       ),
     );
     if (ok != true) return;
-    final deleted = await _sb.from('cursos').delete().eq('id', c['id']);
-    if (deleted == null || deleted.isEmpty) {
-      throw Exception('No se eliminó ningún curso. Verifique que tenga permiso y que el curso exista.');
+    try {
+      await _sb.from('cursos').delete().eq('id', c['id'] as int);
+      _msg('Curso eliminado');
+      _cargar();
+    } catch (e) {
+      _msg('Error al eliminar: $e', error: true);
     }
-    _msg('Curso eliminado');
-    _cargar();
   }
 
   void _verHistorial(Map<String, dynamic> c) async {
@@ -631,7 +632,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
           .from('inscripciones')
           .select('*, miembros(id, nombre, carnet)')
           .eq('id_curso', widget.curso['id'] as int)
-          .isFilter('periodo_id', null);
+          .isFilter('id_periodo', null);
 
       final inscritosIds = (inscritos as List)
           .map((i) => (i['miembros'] as Map)['id'] as int)
@@ -1397,7 +1398,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
     final data = await _sb
         .from('inscripciones')
         .select('*, miembros(nombre, carnet)')
-        .eq('periodo_id', periodoId)
+        .eq('id_periodo', periodoId)
         .order('estado');
     return List<Map<String, dynamic>>.from(data);
   }
@@ -1864,15 +1865,15 @@ class _FormCursoState extends State<_FormCurso> {
     try {
       int cursoId;
       if (_esEdicion) {
-        final updated = await _sb.from('cursos').update(datos).eq('id', widget.curso!['id']);
-        if (updated == null || updated.isEmpty) {
-          throw Exception('No se actualizó ningún curso. Verifique que tenga permiso y que el curso exista.');
-        }
+        // FIX: .update() sin .select() siempre devuelve null — no validar el resultado
+        await _sb
+            .from('cursos')
+            .update(datos)
+            .eq('id', widget.curso!['id'] as int);
         cursoId = widget.curso!['id'] as int;
-        final deletedReqs = await _sb.from('curso_requisitos').delete().eq('id_curso', cursoId);
-        if (deletedReqs == null || deletedReqs.isEmpty) {
-          // It's okay if there were no requisitos to delete; not an error.
-        }
+
+        // FIX: .delete() sin .select() siempre devuelve null — solo ejecutar sin validar
+        await _sb.from('curso_requisitos').delete().eq('id_curso', cursoId);
       } else {
         final inserted = await _sb
             .from('cursos')
@@ -1893,7 +1894,8 @@ class _FormCursoState extends State<_FormCurso> {
 
   Future<void> _guardarRequisitos(int cursoId) async {
     if (_prerequisitosSeleccionados.isNotEmpty) {
-      final insertedReqs = await _sb
+      // FIX: .insert() sin .select() siempre devuelve null — no validar el resultado
+      await _sb
           .from('curso_requisitos')
           .insert(
             _prerequisitosSeleccionados
@@ -1907,19 +1909,13 @@ class _FormCursoState extends State<_FormCurso> {
                 )
                 .toList(),
           );
-      if (insertedReqs == null || insertedReqs.isEmpty) {
-        throw Exception('No se pudieron guardar los requisitos del curso.');
-      }
     } else if (_requiereBautismo || _requiereEncuentro) {
-      final insertedReq = await _sb.from('curso_requisitos').insert({
+      await _sb.from('curso_requisitos').insert({
         'id_curso': cursoId,
         'id_curso_prerequisito': null,
         'requiere_bautismo': _requiereBautismo,
         'requiere_encuentro': _requiereEncuentro,
       });
-      if (insertedReq == null || insertedReq.isEmpty) {
-        throw Exception('No se pudieron guardar los requisitos del curso.');
-      }
     }
   }
 

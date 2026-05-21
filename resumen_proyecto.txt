@@ -3,9 +3,9 @@
                               Resumen Completo del Proyecto
 ================================================================================
 
-Fecha del reporte: 2026-04-07
-Total de archivos .dart: 29
-Líneas totales estimadas: ~18,000
+Fecha del reporte: 2026-05-16
+Total de archivos .dart: 30
+Líneas totales estimadas: ~19,160
 
 ================================================================================
                                    ÍNDICE
@@ -19,7 +19,8 @@ Líneas totales estimadas: ~18,000
 6. Base de Datos (Tablas inferidas)
 7. Paquetes y Dependencias
 8. Características Técnicas
-
+9. Importes y Dependencias de Código
+================================================================================
 ================================================================================
                         1. ESTRUCTURA DEL PROYECTO
 ================================================================================
@@ -53,6 +54,7 @@ lib/
     ├── miembro/
     │   └── presentation/
     │       └── screens/
+    │           ├── inscripcion_screen.dart
     │           └── miembro_screens.dart
     ├── lider/
     │   └── presentation/
@@ -130,6 +132,8 @@ PROPIEDADES:
 - nombre: String - Getter que retorna nombre del miembro o email
 - miembroId: int? - Getter que retorna ID del miembro
 MÉTODOS:
+- cargarSesion(): Future<void> - Carga sesión desde almacenamiento local
+- guardarSesion(): Future<void> - Guarda sesión en almacenamiento local
 - cerrar(): void - Limpia usuario y miembro de la sesión
 
 ------------------------------------------------------------------------------
@@ -318,13 +322,23 @@ FEATURES TÉCNICAS:
 MODULE: MIEMBRO (features/miembro/)
 ─────────────────────────────────────────────────────────────────────────────
 
+ARCHIVO: inscripcion_screen.dart (352 líneas)
+FUNCIONALIDAD:
+- Pantalla de inscripción a cursos para miembros
+- Lista de cursos disponibles, mis cursos y completados
+- Filtro por estado y búsqueda
+- Detalle de curso con requisitos (prerrequisitos, bautismo, encuentro)
+- Inscripción y desinscripción
+- DashboardShell con menú de 2 items (Inicio, Inscripción)
+- Uso de Supabase para consultas complejas con joins y selects personalizados
+
 ARCHIVO: miembro_screens.dart (146 líneas)
 FUNCIONALIDAD:
-- Export de pantallas
-- InscripcionScreen: Placeholder para inscripción a cursos
+- Export de pantallas miembro
+- InscripcionScreen: Placeholder para inscripción a cursos (ahora implementado)
 - ReportesScreen: Placeholder para reportes
 - GuiasScreen: Placeholder para asignación de guías
-ESTADO: Módulos en desarrollo (solo muestra mensaje)
+- Nota: Las pantallas ReportesScreen y GuiasScreen están definidas como placeholders en este archivo de export
 
 ─────────────────────────────────────────────────────────────────────────────
 MODULE: LIDER (features/lider/)
@@ -487,15 +501,15 @@ ARCHIVO: admin_aportes_screen.dart (~700 líneas)
 FUNCIONALIDAD:
 - Gestión de diezmos y ofrendas
 - Tabs: DIEZMOS / OFRENDAS
-DIEZMOS:
-- Registro: Miembro (dropdown), Monto, Fecha, Observación
-- Lista con editar/eliminar
-- Totalizador por fecha
-OFRENDAS:
-- Registro: Tipo, Monto, Fecha, Descripción
-- Lista con eliminar
-- Totalizador por fecha
-- Sin vinculación a miembro (ofrendas generales)
+- DIEZMOS:
+  - Registro: Miembro (dropdown), Monto, Fecha, Observación
+  - Lista con editar/eliminar
+  - Totalizador por fecha
+- OFRENDAS:
+  - Registro: Tipo, Monto, Fecha, Descripción
+  - Lista con eliminar
+  - Totalizador por fecha
+  - Sin vinculación a miembro (ofrendas generales)
 
 ARCHIVO: registro_usuario_screen.dart (390 líneas)
 FUNCIONALIDAD:
@@ -759,7 +773,61 @@ EDGE FUNCTIONS
 - Retorna: { error?: string } o éxito 200
 
 ================================================================================
+                    9. IMPORTES Y DEPENDENCIAS DE CÓDIGO
+================================================================================
+
+Este sección detalla las declaraciones de import utilizadas en todos los archivos .dart del proyecto, agrupadas por frecuencia de uso.
+
+IMPORTES MÁS FRECUENTES:
+  26 import 'package:flutter/material.dart';
+  19 import '../../../../core/constants/app_colors.dart';
+  17 import 'package:supabase_flutter/supabase_flutter.dart';
+  10 import '../../../../shared/widgets/sigmar_page.dart';
+  10 import '../../../../core/session.dart';
+   6 import '../../../../shared/widgets/dashboard_shell.dart';
+   2 import '../../../../shared/widgets/sigmar_navbar.dart';
+   2 import '../../../../shared/widgets/sigmar_footer.dart';
+   2 import 'package:url_launcher/url_launcher.dart';
+   2 import 'package:printing/printing.dart';
+   2 import 'package:pdf/widgets.dart' as pw;
+   2 import 'package:pdf/pdf.dart';
+   2 import 'package:intl/intl.dart';
+   2 import 'package:image_picker/image_picker.dart';
+   2 import 'package:fl_chart/fl_chart.dart';
+   2 import 'dart:typed_data';
+   2 import '../../core/constants/app_colors.dart';
+   2 import '../../../core/constants/app_colors.dart';
+   1 import 'sigmar_navbar.dart';
+   1 import 'sigmar_footer.dart';
+   1 import 'registro_usuario_screen.dart';
+   1 import 'package:shared_preferences/shared_preferences.dart';
+   1 import 'package:flutter/foundation.dart' show kIsWeb;
+   1 import 'features/sobre/presentation/screens/sobre_screen.dart';
+   1 import 'features/pastor/presentation/screens/pastor_screens.dart';
+   1 import 'features/miembro/presentation/screens/miembro_screens.dart';
+   1 import 'features/lider/presentation/screens/mi_grupo_screen.dart';
+   1 import 'features/home/presentation/screens/inicio_screen.dart';
+   1 import 'features/auth/presentation/screens/login_screen.dart';
+   1 import 'features/admin/presentation/screens/admin_screens.dart';
+   1 import 'dart:ui_web' as ui_web;
+   1 import 'dart:html' as html;
+   1 import 'dart:convert';
+   1 import 'dart:async';
+   1 import 'core/session.dart';
+   1 import '../../../core/session.dart';
+   1 import 'core/constants/app_colors.dart';
+   1 import 'app.dart';
+
+NOTAS:
+- Las importaciones relativas utilizan puntos para navegar hacia arriba en la estructura de carpetas.
+- Las importaciones de paquetes externos provienen de las dependencias declaradas en pubspec.yaml.
+- Las importaciones de dart:* son bibliotecas estándar del SDK de Dart.
+- Algunas importaciones tienen alias (as) para evitar conflictos de nombres.
+- La importación de 'package:flutter/foundation.dart' se utiliza específicamente para la constante kIsWeb (detección de plataforma web).
+
+================================================================================
                                    FIN DEL REPORTE
 ================================================================================
 Generado automáticamente - Proyecto SIGMAR v1.0
 Iglesia Cristiana "Luz y Vida en las Naciones" - El Alto, Bolivia
+Fecha de generación: 2026-05-16

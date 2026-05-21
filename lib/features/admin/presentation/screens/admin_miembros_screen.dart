@@ -98,8 +98,9 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
     if (fotoUrl != null && fotoUrl.isNotEmpty) {
       try {
         final path = _extractStoragePath(fotoUrl);
-        if (path != null)
+        if (path != null) {
           await _sb.storage.from('fotos-miembros').remove([path]);
+        }
       } catch (_) {}
     }
     await _sb.from('miembros').delete().eq('id', m['id']);
@@ -462,7 +463,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                         ? Image.network(
                             fotoUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Center(
+                            errorBuilder: (context, error, stackTrace) => Center(
                               child: Text(
                                 inicial,
                                 style: const TextStyle(
@@ -1456,7 +1457,7 @@ class _FotoSelector extends StatelessWidget {
                 ? Image.network(
                     fotoUrlActual!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.person_outline,
                       color: _kColor,
                       size: 36,

@@ -10,7 +10,7 @@ void main() async {
     anonKey: 'sb_publishable_qI7702sYFZuEZZbgQqOlSg_L8zbxHYn',
   );
 
-  final sesionActiva = await AppSession.cargarSesion();
+  await AppSession.cargarSesion();
 
   runApp(SigmarApp(inicioRoute: '/'));
 }
