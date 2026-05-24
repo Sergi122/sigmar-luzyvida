@@ -10,18 +10,10 @@ class FinanzasDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 600;
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'finanzas',
-      menuItems: [
-        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/finanzas'),
-        MenuItemData(label: 'Diezmos y Ofrendas', icono: Icons.monetization_on, ruta: '/finanzas/aportes'),
-      ],
-      indiceActivo: 0,
-      onMenuTap: (index) {
-        // Navigation logic would go here
-      },
-      body: Padding(
+    return DashboardPage(
+      rutaActual: '/finanzas',
+      conScroll: false,
+      child: Padding(
         padding: EdgeInsets.all(movil ? 14 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +77,7 @@ class FinanzasDashboardScreen extends StatelessWidget {
                     icon: Icons.monetization_on,
                     label: 'Diezmos y Ofrendas',
                     description: 'Ver y gestionar aportes',
-                    onTap: () {},
+                    onTap: () => Navigator.pushNamed(context, '/finanzas/aportes'),
                     color: kGold,
                   ),
                 ),

@@ -1,16 +1,167 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_layout.dart';
+import '../../core/session.dart';
 
-/// Shell reutilizable para todos los roles autenticados.
-/// Recibe la lista de items del menú y el body de la pantalla activa.
+// ── Menús por rol ─────────────────────────────────────────────────────────────
+
+const _menuAdmin = <MenuItemData>[
+  MenuItemData(label: 'Dashboard', icono: Icons.dashboard, ruta: '/admin'),
+  MenuItemData(label: 'Miembros', icono: Icons.people, ruta: '/admin/miembros'),
+  MenuItemData(label: 'Grupos', icono: Icons.group, ruta: '/admin/grupos'),
+  MenuItemData(label: 'Cursos', icono: Icons.school, ruta: '/admin/cursos'),
+  MenuItemData(
+    label: 'Ministerios',
+    icono: Icons.account_balance,
+    ruta: '/admin/ministerios',
+  ),
+  MenuItemData(
+    label: 'Finanzas',
+    icono: Icons.monetization_on,
+    ruta: '/admin/aportes',
+  ),
+  MenuItemData(
+    label: 'Usuarios',
+    icono: Icons.manage_accounts,
+    ruta: '/admin/usuarios',
+  ),
+];
+
+const _menuPastor = <MenuItemData>[
+  MenuItemData(
+    label: 'Miembros',
+    icono: Icons.people,
+    ruta: '/pastor/miembros',
+  ),
+  MenuItemData(label: 'Grupos', icono: Icons.group, ruta: '/pastor/grupos'),
+  MenuItemData(label: 'Cursos', icono: Icons.school, ruta: '/pastor/cursos'),
+  MenuItemData(
+    label: 'Asistencia',
+    icono: Icons.fact_check,
+    ruta: '/pastor/asistencia',
+  ),
+  MenuItemData(
+    label: 'Aportes',
+    icono: Icons.monetization_on,
+    ruta: '/pastor/aportes',
+  ),
+];
+
+const _menuLider = <MenuItemData>[
+  MenuItemData(label: 'Mi Grupo', icono: Icons.group, ruta: '/lider/grupo'),
+  MenuItemData(
+    label: 'Asistencia',
+    icono: Icons.fact_check,
+    ruta: '/lider/grupo',
+  ),
+  MenuItemData(
+    label: 'Miembros del Grupo',
+    icono: Icons.people,
+    ruta: '/lider/grupo',
+  ),
+  MenuItemData(label: 'Mi Perfil', icono: Icons.person, ruta: '/perfil'),
+];
+
+const _menuMiembro = <MenuItemData>[
+  MenuItemData(
+    label: 'Mis Cursos',
+    icono: Icons.school,
+    ruta: '/miembro/inscripcion',
+  ),
+  MenuItemData(label: 'Mi Grupo', icono: Icons.group, ruta: '/miembro'),
+  MenuItemData(
+    label: 'Mis Aportes',
+    icono: Icons.monetization_on,
+    ruta: '/miembro',
+  ),
+  MenuItemData(
+    label: 'Sobre Nosotros',
+    icono: Icons.info_outline,
+    ruta: '/sobre',
+  ),
+];
+
+const _menuFinanzas = <MenuItemData>[
+  MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/finanzas'),
+  MenuItemData(
+    label: 'Diezmos y Ofrendas',
+    icono: Icons.monetization_on,
+    ruta: '/finanzas/aportes',
+  ),
+];
+
+List<MenuItemData> menuPorRol(String rol) {
+  switch (rol.toLowerCase()) {
+    case 'admin':
+      return _menuAdmin;
+    case 'pastor':
+      return _menuPastor;
+    case 'lider':
+      return _menuLider;
+    case 'miembro':
+      return _menuMiembro;
+    case 'finanzas':
+      return _menuFinanzas;
+    default:
+      return [];
+  }
+}
+
+Color colorPorRol(String rol) {
+  switch (rol.toLowerCase()) {
+    case 'miembro':
+      return const Color(0xFF1D9E75);
+    case 'lider':
+      return const Color(0xFF378ADD);
+    case 'pastor':
+      return const Color(0xFFBA7517);
+    case 'admin':
+      return const Color(0xFF7F77DD);
+    case 'finanzas':
+      return const Color(0xFF4CAF50);
+    default:
+      return kGrey;
+  }
+}
+
+// ── DashboardPage ─────────────────────────────────────────────────────────────
+/// Reemplaza SigmarPage y DashboardShell en todas las pantallas autenticadas.
+/// Lee el rol automáticamente desde AppSession y construye el sidebar correcto.
+class DashboardPage extends StatelessWidget {
+  final String rutaActual;
+  final Widget child;
+
+  /// true (default) = envuelve child en SingleChildScrollView (mismo comportamiento
+  /// que SigmarPage). false = el child maneja su propio scroll.
+  final bool conScroll;
+
+  const DashboardPage({
+    super.key,
+    required this.rutaActual,
+    required this.child,
+    this.conScroll = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final body = conScroll ? SingleChildScrollView(child: child) : child;
+    return DashboardShell(
+      nombreUsuario: AppSession.nombre,
+      rol: AppSession.rol,
+      menuItems: menuPorRol(AppSession.rol),
+      rutaActual: rutaActual,
+      body: body,
+    );
+  }
+}
+
+// ── DashboardShell ────────────────────────────────────────────────────────────
 class DashboardShell extends StatelessWidget {
   final String nombreUsuario;
   final String rol;
   final List<MenuItemData> menuItems;
   final Widget body;
-  final int indiceActivo;
-  final ValueChanged<int> onMenuTap;
+  final String rutaActual;
 
   const DashboardShell({
     super.key,
@@ -18,40 +169,36 @@ class DashboardShell extends StatelessWidget {
     required this.rol,
     required this.menuItems,
     required this.body,
-    required this.indiceActivo,
-    required this.onMenuTap,
+    required this.rutaActual,
   });
 
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
+    final color = colorPorRol(rol);
+
     return Scaffold(
       backgroundColor: kBg,
       drawer: movil
-          ? _Drawer(
-              nombreUsuario: nombreUsuario,
-              rol: rol,
-              menuItems: menuItems,
-              indiceActivo: indiceActivo,
-              onMenuTap: onMenuTap,
-            )
+          ? _Drawer(menuItems: menuItems, rutaActual: rutaActual, color: color)
           : null,
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar — solo desktop
-          if (!movil)
-            _Sidebar(
-              nombreUsuario: nombreUsuario,
-              rol: rol,
-              menuItems: menuItems,
-              indiceActivo: indiceActivo,
-              onMenuTap: onMenuTap,
-            ),
-          // Contenido principal
+          _TopNavbar(
+            nombreUsuario: nombreUsuario,
+            rol: rol,
+            color: color,
+            movil: movil,
+          ),
           Expanded(
-            child: Column(
+            child: Row(
               children: [
-                _TopBar(nombreUsuario: nombreUsuario, rol: rol, movil: movil),
+                if (!movil)
+                  _Sidebar(
+                    menuItems: menuItems,
+                    rutaActual: rutaActual,
+                    color: color,
+                  ),
                 Expanded(child: body),
               ],
             ),
@@ -62,116 +209,260 @@ class DashboardShell extends StatelessWidget {
   }
 }
 
-// ── Sidebar desktop ───────────────────────────────────
-class _Sidebar extends StatelessWidget {
+// ── TopNavbar ─────────────────────────────────────────────────────────────────
+class _TopNavbar extends StatelessWidget {
   final String nombreUsuario, rol;
-  final List<MenuItemData> menuItems;
-  final int indiceActivo;
-  final ValueChanged<int> onMenuTap;
+  final Color color;
+  final bool movil;
 
-  const _Sidebar({
+  const _TopNavbar({
     required this.nombreUsuario,
     required this.rol,
-    required this.menuItems,
-    required this.indiceActivo,
-    required this.onMenuTap,
+    required this.color,
+    required this.movil,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 220,
-      color: const Color(0xFF111111),
-      child: Column(
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: const BoxDecoration(
+        color: Color(0xFF111111),
+        border: Border(bottom: BorderSide(color: kDivider)),
+      ),
+      child: Row(
         children: [
-          // Logo
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: kDivider)),
+          if (movil) ...[
+            GestureDetector(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              child: const Icon(Icons.menu, color: kGold, size: 26),
             ),
-            child: Row(
+            const SizedBox(width: 14),
+          ],
+          // Logo
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              'assets/images/logo.jpg',
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _LogoFallback(size: 36),
+            ),
+          ),
+          const SizedBox(width: 10),
+          if (!movil)
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [kGold, kGoldDark]),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'LV',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                Text(
+                  'LUZ Y VIDA',
+                  style: TextStyle(
+                    color: kGold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'SIGMAR',
-                      style: TextStyle(
-                        color: kGold,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    Text(
-                      'Luz y Vida',
-                      style: TextStyle(color: kGrey, fontSize: 10),
-                    ),
-                  ],
+                Text(
+                  'Somos Familia',
+                  style: TextStyle(color: kGrey, fontSize: 10),
                 ),
               ],
             ),
-          ),
-
-          // Menu items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              children: menuItems
-                  .asMap()
-                  .entries
-                  .map(
-                    (e) => _MenuItem(
-                      item: e.value,
-                      activo: e.key == indiceActivo,
-                      onTap: () => onMenuTap(e.key),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-
-          // Footer usuario + cerrar sesion
-          _SidebarFooter(nombreUsuario: nombreUsuario, rol: rol),
+          const Spacer(),
+          // Badge de rol (solo desktop)
+          if (!movil) ...[
+            _RolBadge(rol: rol, color: color),
+            const SizedBox(width: 14),
+          ],
+          // Dropdown de usuario
+          _UserDropdown(nombreUsuario: nombreUsuario, color: color),
         ],
       ),
     );
   }
 }
 
-// ── Drawer movil ──────────────────────────────────────
-class _Drawer extends StatelessWidget {
-  final String nombreUsuario, rol;
+// ── RolBadge ──────────────────────────────────────────────────────────────────
+class _RolBadge extends StatelessWidget {
+  final String rol;
+  final Color color;
+  const _RolBadge({required this.rol, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        rol.toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+}
+
+// ── UserDropdown ──────────────────────────────────────────────────────────────
+class _UserDropdown extends StatelessWidget {
+  final String nombreUsuario;
+  final Color color;
+  const _UserDropdown({required this.nombreUsuario, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final ini = nombreUsuario.isNotEmpty ? nombreUsuario[0].toUpperCase() : 'U';
+    final nombre = nombreUsuario.length > 18
+        ? '${nombreUsuario.substring(0, 16)}…'
+        : nombreUsuario;
+
+    return PopupMenuButton<String>(
+      color: kBgCard,
+      offset: const Offset(0, 54),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: kDivider),
+      ),
+      onSelected: (v) async {
+        if (v == 'perfil') {
+          Navigator.pushNamed(context, '/perfil');
+        } else if (v == 'salir') {
+          await AppSession.cerrar();
+          if (context.mounted) Navigator.pushReplacementNamed(context, '/');
+        }
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          enabled: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                nombreUsuario,
+                style: const TextStyle(
+                  color: kWhite,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              Text(
+                AppSession.rol.toUpperCase(),
+                style: TextStyle(color: color, fontSize: 10),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'perfil',
+          child: Row(
+            children: [
+              Icon(Icons.person_outline, color: kGrey, size: 16),
+              SizedBox(width: 8),
+              Text(
+                'Modificar Perfil',
+                style: TextStyle(color: kWhite, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'salir',
+          child: Row(
+            children: [
+              Icon(Icons.logout, color: kDanger, size: 16),
+              SizedBox(width: 8),
+              Text(
+                'Cerrar Sesión',
+                style: TextStyle(color: kDanger, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 17,
+            backgroundColor: color.withValues(alpha: 0.18),
+            child: Text(
+              ini,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(nombre, style: const TextStyle(color: kWhite, fontSize: 13)),
+          const SizedBox(width: 4),
+          const Icon(Icons.keyboard_arrow_down, color: kGrey, size: 16),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Sidebar (desktop) ─────────────────────────────────────────────────────────
+class _Sidebar extends StatelessWidget {
   final List<MenuItemData> menuItems;
-  final int indiceActivo;
-  final ValueChanged<int> onMenuTap;
+  final String rutaActual;
+  final Color color;
+
+  const _Sidebar({
+    required this.menuItems,
+    required this.rutaActual,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 220,
+      decoration: const BoxDecoration(
+        color: Color(0xFF111111),
+        border: Border(right: BorderSide(color: kDivider)),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        children: menuItems
+            .map(
+              (item) => _MenuItem(
+                item: item,
+                activo: item.ruta == rutaActual,
+                color: color,
+                enDrawer: false,
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+}
+
+// ── Drawer (móvil) ────────────────────────────────────────────────────────────
+class _Drawer extends StatelessWidget {
+  final List<MenuItemData> menuItems;
+  final String rutaActual;
+  final Color color;
 
   const _Drawer({
-    required this.nombreUsuario,
-    required this.rol,
     required this.menuItems,
-    required this.indiceActivo,
-    required this.onMenuTap,
+    required this.rutaActual,
+    required this.color,
   });
 
   @override
@@ -180,44 +471,43 @@ class _Drawer extends StatelessWidget {
       backgroundColor: const Color(0xFF111111),
       child: Column(
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: kBgCard),
+          Container(
+            height: 80,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            alignment: Alignment.centerLeft,
+            decoration: const BoxDecoration(
+              color: kBgMid,
+              border: Border(bottom: BorderSide(color: kDivider)),
+            ),
             child: Row(
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [kGold, kGoldDark]),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'LV',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'assets/images/logo.jpg',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _LogoFallback(size: 40),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'SIGMAR',
+                    Text(
+                      'LUZ Y VIDA',
                       style: TextStyle(
                         color: kGold,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
                       ),
                     ),
                     Text(
-                      nombreUsuario,
-                      style: const TextStyle(color: kGrey, fontSize: 12),
+                      'Somos Familia',
+                      style: TextStyle(color: kGrey, fontSize: 11),
                     ),
                   ],
                 ),
@@ -226,66 +516,69 @@ class _Drawer extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
               children: menuItems
-                  .asMap()
-                  .entries
                   .map(
-                    (e) => _MenuItem(
-                      item: e.value,
-                      activo: e.key == indiceActivo,
-                      onTap: () {
-                        onMenuTap(e.key);
-                        Navigator.pop(context);
-                      },
+                    (item) => _MenuItem(
+                      item: item,
+                      activo: item.ruta == rutaActual,
+                      color: color,
+                      enDrawer: true,
                     ),
                   )
                   .toList(),
             ),
           ),
-          _SidebarFooter(nombreUsuario: nombreUsuario, rol: rol),
         ],
       ),
     );
   }
 }
 
-// ── Menu item ─────────────────────────────────────────
+// ── MenuItem ──────────────────────────────────────────────────────────────────
 class _MenuItem extends StatefulWidget {
   final MenuItemData item;
-  final bool activo;
-  final VoidCallback onTap;
+  final bool activo, enDrawer;
+  final Color color;
+
   const _MenuItem({
     required this.item,
     required this.activo,
-    required this.onTap,
+    required this.color,
+    required this.enDrawer,
   });
+
   @override
   State<_MenuItem> createState() => _MenuItemState();
 }
 
 class _MenuItemState extends State<_MenuItem> {
   bool _hover = false;
+
   @override
   Widget build(BuildContext context) => MouseRegion(
     cursor: SystemMouseCursors.click,
     onEnter: (_) => setState(() => _hover = true),
     onExit: (_) => setState(() => _hover = false),
     child: GestureDetector(
-      onTap: widget.onTap,
+      onTap: () {
+        if (widget.enDrawer) Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, widget.item.ruta);
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
           color: widget.activo
-              ? kGold.withValues(alpha: 0.15)
+              ? widget.color.withValues(alpha: 0.15)
               : _hover
-              ? kGold.withValues(alpha: 0.07)
+              ? widget.color.withValues(alpha: 0.07)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: widget.activo
-                ? kGold.withValues(alpha: 0.4)
+                ? widget.color.withValues(alpha: 0.4)
                 : Colors.transparent,
           ),
         ),
@@ -293,16 +586,21 @@ class _MenuItemState extends State<_MenuItem> {
           children: [
             Icon(
               widget.item.icono,
-              color: widget.activo ? kGold : kGrey,
+              color: widget.activo ? widget.color : kGrey,
               size: 18,
             ),
             const SizedBox(width: 12),
-            Text(
-              widget.item.label,
-              style: TextStyle(
-                color: widget.activo ? kGold : kGrey,
-                fontSize: 13,
-                fontWeight: widget.activo ? FontWeight.bold : FontWeight.normal,
+            Expanded(
+              child: Text(
+                widget.item.label,
+                style: TextStyle(
+                  color: widget.activo ? widget.color : kGrey,
+                  fontSize: 13,
+                  fontWeight: widget.activo
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -312,189 +610,33 @@ class _MenuItemState extends State<_MenuItem> {
   );
 }
 
-// ── Top bar ───────────────────────────────────────────
-class _TopBar extends StatelessWidget {
-  final String nombreUsuario, rol;
-  final bool movil;
-  const _TopBar({
-    required this.nombreUsuario,
-    required this.rol,
-    required this.movil,
-  });
+// ── Logo fallback ─────────────────────────────────────────────────────────────
+class _LogoFallback extends StatelessWidget {
+  final double size;
+  const _LogoFallback({required this.size});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      decoration: const BoxDecoration(
-        color: kBgMid,
-        border: Border(bottom: BorderSide(color: kDivider)),
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: const BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: LinearGradient(colors: [kGold, kGoldDark]),
+    ),
+    child: Center(
+      child: Text(
+        'LV',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: size * 0.33,
+          fontWeight: FontWeight.bold,
+        ),
       ),
-      child: Row(
-        children: [
-          if (movil) ...[
-            GestureDetector(
-              onTap: () => Scaffold.of(context).openDrawer(),
-              child: const Icon(Icons.menu, color: kWhite),
-            ),
-            const SizedBox(width: 16),
-          ],
-          const Text(
-            'SIGMAR',
-            style: TextStyle(
-              color: kGold,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-          const Spacer(),
-          // Badge de rol
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: _colorRol(rol).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _colorRol(rol).withValues(alpha: 0.4)),
-            ),
-            child: Text(
-              rol.toUpperCase(),
-              style: TextStyle(
-                color: _colorRol(rol),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Avatar usuario
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _colorRol(rol).withValues(alpha: 0.15),
-              border: Border.all(color: _colorRol(rol).withValues(alpha: 0.4)),
-            ),
-            child: Center(
-              child: Text(
-                nombreUsuario.isNotEmpty ? nombreUsuario[0].toUpperCase() : 'U',
-                style: TextStyle(
-                  color: _colorRol(rol),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _colorRol(String r) {
-    switch (r.toLowerCase()) {
-      case 'miembro':
-        return const Color(0xFF1D9E75); // teal
-      case 'lider':
-        return const Color(0xFF378ADD); // blue
-      case 'pastor':
-        return const Color(0xFFBA7517); // amber
-      case 'administrador':
-      case 'admin':
-        return const Color(0xFF7F77DD); // purple
-      default:
-        return kGrey;
-    }
-  }
+    ),
+  );
 }
 
-// ── Sidebar footer con cerrar sesion ──────────────────
-class _SidebarFooter extends StatelessWidget {
-  final String nombreUsuario, rol;
-  const _SidebarFooter({required this.nombreUsuario, required this.rol});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: kDivider)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kGold.withValues(alpha: 0.12),
-                  border: Border.all(color: kGold.withValues(alpha: 0.4)),
-                ),
-                child: Center(
-                  child: Text(
-                    nombreUsuario.isNotEmpty
-                        ? nombreUsuario[0].toUpperCase()
-                        : 'U',
-                    style: const TextStyle(
-                      color: kGold,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nombreUsuario,
-                      style: const TextStyle(
-                        color: kWhite,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      rol,
-                      style: const TextStyle(color: kGrey, fontSize: 10),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: kGrey,
-                side: const BorderSide(color: kDivider),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(7),
-                ),
-              ),
-              icon: const Icon(Icons.logout, size: 15),
-              label: const Text(
-                'Cerrar sesion',
-                style: TextStyle(fontSize: 12),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Modelo de item de menu ────────────────────────────
+// ── MenuItemData ──────────────────────────────────────────────────────────────
 class MenuItemData {
   final String label;
   final IconData icono;

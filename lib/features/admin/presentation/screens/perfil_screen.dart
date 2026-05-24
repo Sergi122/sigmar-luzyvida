@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 
@@ -185,7 +185,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 700;
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/perfil',
       child: Padding(
         padding: EdgeInsets.all(movil ? 16 : 32),

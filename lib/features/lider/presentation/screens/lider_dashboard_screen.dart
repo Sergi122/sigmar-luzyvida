@@ -10,28 +10,12 @@ class LiderDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
-    const Color _kColor = Color(0xFF378ADD); // blue for lider
+    const Color kColor = Color(0xFF378ADD);
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'lider',
-      menuItems: [
-        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/lider'),
-        MenuItemData(label: 'Mi Grupo', icono: Icons.group, ruta: '/lider/grupo'),
-        MenuItemData(label: 'Mi Perfil', icono: Icons.person, ruta: '/perfil'),
-      ],
-      indiceActivo: 0,
-      onMenuTap: (index) {
-        final rutas = [
-          '/lider',
-          '/lider/grupo',
-          '/perfil',
-        ];
-        if (index < rutas.length) {
-          Navigator.pushReplacementNamed(context, rutas[index]);
-        }
-      },
-      body: Padding(
+    return DashboardPage(
+      rutaActual: '/lider',
+      conScroll: false,
+      child: Padding(
         padding: EdgeInsets.all(movil ? kMobilePadding : kDesktopPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,12 +27,12 @@ class LiderDashboardScreen extends StatelessWidget {
                   width: movil ? 42 : 52,
                   height: movil ? 42 : 52,
                   decoration: BoxDecoration(
-                    color: _kColor.withValues(alpha: 0.12),
+                    color: kColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.group_outlined,
-                    color: _kColor,
+                    color: kColor,
                     size: 24,
                   ),
                 ),
@@ -75,7 +59,7 @@ class LiderDashboardScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Container(width: 50, height: 3, color: _kColor),
+            Container(width: 50, height: 3, color: kColor),
             const SizedBox(height: 20),
             // Quick access cards
             movil
@@ -86,7 +70,7 @@ class LiderDashboardScreen extends StatelessWidget {
                         label: 'Inicio',
                         description: 'Página principal de líder',
                         onTap: () {},
-                        color: _kColor,
+                        color: kColor,
                       ),
                       const SizedBox(height: 16),
                       _buildQuickCard(
@@ -94,7 +78,7 @@ class LiderDashboardScreen extends StatelessWidget {
                         label: 'Mi Grupo',
                         description: 'Ver y gestionar mi grupo',
                         onTap: () => Navigator.pushNamed(context, '/lider/grupo'),
-                        color: _kColor,
+                        color: kColor,
                       ),
                       const SizedBox(height: 16),
                       _buildQuickCard(
@@ -102,7 +86,7 @@ class LiderDashboardScreen extends StatelessWidget {
                         label: 'Mi Perfil',
                         description: 'Editar mis datos personales',
                         onTap: () => Navigator.pushNamed(context, '/perfil'),
-                        color: _kColor,
+                        color: kColor,
                       ),
                     ],
                   )
@@ -114,7 +98,7 @@ class LiderDashboardScreen extends StatelessWidget {
                           label: 'Inicio',
                           description: 'Página principal de líder',
                           onTap: () {},
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -124,7 +108,7 @@ class LiderDashboardScreen extends StatelessWidget {
                           label: 'Mi Grupo',
                           description: 'Ver y gestionar mi grupo',
                           onTap: () => Navigator.pushNamed(context, '/lider/grupo'),
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -134,7 +118,7 @@ class LiderDashboardScreen extends StatelessWidget {
                           label: 'Mi Perfil',
                           description: 'Editar mis datos personales',
                           onTap: () => Navigator.pushNamed(context, '/perfil'),
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                     ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF9C6FE4);
@@ -108,7 +108,7 @@ class _AdminMinisteriosScreenState extends State<AdminMinisteriosScreen> {
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 800;
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/ministerios',
       child: Padding(
         padding: EdgeInsets.all(movil ? 16 : 28),

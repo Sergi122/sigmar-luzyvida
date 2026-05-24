@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
@@ -107,7 +107,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
           .from('inscripciones')
           .select('id, estado')
           .eq('id_curso', c['id'] as int)
-          .isFilter('id_periodo', null);
+          .isFilter('periodo_id', null);
 
       final total = (inscritos as List).length;
       final completados = inscritos
@@ -129,15 +129,13 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
 
       final periodoId = periodo['id'] as int;
 
-      // Archivar inscripciones actuales a ese período
+      // Archivar inscripciones actuales a ese período (batch update)
       if (total > 0) {
         final ids = (inscritos as List).map((i) => i['id']).toList();
-        for (final id in ids) {
-          await _sb
-              .from('inscripciones')
-              .update({'id_periodo': periodoId})
-              .eq('id', id);
-        }
+        await _sb
+            .from('inscripciones')
+            .update({'periodo_id': periodoId})
+            .inFilter('id', ids);
       }
 
       _msg(
@@ -181,7 +179,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
   Widget build(BuildContext context) {
     final lista = _cursosFiltrados;
 
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/cursos',
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -632,7 +630,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
           .from('inscripciones')
           .select('*, miembros(id, nombre, carnet)')
           .eq('id_curso', widget.curso['id'] as int)
-          .isFilter('id_periodo', null);
+          .isFilter('periodo_id', null);
 
       final inscritosIds = (inscritos as List)
           .map((i) => (i['miembros'] as Map)['id'] as int)
@@ -1383,22 +1381,28 @@ class _DialogHistorialState extends State<_DialogHistorial> {
   }
 
   Future<void> _cargar() async {
-    final data = await _sb
-        .from('periodos_curso')
-        .select()
-        .eq('id_curso', widget.curso['id'] as int)
-        .order('fecha_fin', ascending: false);
-    setState(() {
-      _periodos = List<Map<String, dynamic>>.from(data);
-      _cargando = false;
-    });
+    try {
+      final data = await _sb
+          .from('periodos_curso')
+          .select()
+          .eq('id_curso', widget.curso['id'] as int)
+          .order('fecha_fin', ascending: false);
+      if (mounted) {
+        setState(() {
+          _periodos = List<Map<String, dynamic>>.from(data);
+          _cargando = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _cargando = false);
+    }
   }
 
   Future<List<Map<String, dynamic>>> _cargarInscritos(int periodoId) async {
     final data = await _sb
         .from('inscripciones')
         .select('*, miembros(nombre, carnet)')
-        .eq('id_periodo', periodoId)
+        .eq('periodo_id', periodoId)
         .order('estado');
     return List<Map<String, dynamic>>.from(data);
   }

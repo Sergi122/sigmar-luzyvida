@@ -185,18 +185,9 @@ class _MiembroInscripcionScreenState extends State<MiembroInscripcionScreen> {
     final lista = _cursosFiltrados;
     final miembroId = AppSession.miembroId;
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: AppSession.rol,
-      menuItems: const [
-        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/'),
-        MenuItemData(label: 'Inscripción', icono: Icons.school, ruta: '/miembro/inscripcion'),
-      ],
-      indiceActivo: 1,
-      onMenuTap: (i) {
-        if (i == 0) Navigator.pushReplacementNamed(context, '/');
-      },
-      body: Padding(
+    return DashboardPage(
+      rutaActual: '/miembro/inscripcion',
+      child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -12,28 +12,12 @@ class MiembroDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
-    const Color _kColor = Color(0xFF1D9E75); // teal for miembro
+    const Color kColor = Color(0xFF1D9E75);
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'miembro',
-      menuItems: [
-        MenuItemData(label: 'Inicio', icono: Icons.home, ruta: '/miembro'),
-        MenuItemData(label: 'Mis Cursos', icono: Icons.school, ruta: '/miembro/inscripcion'),
-        MenuItemData(label: 'Mi Perfil', icono: Icons.person, ruta: '/perfil'),
-      ],
-      indiceActivo: 0,
-      onMenuTap: (index) {
-        final rutas = [
-          '/miembro',
-          '/miembro/inscripcion',
-          '/perfil',
-        ];
-        if (index < rutas.length) {
-          Navigator.pushReplacementNamed(context, rutas[index]);
-        }
-      },
-      body: Padding(
+    return DashboardPage(
+      rutaActual: '/miembro',
+      conScroll: false,
+      child: Padding(
         padding: EdgeInsets.all(movil ? kMobilePadding : kDesktopPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,12 +29,12 @@ class MiembroDashboardScreen extends StatelessWidget {
                   width: movil ? 42 : 52,
                   height: movil ? 42 : 52,
                   decoration: BoxDecoration(
-                    color: _kColor.withValues(alpha: 0.12),
+                    color: kColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.person_outline,
-                    color: _kColor,
+                    color: kColor,
                     size: 24,
                   ),
                 ),
@@ -77,7 +61,7 @@ class MiembroDashboardScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Container(width: 50, height: 3, color: _kColor),
+            Container(width: 50, height: 3, color: kColor),
             const SizedBox(height: 20),
             // Quick access cards
             movil
@@ -88,7 +72,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                         label: 'Inicio',
                         description: 'Página principal de miembro',
                         onTap: () {},
-                        color: _kColor,
+                        color: kColor,
                       ),
                       const SizedBox(height: 16),
                       _buildQuickCard(
@@ -96,7 +80,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                         label: 'Mis Cursos',
                         description: 'Inscribirse a cursos',
                         onTap: () => Navigator.pushNamed(context, '/miembro/inscripcion'),
-                        color: _kColor,
+                        color: kColor,
                       ),
                       const SizedBox(height: 16),
                       _buildQuickCard(
@@ -104,7 +88,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                         label: 'Mi Perfil',
                         description: 'Editar mis datos personales',
                         onTap: () => Navigator.pushNamed(context, '/perfil'),
-                        color: _kColor,
+                        color: kColor,
                       ),
                     ],
                   )
@@ -116,7 +100,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                           label: 'Inicio',
                           description: 'Página principal de miembro',
                           onTap: () {},
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -126,7 +110,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                           label: 'Mis Cursos',
                           description: 'Inscribirse a cursos',
                           onTap: () => Navigator.pushNamed(context, '/miembro/inscripcion'),
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -136,7 +120,7 @@ class MiembroDashboardScreen extends StatelessWidget {
                           label: 'Mi Perfil',
                           description: 'Editar mis datos personales',
                           onTap: () => Navigator.pushNamed(context, '/perfil'),
-                          color: _kColor,
+                          color: kColor,
                         ),
                       ),
                     ],

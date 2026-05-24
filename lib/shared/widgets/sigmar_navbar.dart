@@ -28,8 +28,7 @@ class SigmarNavbar extends StatelessWidget {
         ];
       case 'finanzas':
         return [
-          _Item('DIEZMOS', '/finanzas/diezmos'),
-          _Item('OFRENDAS', '/finanzas/ofrendas'),
+          _Item('APORTES', '/finanzas/aportes'),
         ];
       case 'admin':
         return [
@@ -148,7 +147,7 @@ class SigmarNavbar extends StatelessWidget {
                 width: 56, // antes 38
                 height: 56, // antes 38
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildPlaceholderLogo(),
+                errorBuilder: (_, _, _) => _buildPlaceholderLogo(),
               ),
             ),
             const SizedBox(width: 14),
@@ -350,9 +349,9 @@ class _MenuPerfil extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: _c.withOpacity(0.1),
+                color: _c.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _c.withOpacity(0.3)),
+                border: Border.all(color: _c.withValues(alpha: 0.3)),
               ),
               child: Text(
                 AppSession.rol.toUpperCase(),
@@ -367,7 +366,7 @@ class _MenuPerfil extends StatelessWidget {
           ],
           CircleAvatar(
             radius: 20,
-            backgroundColor: _c.withOpacity(0.2),
+            backgroundColor: _c.withValues(alpha: 0.2),
             child: Text(
               ini,
               style: TextStyle(

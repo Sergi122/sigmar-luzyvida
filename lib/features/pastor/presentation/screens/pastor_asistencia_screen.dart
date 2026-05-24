@@ -6,7 +6,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
@@ -24,19 +23,10 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
   int? _grupoSeleccionado;
   bool _cargando = true;
   bool _cargandoAsistencia = false;
-  final int _menuActivo = 3;
 
   // Filtro por fecha
   DateTime? _fechaSeleccionada;
   List<Map<String, dynamic>> _asistenciasFiltradas = [];
-
-  final _menuItems = [
-    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
-    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
-    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
-    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
-    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
-  ];
 
   @override
   void initState() {
@@ -186,19 +176,6 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
           },
         ),
       );
-    }
-  }
-
-  void _navegar(int idx) {
-    final rutas = [
-      '/pastor/miembros',
-      '/pastor/grupos',
-      '/pastor/cursos',
-      '/pastor/asistencia',
-      '/pastor/aportes',
-    ];
-    if (idx != _menuActivo && idx < rutas.length) {
-      Navigator.pushReplacementNamed(context, rutas[idx]);
     }
   }
 
@@ -359,13 +336,10 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
     final stats = _stats;
     final statsGlobales = _statsGlobales;
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'Pastor',
-      menuItems: _menuItems,
-      indiceActivo: _menuActivo,
-      onMenuTap: _navegar,
-      body: _cargando
+    return DashboardPage(
+      rutaActual: '/pastor/asistencia',
+      conScroll: false,
+      child: _cargando
           ? const Center(child: CircularProgressIndicator(color: _kColor))
           : RefreshIndicator(
               color: _kColor,

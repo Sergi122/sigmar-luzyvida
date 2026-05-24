@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_layout.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 import 'registro_usuario_screen.dart';
 
 final _sb = Supabase.instance.client;
@@ -63,19 +63,28 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
   }
 
   Future<void> _toggleActivo(Map<String, dynamic> u) async {
-    // ✅ activo es boolean en nueva schema
     final nuevoActivo = !(u['activo'] as bool? ?? true);
-    await _sb
-        .from('usuarios')
-        .update({'activo': nuevoActivo})
-        .eq('id', u['id']);
-    _cargar();
+    try {
+      await _sb
+          .from('usuarios')
+          .update({'activo': nuevoActivo})
+          .eq('id', u['id']);
+      _cargar();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cambiar estado: $e'),
+          backgroundColor: kDanger,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/usuarios',
       child: Padding(
         padding: EdgeInsets.all(movil ? kMobilePadding : kDesktopPadding),
@@ -103,7 +112,7 @@ class _AdminUsuariosScreenState extends State<AdminUsuariosScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Gestion de Usuarios',
+                        'Gestión de Usuarios',
                         style: TextStyle(
                           color: kWhite,
                           fontSize: 24,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
@@ -79,10 +79,15 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   }
 
   Future<void> _cambiarEstado(Map<String, dynamic> m) async {
-    final nuevo = m['estado'] == 'activo' ? 'inactivo' : 'activo';
-    await _sb.from('miembros').update({'estado': nuevo}).eq('id', m['id']);
-    _msg('Estado cambiado a $nuevo');
-    _cargar();
+    final estadoActual = m['estado'] as String? ?? 'activo';
+    final nuevo = estadoActual == 'activo' ? 'inactivo' : 'activo';
+    try {
+      await _sb.from('miembros').update({'estado': nuevo}).eq('id', m['id']);
+      _msg('Estado cambiado a $nuevo');
+      _cargar();
+    } catch (e) {
+      _msg('Error al cambiar estado: $e', error: true);
+    }
   }
 
   Future<void> _eliminar(Map<String, dynamic> m) async {
@@ -94,18 +99,22 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
       ),
     );
     if (ok != true) return;
-    final fotoUrl = m['foto_url'] as String?;
-    if (fotoUrl != null && fotoUrl.isNotEmpty) {
-      try {
-        final path = _extractStoragePath(fotoUrl);
-        if (path != null) {
-          await _sb.storage.from('fotos-miembros').remove([path]);
-        }
-      } catch (_) {}
+    try {
+      final fotoUrl = m['foto_url'] as String?;
+      if (fotoUrl != null && fotoUrl.isNotEmpty) {
+        try {
+          final path = _extractStoragePath(fotoUrl);
+          if (path != null) {
+            await _sb.storage.from('fotos-miembros').remove([path]);
+          }
+        } catch (_) {}
+      }
+      await _sb.from('miembros').delete().eq('id', m['id']);
+      _msg('Miembro eliminado');
+      _cargar();
+    } catch (e) {
+      _msg('Error al eliminar: $e', error: true);
     }
-    await _sb.from('miembros').delete().eq('id', m['id']);
-    _msg('Miembro eliminado');
-    _cargar();
   }
 
   String? _extractStoragePath(String url) {
@@ -127,7 +136,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 800;
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/miembros',
       child: Padding(
         padding: EdgeInsets.all(movil ? 16 : 28),
@@ -983,7 +992,7 @@ class _FormMiembroState extends State<_FormMiembro> {
     'bautizado': _bautizado,
     'asistio_encuentro': _encuentro,
     'estado': _estado,
-    if (fotoUrl != null) 'foto_url': fotoUrl,
+    'foto_url': ?fotoUrl,
   };
 
   // ── Campo contraseña reutilizable ──────────────────

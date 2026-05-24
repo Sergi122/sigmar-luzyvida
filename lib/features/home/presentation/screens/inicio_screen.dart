@@ -175,7 +175,7 @@ class _HeroMensajesState extends State<_HeroMensajes> {
           Image.asset(
             'assets/images/equipo_pastoral.png',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -191,7 +191,7 @@ class _HeroMensajesState extends State<_HeroMensajes> {
           ),
 
           // ── Overlay oscuro ──
-          Container(color: Colors.black.withOpacity(0.62)),
+          Container(color: Colors.black.withValues(alpha: 0.62)),
 
           // ── Barra dorada superior ──
           Positioned(
@@ -292,7 +292,7 @@ class _HeroMensajesState extends State<_HeroMensajes> {
                     width: i == _actual ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == _actual ? kGold : kGrey.withOpacity(0.4),
+                      color: i == _actual ? kGold : kGrey.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -315,7 +315,7 @@ class _BannerVersiculo extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [kBg, kGoldDark.withOpacity(0.3), kBg],
+          colors: [kBg, kGoldDark.withValues(alpha: 0.3), kBg],
         ),
       ),
       child: Row(
@@ -384,7 +384,7 @@ class _MinisterioSectionState extends State<_MinisterioSection> {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 40),
-      color: kGoldDark.withOpacity(0.15),
+      color: kGoldDark.withValues(alpha: 0.15),
       child: widget.movil
           ? Column(children: [slider, const SizedBox(height: 28), texto])
           : widget.invertido
@@ -437,7 +437,7 @@ class _SliderFotos extends StatelessWidget {
                     key: ValueKey(imagenes[actual]),
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: kBgCard,
                       child: const Center(
                         child: Icon(
@@ -478,7 +478,7 @@ class _SliderFotos extends StatelessWidget {
               width: i == actual ? 20 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: i == actual ? kGold : kGrey.withOpacity(0.4),
+                color: i == actual ? kGold : kGrey.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -501,7 +501,7 @@ class _BtnSlider extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.55),
+        color: Colors.black.withValues(alpha: 0.55),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: kWhite, size: 22),
@@ -552,7 +552,7 @@ class _OndasPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = kGold.withOpacity(0.2)
+      ..color = kGold.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     final path = Path()
       ..moveTo(0, size.height * 0.3)

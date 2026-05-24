@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF378ADD);
@@ -262,7 +262,7 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
   // ════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/lider/grupo',
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -1149,7 +1149,8 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
                               : () async {
                                   setState(() => _procesando = true);
                                   await widget.onAgregar(m['id'] as int);
-                                  if (mounted) Navigator.pop(context);
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context);
                                 },
                         );
                       },

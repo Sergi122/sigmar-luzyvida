@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/session.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 export 'admin_miembros_screen.dart';
 export 'admin_grupos_screen.dart';
 export 'admin_cursos_screen.dart';
 export 'admin_aportes_screen.dart';
 export 'admin_ministerios_screen.dart';
+export 'admin_usuarios_screen.dart';
 export 'perfil_screen.dart';
 export '../../../lider/presentation/screens/lider_screens.dart';
 
@@ -26,7 +27,7 @@ class _PantallaModulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: ruta,
       child: Padding(
         padding: const EdgeInsets.all(32),

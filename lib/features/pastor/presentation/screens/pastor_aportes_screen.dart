@@ -6,7 +6,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
@@ -22,7 +21,6 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
   bool _cargando = true;
-  final int _menuActivo = 4;
 
   List<Map<String, dynamic>> _diezmos = [];
   List<Map<String, dynamic>> _ofrendas = [];
@@ -30,14 +28,6 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
   double _totalOfrendas = 0;
   Map<String, double> _diezmosPorMes = {};
   Map<String, double> _ofrendasPorMes = {};
-
-  final _menuItems = [
-    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
-    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
-    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
-    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
-    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
-  ];
 
   @override
   void initState() {
@@ -100,19 +90,6 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
       });
     } catch (e) {
       setState(() => _cargando = false);
-    }
-  }
-
-  void _navegar(int idx) {
-    final rutas = [
-      '/pastor/miembros',
-      '/pastor/grupos',
-      '/pastor/cursos',
-      '/pastor/asistencia',
-      '/pastor/aportes',
-    ];
-    if (idx != _menuActivo && idx < rutas.length) {
-      Navigator.pushReplacementNamed(context, rutas[idx]);
     }
   }
 
@@ -390,13 +367,10 @@ class _PastorAportesScreenState extends State<PastorAportesScreen>
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < 600;
 
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'Pastor',
-      menuItems: _menuItems,
-      indiceActivo: _menuActivo,
-      onMenuTap: _navegar,
-      body: _cargando
+    return DashboardPage(
+      rutaActual: '/pastor/aportes',
+      conScroll: false,
+      child: _cargando
           ? const Center(child: CircularProgressIndicator(color: _kColor))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,

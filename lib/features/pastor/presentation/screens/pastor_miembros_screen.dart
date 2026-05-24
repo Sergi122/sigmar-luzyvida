@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_layout.dart';
-import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
@@ -20,15 +19,6 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
   bool _cargando = true;
   String _busqueda = '';
   String _filtroEstado = 'todos';
-  final int _menuActivo = 0;
-
-  final _menuItems = [
-    MenuItemData(label: 'Miembros', icono: Icons.people_outline, ruta: '/pastor/miembros'),
-    MenuItemData(label: 'Grupos', icono: Icons.group_outlined, ruta: '/pastor/grupos'),
-    MenuItemData(label: 'Cursos', icono: Icons.school_outlined, ruta: '/pastor/cursos'),
-    MenuItemData(label: 'Asistencia', icono: Icons.calendar_today_outlined, ruta: '/pastor/asistencia'),
-    MenuItemData(label: 'Aportes', icono: Icons.attach_money_outlined, ruta: '/pastor/aportes'),
-  ];
 
   @override
   void initState() {
@@ -85,29 +75,13 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
     );
   }
 
-  void _navegar(int idx) {
-    final rutas = [
-      '/pastor/miembros',
-      '/pastor/grupos',
-      '/pastor/cursos',
-      '/pastor/asistencia',
-      '/pastor/aportes',
-    ];
-    if (idx != _menuActivo && idx < rutas.length) {
-      Navigator.pushReplacementNamed(context, rutas[idx]);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final movil = MediaQuery.of(context).size.width < kMobileBreakpoint;
-    return DashboardShell(
-      nombreUsuario: AppSession.nombre,
-      rol: 'Pastor',
-      menuItems: _menuItems,
-      indiceActivo: _menuActivo,
-      onMenuTap: _navegar,
-      body: RefreshIndicator(
+    return DashboardPage(
+      rutaActual: '/pastor/miembros',
+      conScroll: false,
+      child: RefreshIndicator(
         color: _kColor,
         onRefresh: _cargar,
         child: SingleChildScrollView(

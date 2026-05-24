@@ -231,9 +231,9 @@ class _HorariosFooter extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: kGold.withOpacity(0.1),
+                color: kGold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: kGold.withOpacity(0.3)),
+                border: Border.all(color: kGold.withValues(alpha: 0.3)),
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
@@ -358,7 +358,7 @@ class _RedBtnState extends State<_RedBtn> {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: _h ? widget.color.withOpacity(0.12) : Colors.transparent,
+          color: _h ? widget.color.withValues(alpha: 0.12) : Colors.transparent,
           borderRadius: BorderRadius.circular(5),
           border: Border.all(color: _h ? widget.color : kDivider),
         ),

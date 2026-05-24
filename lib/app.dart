@@ -37,6 +37,7 @@ class SigmarApp extends StatelessWidget {
 
         '/admin': (_) => AdminMiembrosScreen(),
         '/admin/miembros': (_) => AdminMiembrosScreen(),
+        '/admin/usuarios': (_) => AdminUsuariosScreen(),
         '/admin/grupos': (_) => AdminGruposScreen(),
         '/admin/cursos': (_) => AdminCursosScreen(),
         '/admin/aportes': (_) => AdminAportesScreen(),

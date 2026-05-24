@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
@@ -32,7 +32,7 @@ class _AdminAportesScreenState extends State<AdminAportesScreen>
   Widget build(BuildContext context) {
     // SigmarPage tiene SingleChildScrollView interno, así que NO usamos
     // Expanded — en su lugar dejamos que el contenido tenga altura natural.
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/aportes',
       child: Padding(
         padding: const EdgeInsets.all(28),

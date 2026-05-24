@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui_web;
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/sigmar_navbar.dart';
 import '../../../../shared/widgets/sigmar_footer.dart';
@@ -26,7 +26,7 @@ void _registrarMapa() {
   ui_web.platformViewRegistry.registerViewFactory('mapa-luz-vida', (
     int viewId,
   ) {
-    final iframe = html.IFrameElement()
+    final iframe = web.HTMLIFrameElement()
       ..src = _kMapSrc
       ..style.border = 'none'
       ..style.width = '100%'
@@ -168,7 +168,7 @@ class _FotoIglesia extends StatelessWidget {
         fit: BoxFit.cover,
         height: 320,
         width: double.infinity,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           height: 320,
           decoration: BoxDecoration(
             color: kBgCard,
@@ -581,7 +581,7 @@ class _PastorCard extends StatelessWidget {
             width: 90,
             height: 90,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               width: 90,
               height: 90,
               decoration: BoxDecoration(
@@ -994,7 +994,7 @@ class _MapaWidget extends StatelessWidget {
 }
 
 class _MapaIframe extends StatelessWidget {
-  _MapaIframe();
+  const _MapaIframe();
   @override
   Widget build(BuildContext context) {
     return const HtmlElementView(viewType: 'mapa-luz-vida');

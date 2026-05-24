@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../shared/widgets/sigmar_page.dart';
+import '../../../../shared/widgets/dashboard_shell.dart';
 
 final _sb = Supabase.instance.client;
 const _kColor = Color(0xFF7F77DD);
@@ -134,7 +134,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SigmarPage(
+    return DashboardPage(
       rutaActual: '/admin/usuarios',
       child: Center(
         child: SingleChildScrollView(
