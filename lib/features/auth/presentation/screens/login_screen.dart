@@ -131,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 6),
                     const Text(
                       'SIGMAR — Sistema de Gestión',
-                      style: TextStyle(color: kGrey, fontSize: 13),
+                      style: TextStyle(color: kGrey, fontSize: 14),
                     ),
                     const SizedBox(height: 40),
                     const Text(
@@ -153,8 +153,8 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(32),
-                  child: SizedBox(
-                    width: 380,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 380),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

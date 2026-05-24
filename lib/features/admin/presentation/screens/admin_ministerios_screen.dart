@@ -146,7 +146,7 @@ class _AdminMinisteriosScreenState extends State<AdminMinisteriosScreen> {
                       ),
                       Text(
                         'Administrar ministerios y sus integrantes',
-                        style: TextStyle(color: kGrey, fontSize: 13),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -183,7 +183,7 @@ class _AdminMinisteriosScreenState extends State<AdminMinisteriosScreen> {
               style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Buscar ministerio...',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
                 prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
                 filled: true,
                 fillColor: kBgCard,
@@ -208,7 +208,7 @@ class _AdminMinisteriosScreenState extends State<AdminMinisteriosScreen> {
             const SizedBox(height: 8),
             Text(
               '${_filtrados.length} ministerio${_filtrados.length != 1 ? 's' : ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 16),
 
@@ -359,7 +359,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                           activo ? 'Activo' : 'Inactivo',
                           style: TextStyle(
                             color: activo ? kSuccess : kDanger,
-                            fontSize: 10,
+                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -369,7 +369,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                   if ((m['descripcion'] ?? '').isNotEmpty)
                     Text(
                       m['descripcion'],
-                      style: const TextStyle(color: kGrey, fontSize: 12),
+                      style: const TextStyle(color: kGrey, fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
                   const SizedBox(height: 4),
@@ -379,14 +379,14 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                       const SizedBox(width: 4),
                       Text(
                         '${miembros.length} integrante${miembros.length != 1 ? 's' : ''}',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       const Icon(Icons.star_outline, color: kGrey, size: 13),
                       const SizedBox(width: 4),
                       Text(
                         liderNombre,
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -405,7 +405,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                 ),
               ),
               icon: const Icon(Icons.group_outlined, size: 16),
-              label: const Text('Miembros', style: TextStyle(fontSize: 12)),
+              label: const Text('Miembros', style: TextStyle(fontSize: 14)),
             ),
 
             // Menú
@@ -426,7 +426,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                       SizedBox(width: 8),
                       Text(
                         'Editar',
-                        style: TextStyle(color: kWhite, fontSize: 13),
+                        style: TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -445,7 +445,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                       const SizedBox(width: 8),
                       Text(
                         activo ? 'Desactivar' : 'Activar',
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -459,7 +459,7 @@ class _TarjetaMinisterioState extends State<_TarjetaMinisterio> {
                       SizedBox(width: 8),
                       Text(
                         'Eliminar',
-                        style: TextStyle(color: kDanger, fontSize: 13),
+                        style: TextStyle(color: kDanger, fontSize: 14),
                       ),
                     ],
                   ),
@@ -545,7 +545,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 480,
+        constraints: const BoxConstraints(maxWidth: 480),
         padding: const EdgeInsets.all(28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -587,7 +587,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
 
             const Text(
               'NOMBRE',
-              style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
+              style: TextStyle(color: kGrey, fontSize: 14, letterSpacing: 2),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -599,7 +599,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
 
             const Text(
               'DESCRIPCIÓN',
-              style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
+              style: TextStyle(color: kGrey, fontSize: 14, letterSpacing: 2),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -615,7 +615,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
 
             const Text(
               'ESTADO',
-              style: TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
+              style: TextStyle(color: kGrey, fontSize: 14, letterSpacing: 2),
             ),
             const SizedBox(height: 8),
             Container(
@@ -659,7 +659,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
                     Expanded(
                       child: Text(
                         _error!,
-                        style: const TextStyle(color: kDanger, fontSize: 13),
+                        style: const TextStyle(color: kDanger, fontSize: 14),
                       ),
                     ),
                   ],
@@ -721,7 +721,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
 
   InputDecoration _deco(String hint, IconData icon) => InputDecoration(
     hintText: hint,
-    hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+    hintStyle: const TextStyle(color: kGrey, fontSize: 14),
     prefixIcon: Icon(icon, color: kGrey),
     filled: true,
     fillColor: kBgCard,
@@ -860,8 +860,8 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 560,
         constraints: BoxConstraints(
+          maxWidth: 560,
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: Column(
@@ -906,7 +906,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                         ),
                         const Text(
                           'Gestión de integrantes',
-                          style: TextStyle(color: kGrey, fontSize: 12),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
@@ -942,7 +942,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                             'AGREGAR INTEGRANTE',
                             style: TextStyle(
                               color: kGrey,
-                              fontSize: 11,
+                              fontSize: 14,
                               letterSpacing: 2,
                             ),
                           ),
@@ -969,12 +969,12 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                         'Seleccionar miembro',
                                         style: TextStyle(
                                           color: kGrey,
-                                          fontSize: 13,
+                                          fontSize: 14,
                                         ),
                                       ),
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                       ),
                                       onChanged: (v) => setState(
                                         () => _miembroSeleccionado = v,
@@ -1013,7 +1013,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                       dropdownColor: kBgMid,
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                       ),
                                       onChanged: (v) =>
                                           setState(() => _rolSeleccionado = v!),
@@ -1076,7 +1076,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                       'INTEGRANTES (${_miembrosMinisterio.length})',
                       style: const TextStyle(
                         color: kGrey,
-                        fontSize: 11,
+                        fontSize: 14,
                         letterSpacing: 2,
                       ),
                     ),
@@ -1097,7 +1097,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                         child: const Center(
                           child: Text(
                             'No hay integrantes aún',
-                            style: TextStyle(color: kGrey, fontSize: 13),
+                            style: TextStyle(color: kGrey, fontSize: 14),
                           ),
                         ),
                       )
@@ -1143,7 +1143,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                       nombre,
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -1160,7 +1160,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                         rol.toUpperCase(),
                                         style: TextStyle(
                                           color: colorRol,
-                                          fontSize: 10,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ),
@@ -1277,7 +1277,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 380,
+      constraints: const BoxConstraints(maxWidth: 380),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,

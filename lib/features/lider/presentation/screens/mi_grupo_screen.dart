@@ -304,7 +304,7 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
                         _grupo != null
                             ? '${_grupo!['lugar'] ?? ''} · ${_diasLabel(_grupo!['dia_semana'])} ${_grupo!['hora'] ?? ''}'
                             : 'Gestionar tu grupo de reunión',
-                        style: const TextStyle(color: kGrey, fontSize: 13),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -353,7 +353,7 @@ class _MiGrupoScreenState extends State<MiGrupoScreen>
                   unselectedLabelColor: kGrey,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 14,
                   ),
                   tabs: [
                     Tab(text: '👥 INTEGRANTES (${_miembros.length})'),
@@ -465,12 +465,12 @@ class _ResumenGrupo extends StatelessWidget {
                         style: const TextStyle(
                           color: kWhite,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                          fontSize: 14,
                         ),
                       ),
                       Text(
                         lugar,
-                        style: const TextStyle(color: kGrey, fontSize: 11),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -527,7 +527,7 @@ class _TarjetaStat extends StatelessWidget {
                 fontSize: 20,
               ),
             ),
-            Text(etiqueta, style: const TextStyle(color: kGrey, fontSize: 11)),
+            Text(etiqueta, style: const TextStyle(color: kGrey, fontSize: 14)),
           ],
         ),
       ],
@@ -577,10 +577,10 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
             Expanded(
               child: TextField(
                 onChanged: (v) => setState(() => _busqueda = v),
-                style: const TextStyle(color: kWhite, fontSize: 13),
+                style: const TextStyle(color: kWhite, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Buscar integrante...',
-                  hintStyle: const TextStyle(color: kGrey, fontSize: 12),
+                  hintStyle: const TextStyle(color: kGrey, fontSize: 14),
                   prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
                   filled: true,
                   fillColor: kBgCard,
@@ -644,7 +644,7 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
                   const SizedBox(height: 4),
                   const Text(
                     'Usa el botón Agregar para añadir miembros',
-                    style: TextStyle(color: kGrey, fontSize: 12),
+                    style: TextStyle(color: kGrey, fontSize: 14),
                   ),
                   if (widget.onEditarGrupo != null)
                     IconButton(
@@ -711,7 +711,7 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
                                 telefono,
                                 style: const TextStyle(
                                   color: kGrey,
-                                  fontSize: 11,
+                                  fontSize: 14,
                                 ),
                               ),
                           ],
@@ -733,7 +733,7 @@ class _TabIntegrantesState extends State<_TabIntegrantes> {
                           ),
                           child: const Text(
                             'Bautizado',
-                            style: TextStyle(color: kSuccess, fontSize: 10),
+                            style: TextStyle(color: kSuccess, fontSize: 14),
                           ),
                         ),
                       IconButton(
@@ -835,7 +835,7 @@ class _TabAsistencia extends StatelessWidget {
                 style: const TextStyle(
                   color: kSuccess,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -855,7 +855,7 @@ class _TabAsistencia extends StatelessWidget {
               SizedBox(width: 8),
               Text(
                 'Toca el botón ✓ para marcar presente / ausente',
-                style: TextStyle(color: kGrey, fontSize: 12),
+                style: TextStyle(color: kGrey, fontSize: 14),
               ),
             ],
           ),
@@ -947,7 +947,7 @@ class _TabAsistencia extends StatelessWidget {
                           estaPresente ? 'Presente' : 'Ausente',
                           style: TextStyle(
                             color: estaPresente ? kSuccess : kDanger,
-                            fontSize: 11,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -1019,8 +1019,7 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 420,
-        height: 520,
+        constraints: const BoxConstraints(maxWidth: 420, maxHeight: 520),
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1062,7 +1061,7 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
             TextField(
               autofocus: true,
               onChanged: (v) => setState(() => _busqueda = v),
-              style: const TextStyle(color: kWhite, fontSize: 13),
+              style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Buscar miembro...',
                 hintStyle: const TextStyle(color: kGrey),
@@ -1091,7 +1090,7 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
 
             Text(
               '${_filtrados.length} miembros disponibles',
-              style: const TextStyle(color: kGrey, fontSize: 11),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 8),
 
@@ -1121,14 +1120,14 @@ class _DialogAgregarMiembroState extends State<_DialogAgregarMiembro> {
                               nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
                               style: const TextStyle(
                                 color: _kColor,
-                                fontSize: 13,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                           title: Text(
                             nombre,
-                            style: const TextStyle(color: kWhite, fontSize: 13),
+                            style: const TextStyle(color: kWhite, fontSize: 14),
                           ),
                           trailing: _procesando
                               ? const SizedBox(
@@ -1214,7 +1213,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 340,
+      constraints: const BoxConstraints(maxWidth: 340),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1229,7 +1228,7 @@ class _DialogConfirm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 13)),
+          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 14)),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -1358,7 +1357,7 @@ class _DialogEditarGrupoState extends State<_DialogEditarGrupo> {
                     children: [
                       const Text(
                         'Día de semana',
-                        style: TextStyle(color: kGrey, fontSize: 12),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                       const SizedBox(height: 4),
                       DropdownButton<String>(
@@ -1418,7 +1417,7 @@ class _DialogEditarGrupoState extends State<_DialogEditarGrupo> {
   Widget _campo(String label, TextEditingController ctrl) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(label, style: const TextStyle(color: kGrey, fontSize: 12)),
+      Text(label, style: const TextStyle(color: kGrey, fontSize: 14)),
       const SizedBox(height: 4),
       TextField(
         controller: ctrl,

@@ -174,7 +174,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                         ),
                         Text(
                           'Administrar miembros',
-                          style: TextStyle(color: kGrey, fontSize: 11),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
@@ -233,7 +233,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
                         ),
                         Text(
                           'Administrar todos los miembros de la iglesia',
-                          style: TextStyle(color: kGrey, fontSize: 13),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
@@ -307,7 +307,7 @@ class _AdminMiembrosScreenState extends State<AdminMiembrosScreen> {
             const SizedBox(height: 8),
             Text(
               '${_filtrados.length} miembro${_filtrados.length != 1 ? 's' : ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 16),
             if (_cargando)
@@ -345,7 +345,7 @@ class _Buscador extends StatelessWidget {
     style: const TextStyle(color: kWhite, fontSize: 14),
     decoration: InputDecoration(
       hintText: 'Buscar por nombre o carnet...',
-      hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
       prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
       filled: true,
       fillColor: kBgCard,
@@ -383,7 +383,7 @@ class _FiltroEstado extends StatelessWidget {
       child: DropdownButton<String>(
         value: valor,
         dropdownColor: kBgCard,
-        style: const TextStyle(color: kWhite, fontSize: 13),
+        style: const TextStyle(color: kWhite, fontSize: 14),
         onChanged: (v) => onChanged(v!),
         items: const [
           DropdownMenuItem(value: 'todos', child: Text('Todos')),
@@ -543,7 +543,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                             rol.toUpperCase(),
                             style: TextStyle(
                               color: colorRol,
-                              fontSize: 9,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -563,7 +563,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                               'INACTIVO',
                               style: TextStyle(
                                 color: kDanger,
-                                fontSize: 9,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -579,14 +579,14 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       const SizedBox(width: 4),
                       Text(
                         m['carnet'] ?? '-',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       const Icon(Icons.phone_outlined, color: kGrey, size: 12),
                       const SizedBox(width: 4),
                       Text(
                         '${m['telefono'] ?? '-'}',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -602,7 +602,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                         Expanded(
                           child: Text(
                             email,
-                            style: const TextStyle(color: kGrey, fontSize: 11),
+                            style: const TextStyle(color: kGrey, fontSize: 14),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -611,7 +611,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                   else
                     Text(
                       m['direccion'] ?? '',
-                      style: const TextStyle(color: kGrey, fontSize: 11),
+                      style: const TextStyle(color: kGrey, fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
                 ],
@@ -634,7 +634,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       SizedBox(width: 8),
                       Text(
                         'Editar',
-                        style: TextStyle(color: kWhite, fontSize: 13),
+                        style: TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -653,7 +653,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       const SizedBox(width: 8),
                       Text(
                         activo ? 'Desactivar' : 'Activar',
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -667,7 +667,7 @@ class _TarjetaMiembroState extends State<_TarjetaMiembro> {
                       SizedBox(width: 8),
                       Text(
                         'Eliminar',
-                        style: TextStyle(color: kDanger, fontSize: 13),
+                        style: TextStyle(color: kDanger, fontSize: 14),
                       ),
                     ],
                   ),
@@ -1009,8 +1009,8 @@ class _FormMiembroState extends State<_FormMiembro> {
     decoration: InputDecoration(
       labelText: label,
       hintText: hint,
-      hintStyle: const TextStyle(color: kGrey, fontSize: 12),
-      labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 14),
       prefixIcon: const Icon(Icons.lock_outline, color: kGrey, size: 16),
       filled: true,
       fillColor: kBgCard,
@@ -1044,8 +1044,8 @@ class _FormMiembroState extends State<_FormMiembro> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 580,
         constraints: BoxConstraints(
+          maxWidth: 580,
           maxHeight: MediaQuery.of(context).size.height * 0.88,
         ),
         child: Column(
@@ -1271,7 +1271,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                       const SizedBox(height: 4),
                       Text(
                         'Mínimo 6 caracteres. Dejar vacío para mantener la contraseña actual.',
-                        style: const TextStyle(color: kGrey, fontSize: 10),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -1291,7 +1291,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Seleccionar rol...',
-                            style: TextStyle(color: kGrey, fontSize: 13),
+                            style: TextStyle(color: kGrey, fontSize: 14),
                           ),
                           style: const TextStyle(color: kWhite, fontSize: 14),
                           onChanged: (v) =>
@@ -1509,14 +1509,14 @@ class _FotoSelector extends StatelessWidget {
                 onTap: onEliminar,
                 child: const Text(
                   'Eliminar foto',
-                  style: TextStyle(color: kDanger, fontSize: 12),
+                  style: TextStyle(color: kDanger, fontSize: 14),
                 ),
               ),
             ],
             const SizedBox(height: 6),
             const Text(
               'JPG o PNG. Máx. 2MB.',
-              style: TextStyle(color: kGrey, fontSize: 11),
+              style: TextStyle(color: kGrey, fontSize: 14),
             ),
           ],
         ),
@@ -1534,7 +1534,7 @@ class _SecLabel extends StatelessWidget {
     t,
     style: const TextStyle(
       color: kGrey,
-      fontSize: 11,
+      fontSize: 13,
       letterSpacing: 2,
       fontWeight: FontWeight.w600,
     ),
@@ -1559,7 +1559,7 @@ class _Campo extends StatelessWidget {
     style: const TextStyle(color: kWhite, fontSize: 14),
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 14),
       prefixIcon: Icon(icono, color: kGrey, size: 16),
       filled: true,
       fillColor: kBgCard,
@@ -1596,7 +1596,7 @@ class _Sw extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: kGrey, fontSize: 13)),
+        Text(label, style: const TextStyle(color: kGrey, fontSize: 14)),
         Switch(
           value: valor,
           onChanged: onChanged,
@@ -1616,7 +1616,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 380,
+      constraints: const BoxConstraints(maxWidth: 380),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,

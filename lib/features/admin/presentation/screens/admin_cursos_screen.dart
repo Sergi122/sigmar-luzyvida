@@ -182,7 +182,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
     return DashboardPage(
       rutaActual: '/admin/cursos',
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width < 800 ? 16 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -217,7 +217,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                       ),
                       Text(
                         'Cursos permanentes · Finaliza períodos, no cursos',
-                        style: TextStyle(color: kGrey, fontSize: 13),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -258,7 +258,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                     style: const TextStyle(color: kWhite, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar curso...',
-                      hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+                      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
                       prefixIcon: const Icon(
                         Icons.search,
                         color: kGrey,
@@ -297,7 +297,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                     child: DropdownButton<String>(
                       value: _filtroEstado,
                       dropdownColor: kBgCard,
-                      style: const TextStyle(color: kWhite, fontSize: 13),
+                      style: const TextStyle(color: kWhite, fontSize: 14),
                       onChanged: (v) =>
                           setState(() => _filtroEstado = v ?? 'todos'),
                       items: const [
@@ -319,7 +319,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
             const SizedBox(height: 8),
             Text(
               '${lista.length} curso${lista.length != 1 ? 's' : ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 16),
 
@@ -453,14 +453,14 @@ class _TarjetaCurso extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       'Guía: $guiaNombre',
-                      style: const TextStyle(color: kGrey, fontSize: 12),
+                      style: const TextStyle(color: kGrey, fontSize: 14),
                     ),
                     const SizedBox(width: 12),
                     const Icon(Icons.room_outlined, color: kGrey, size: 12),
                     const SizedBox(width: 4),
                     Text(
                       c['aula'] ?? '-',
-                      style: const TextStyle(color: kGrey, fontSize: 12),
+                      style: const TextStyle(color: kGrey, fontSize: 14),
                     ),
                   ],
                 ),
@@ -474,7 +474,7 @@ class _TarjetaCurso extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${c['dia_semana'] ?? '-'}  ${c['hora'] ?? ''}',
-                      style: const TextStyle(color: kGrey, fontSize: 12),
+                      style: const TextStyle(color: kGrey, fontSize: 14),
                     ),
                     if (c['horas'] != null) ...[
                       const SizedBox(width: 12),
@@ -486,7 +486,7 @@ class _TarjetaCurso extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${c['horas']}h',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ],
@@ -505,7 +505,7 @@ class _TarjetaCurso extends StatelessWidget {
                           ),
                           Text(
                             'Bs ${precioCurso.toStringAsFixed(2)}',
-                            style: const TextStyle(color: kGold, fontSize: 11),
+                            style: const TextStyle(color: kGold, fontSize: 14),
                           ),
                           const SizedBox(width: 10),
                         ],
@@ -519,7 +519,7 @@ class _TarjetaCurso extends StatelessWidget {
                           const SizedBox(width: 3),
                           Text(
                             'Libro: Bs ${precioLibro.toStringAsFixed(2)}',
-                            style: const TextStyle(color: kGold, fontSize: 11),
+                            style: const TextStyle(color: kGold, fontSize: 14),
                           ),
                         ],
                       ],
@@ -748,8 +748,8 @@ class _DialogInscritosState extends State<_DialogInscritos> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 560,
         constraints: BoxConstraints(
+          maxWidth: 560,
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: Column(
@@ -794,7 +794,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                         ),
                         Text(
                           '${_inscritos.length} inscrito${_inscritos.length != 1 ? 's' : ''} en período activo',
-                          style: const TextStyle(color: kGrey, fontSize: 12),
+                          style: const TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
@@ -835,7 +835,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                   'AGREGAR MIEMBRO AL PERÍODO ACTIVO',
                                   style: TextStyle(
                                     color: kGrey,
-                                    fontSize: 11,
+                                    fontSize: 14,
                                     letterSpacing: 1.5,
                                   ),
                                 ),
@@ -863,12 +863,12 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                               'Seleccionar miembro…',
                                               style: TextStyle(
                                                 color: kGrey,
-                                                fontSize: 13,
+                                                fontSize: 14,
                                               ),
                                             ),
                                             style: const TextStyle(
                                               color: kWhite,
-                                              fontSize: 13,
+                                              fontSize: 14,
                                             ),
                                             onChanged: (v) => setState(
                                               () => _miembroAAgregar = v,
@@ -946,7 +946,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                             _error!,
                                             style: const TextStyle(
                                               color: kDanger,
-                                              fontSize: 12,
+                                              fontSize: 14,
                                             ),
                                           ),
                                         ),
@@ -1033,7 +1033,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                             m?['nombre'] ?? '-',
                                             style: const TextStyle(
                                               color: kWhite,
-                                              fontSize: 13,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -1041,7 +1041,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                             m?['carnet'] ?? 'Sin carnet',
                                             style: const TextStyle(
                                               color: kGrey,
-                                              fontSize: 11,
+                                              fontSize: 14,
                                             ),
                                           ),
                                         ],
@@ -1064,7 +1064,7 @@ class _DialogInscritosState extends State<_DialogInscritos> {
                                         estado.toUpperCase(),
                                         style: TextStyle(
                                           color: color,
-                                          fontSize: 9,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -1226,7 +1226,7 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 420,
+        constraints: const BoxConstraints(maxWidth: 420),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1262,7 +1262,7 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
                       ),
                       Text(
                         widget.cursoNombre,
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -1280,13 +1280,13 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
               child: const Text(
                 'El curso seguirá activo para nuevas inscripciones.\n'
                 'Los inscritos actuales quedarán archivados en este período.',
-                style: TextStyle(color: kGold, fontSize: 12, height: 1.5),
+                style: TextStyle(color: kGold, fontSize: 14, height: 1.5),
               ),
             ),
             const SizedBox(height: 16),
             const Text(
               'Nombre del período',
-              style: TextStyle(color: kGrey, fontSize: 12),
+              style: TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -1295,7 +1295,7 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
               style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'ej: Enero–Marzo 2026',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
                 filled: true,
                 fillColor: kBgCard,
                 contentPadding: const EdgeInsets.symmetric(
@@ -1413,8 +1413,8 @@ class _DialogHistorialState extends State<_DialogHistorial> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 540,
         constraints: BoxConstraints(
+          maxWidth: 540,
           maxHeight: MediaQuery.of(context).size.height * 0.82,
         ),
         child: Column(
@@ -1455,7 +1455,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                         ),
                         const Text(
                           'Historial de períodos — solo lectura',
-                          style: TextStyle(color: kGrey, fontSize: 12),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
                       ],
                     ),
@@ -1549,7 +1549,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                           'Cerrado: ${p['fecha_fin'] ?? '-'}',
                                           style: const TextStyle(
                                             color: kGrey,
-                                            fontSize: 11,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ],
@@ -1562,14 +1562,14 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                         '${p['total_inscritos'] ?? 0} inscritos',
                                         style: const TextStyle(
                                           color: kGrey,
-                                          fontSize: 11,
+                                          fontSize: 14,
                                         ),
                                       ),
                                       Text(
                                         '${p['total_completados'] ?? 0} completaron',
                                         style: const TextStyle(
                                           color: kSuccess,
-                                          fontSize: 11,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ],
@@ -1658,7 +1658,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                                 m?['nombre'] ?? '-',
                                                 style: const TextStyle(
                                                   color: kWhite,
-                                                  fontSize: 12,
+                                                  fontSize: 14,
                                                 ),
                                               ),
                                             ),
@@ -1666,7 +1666,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                               m?['carnet'] ?? '-',
                                               style: const TextStyle(
                                                 color: kGrey,
-                                                fontSize: 11,
+                                                fontSize: 14,
                                               ),
                                             ),
                                             const SizedBox(width: 8),
@@ -1687,7 +1687,7 @@ class _DialogHistorialState extends State<_DialogHistorial> {
                                                 estado.toUpperCase(),
                                                 style: TextStyle(
                                                   color: color,
-                                                  fontSize: 9,
+                                                  fontSize: 14,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -1929,8 +1929,8 @@ class _FormCursoState extends State<_FormCurso> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 540,
         constraints: BoxConstraints(
+          maxWidth: 540,
           maxHeight: MediaQuery.of(context).size.height * 0.90,
         ),
         child: Column(
@@ -2083,7 +2083,7 @@ class _FormCursoState extends State<_FormCurso> {
                     const SizedBox(height: 4),
                     const Text(
                       'Dejar en 0 si el curso es gratuito.',
-                      style: TextStyle(color: kGrey, fontSize: 11),
+                      style: TextStyle(color: kGrey, fontSize: 14),
                     ),
                     const SizedBox(height: 12),
                     Row(
@@ -2113,7 +2113,7 @@ class _FormCursoState extends State<_FormCurso> {
                     const SizedBox(height: 4),
                     const Text(
                       'El miembro debe cumplir todos estos requisitos.',
-                      style: TextStyle(color: kGrey, fontSize: 11),
+                      style: TextStyle(color: kGrey, fontSize: 14),
                     ),
                     const SizedBox(height: 12),
                     _Sw(
@@ -2132,7 +2132,7 @@ class _FormCursoState extends State<_FormCurso> {
                       'CURSOS PREREQUISITO',
                       style: TextStyle(
                         color: kGrey,
-                        fontSize: 11,
+                        fontSize: 14,
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -2147,7 +2147,7 @@ class _FormCursoState extends State<_FormCurso> {
                       child: _todosCursos.isEmpty
                           ? const Text(
                               'No hay otros cursos disponibles',
-                              style: TextStyle(color: kGrey, fontSize: 12),
+                              style: TextStyle(color: kGrey, fontSize: 14),
                             )
                           : Column(
                               children: _todosCursos.map((curso) {
@@ -2164,7 +2164,7 @@ class _FormCursoState extends State<_FormCurso> {
                                     curso['nombre'] ?? '',
                                     style: const TextStyle(
                                       color: kWhite,
-                                      fontSize: 13,
+                                      fontSize: 14,
                                     ),
                                   ),
                                   onChanged: (v) => setState(() {
@@ -2192,7 +2192,7 @@ class _FormCursoState extends State<_FormCurso> {
                         ),
                         child: Text(
                           _error!,
-                          style: const TextStyle(color: kDanger, fontSize: 13),
+                          style: const TextStyle(color: kDanger, fontSize: 14),
                         ),
                       ),
                     ],
@@ -2304,7 +2304,7 @@ class _BadgeEstado extends StatelessWidget {
       estado.toUpperCase(),
       style: TextStyle(
         color: color,
-        fontSize: 9,
+        fontSize: 14,
         fontWeight: FontWeight.bold,
         letterSpacing: 1,
       ),
@@ -2328,7 +2328,7 @@ class _MenuRow extends StatelessWidget {
     children: [
       Icon(icon, color: color, size: 16),
       const SizedBox(width: 8),
-      Text(texto, style: TextStyle(color: textoColor, fontSize: 13)),
+      Text(texto, style: TextStyle(color: textoColor, fontSize: 14)),
     ],
   );
 }
@@ -2341,7 +2341,7 @@ class _SecLabel extends StatelessWidget {
     t,
     style: const TextStyle(
       color: kGrey,
-      fontSize: 11,
+      fontSize: 14,
       letterSpacing: 2,
       fontWeight: FontWeight.w600,
     ),
@@ -2366,7 +2366,7 @@ class _Campo extends StatelessWidget {
     style: const TextStyle(color: kWhite, fontSize: 14),
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 14),
       prefixIcon: Icon(icon, color: kGrey, size: 16),
       filled: true,
       fillColor: kBgCard,
@@ -2411,7 +2411,7 @@ class _Dropdown extends StatelessWidget {
         value: value,
         isExpanded: true,
         dropdownColor: kBgCard,
-        hint: Text(hint, style: const TextStyle(color: kGrey, fontSize: 13)),
+        hint: Text(hint, style: const TextStyle(color: kGrey, fontSize: 14)),
         style: const TextStyle(color: kWhite, fontSize: 14),
         onChanged: onChanged,
         items: items,
@@ -2436,7 +2436,7 @@ class _Sw extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: kGrey, fontSize: 13)),
+        Text(label, style: const TextStyle(color: kGrey, fontSize: 14)),
         Switch(
           value: valor,
           onChanged: onChanged,
@@ -2462,7 +2462,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 400,
+      constraints: const BoxConstraints(maxWidth: 400),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2479,7 +2479,7 @@ class _DialogConfirm extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             mensaje,
-            style: const TextStyle(color: kGrey, fontSize: 13, height: 1.5),
+            style: const TextStyle(color: kGrey, fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 24),
           Row(

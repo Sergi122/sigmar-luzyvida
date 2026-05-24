@@ -381,7 +381,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                               ),
                               const Text(
                                 'Resumen por grupo',
-                                style: TextStyle(color: kGrey, fontSize: 13),
+                                style: TextStyle(color: kGrey, fontSize: 14),
                               ),
                             ],
                           ),
@@ -588,7 +588,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                                               radius: 50,
                                               titleStyle: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 11,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -601,7 +601,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                                               radius: 50,
                                               titleStyle: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 11,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -656,7 +656,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                               '(${_asistenciasFiltradas.length})',
                               style: const TextStyle(
                                 color: kGrey,
-                                fontSize: 13,
+                                fontSize: 14,
                               ),
                             ),
                           ],
@@ -701,7 +701,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                                       nombre,
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 13,
+                                        fontSize: 14,
                                       ),
                                     ),
                                   ),
@@ -711,7 +711,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                                         : fecha,
                                     style: const TextStyle(
                                       color: kGrey,
-                                      fontSize: 11,
+                                      fontSize: 14,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -730,7 +730,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                                       presente ? 'P' : 'A',
                                       style: TextStyle(
                                         color: presente ? kSuccess : kDanger,
-                                        fontSize: 10,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -765,7 +765,7 @@ class _Leyenda extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(texto, style: const TextStyle(color: kGrey, fontSize: 12)),
+        Text(texto, style: const TextStyle(color: kGrey, fontSize: 14)),
       ],
     );
   }
@@ -819,7 +819,7 @@ class _StatCard extends StatelessWidget {
                   ),
                   Text(
                     titulo,
-                    style: const TextStyle(color: kGrey, fontSize: 10),
+                    style: const TextStyle(color: kGrey, fontSize: 12),
                   ),
                 ],
               ),
@@ -947,8 +947,7 @@ class _FechasDialog extends StatelessWidget {
       backgroundColor: kBgCard,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
-        width: 380,
-        constraints: const BoxConstraints(maxHeight: 500),
+        constraints: const BoxConstraints(maxWidth: 380, maxHeight: 500),
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -968,7 +967,7 @@ class _FechasDialog extends StatelessWidget {
                   onPressed: onLimpiar,
                   child: const Text(
                     'Ver todos',
-                    style: TextStyle(color: _kColor, fontSize: 12),
+                    style: TextStyle(color: _kColor, fontSize: 14),
                   ),
                 ),
                 IconButton(
@@ -999,7 +998,7 @@ class _FechasDialog extends StatelessWidget {
                       _capitalizarPrimera(fmt.format(f)),
                       style: TextStyle(
                         color: activa ? _kColor : kWhite,
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: activa
                             ? FontWeight.bold
                             : FontWeight.normal,

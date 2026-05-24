@@ -35,7 +35,7 @@ class _AdminAportesScreenState extends State<AdminAportesScreen>
     return DashboardPage(
       rutaActual: '/admin/aportes',
       child: Padding(
-        padding: const EdgeInsets.all(28),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width < 800 ? 16 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -70,7 +70,7 @@ class _AdminAportesScreenState extends State<AdminAportesScreen>
                       ),
                       Text(
                         'Diezmos y ofrendas de la iglesia',
-                        style: TextStyle(color: kGrey, fontSize: 13),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -96,7 +96,7 @@ class _AdminAportesScreenState extends State<AdminAportesScreen>
                 unselectedLabelColor: kGrey,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
                 tabs: const [
                   Tab(text: '💰 DIEZMOS'),
@@ -474,10 +474,10 @@ class _CampoBusqueda extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     onChanged: onChanged,
-    style: const TextStyle(color: kWhite, fontSize: 13),
+    style: const TextStyle(color: kWhite, fontSize: 14),
     decoration: InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: kGrey, fontSize: 12),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
       prefixIcon: Icon(icono, color: kGrey, size: 18),
       filled: true,
       fillColor: kBgCard,
@@ -533,7 +533,7 @@ class _Totalizador extends StatelessWidget {
         const Spacer(),
         Text(
           '$cantidad registros',
-          style: const TextStyle(color: kGrey, fontSize: 12),
+          style: const TextStyle(color: kGrey, fontSize: 14),
         ),
       ],
     ),
@@ -582,12 +582,12 @@ class _FilaDiezmo extends StatelessWidget {
                 style: const TextStyle(
                   color: kWhite,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
               Text(
                 'Fecha: $fecha${observacion.isNotEmpty ? '  · $observacion' : ''}',
-                style: const TextStyle(color: kGrey, fontSize: 11),
+                style: const TextStyle(color: kGrey, fontSize: 14),
               ),
             ],
           ),
@@ -659,12 +659,12 @@ class _FilaOfrenda extends StatelessWidget {
                 style: const TextStyle(
                   color: kWhite,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
               Text(
                 'Fecha: $fecha${descripcion.isNotEmpty ? '  · $descripcion' : ''}',
-                style: const TextStyle(color: kGrey, fontSize: 11),
+                style: const TextStyle(color: kGrey, fontSize: 14),
               ),
             ],
           ),
@@ -802,7 +802,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 480,
+        constraints: const BoxConstraints(maxWidth: 480),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -821,7 +821,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
             TextField(
               controller: _busquedaCtrl,
               onChanged: _buscar,
-              style: const TextStyle(color: kWhite, fontSize: 13),
+              style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: _decoInput(
                 hint: 'Buscar miembro...',
                 icono: Icons.person_search,
@@ -851,13 +851,13 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                               (m['nombre'] as String)[0],
                               style: const TextStyle(
                                 color: _kColor,
-                                fontSize: 12,
+                                fontSize: 14,
                               ),
                             ),
                           ),
                           title: Text(
                             m['nombre'] as String,
-                            style: const TextStyle(color: kWhite, fontSize: 13),
+                            style: const TextStyle(color: kWhite, fontSize: 14),
                           ),
                           onTap: () => setState(() {
                             _miembroSel = m;
@@ -885,7 +885,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                         decoration: _decoInput(
                           hint: '0.00',
                           icono: Icons.monetization_on_outlined,
@@ -904,7 +904,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                       const SizedBox(height: 8),
                       TextField(
                         controller: _fechaCtrl,
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                         decoration: _decoInput(
                           hint: 'AAAA-MM-DD',
                           icono: Icons.calendar_today_outlined,
@@ -921,7 +921,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
             // Observación
             TextField(
               controller: _obsCtrl,
-              style: const TextStyle(color: kWhite, fontSize: 13),
+              style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: _decoInput(
                 hint: 'Observación (opcional)',
                 icono: Icons.notes,
@@ -1011,7 +1011,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 400,
+        constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1025,7 +1025,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
             const SizedBox(height: 6),
             const Text(
               'La ofrenda se registra como ingreso de la iglesia.',
-              style: TextStyle(color: kGrey, fontSize: 12),
+              style: TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 20),
 
@@ -1170,7 +1170,7 @@ class _Label extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     texto,
-    style: const TextStyle(color: kGrey, fontSize: 11, letterSpacing: 2),
+    style: const TextStyle(color: kGrey, fontSize: 14, letterSpacing: 2),
   );
 }
 
@@ -1185,7 +1185,7 @@ class _ErrorBox extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: kDanger.withValues(alpha: 0.3)),
     ),
-    child: Text(mensaje, style: const TextStyle(color: kDanger, fontSize: 12)),
+    child: Text(mensaje, style: const TextStyle(color: kDanger, fontSize: 14)),
   );
 }
 
@@ -1256,7 +1256,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 360,
+      constraints: const BoxConstraints(maxWidth: 360),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1271,7 +1271,7 @@ class _DialogConfirm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 13)),
+          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 14)),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -1321,8 +1321,8 @@ InputDecoration _decoInput({
 }) => InputDecoration(
   hintText: hint,
   labelText: label,
-  hintStyle: const TextStyle(color: kGrey, fontSize: 12),
-  labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+  hintStyle: const TextStyle(color: kGrey, fontSize: 14),
+  labelStyle: const TextStyle(color: kGrey, fontSize: 14),
   prefixIcon: Icon(icono, color: kGrey, size: 18),
   suffixIcon: sufijo,
   filled: true,

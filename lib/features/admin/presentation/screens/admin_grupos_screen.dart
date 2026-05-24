@@ -137,7 +137,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                       ),
                       Text(
                         'Administrar grupos de reunión',
-                        style: TextStyle(color: kGrey, fontSize: 13),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -199,7 +199,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
               style: const TextStyle(color: kWhite, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Buscar grupo por nombre...',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 13),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
                 prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
                 filled: true,
                 fillColor: kBgCard,
@@ -224,7 +224,7 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
             const SizedBox(height: 8),
             Text(
               '${_filtrados.length} grupo${_filtrados.length != 1 ? 's' : ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 16),
             if (_cargando)
@@ -347,7 +347,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                           g['estado'] ?? '',
                           style: TextStyle(
                             color: activo ? kSuccess : kDanger,
-                            fontSize: 10,
+                            fontSize: 14,
                           ),
                         ),
                       ),
@@ -361,7 +361,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       const SizedBox(width: 4),
                       Text(
                         liderNombre,
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                       const SizedBox(width: 12),
                       const Icon(
@@ -373,7 +373,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       Expanded(
                         child: Text(
                           g['lugar'] ?? '',
-                          style: const TextStyle(color: kGrey, fontSize: 12),
+                          style: const TextStyle(color: kGrey, fontSize: 14),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -389,7 +389,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       const SizedBox(width: 4),
                       Text(
                         '${g['dia_semana'] ?? ''} ${g['hora'] ?? ''}',
-                        style: const TextStyle(color: kGrey, fontSize: 12),
+                        style: const TextStyle(color: kGrey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -413,7 +413,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       SizedBox(width: 8),
                       Text(
                         'Editar',
-                        style: TextStyle(color: kWhite, fontSize: 13),
+                        style: TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -426,7 +426,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       SizedBox(width: 8),
                       Text(
                         'Ver / Agregar miembros',
-                        style: TextStyle(color: kWhite, fontSize: 13),
+                        style: TextStyle(color: kWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -440,7 +440,7 @@ class _TarjetaGrupoState extends State<_TarjetaGrupo> {
                       SizedBox(width: 8),
                       Text(
                         'Eliminar',
-                        style: TextStyle(color: kDanger, fontSize: 13),
+                        style: TextStyle(color: kDanger, fontSize: 14),
                       ),
                     ],
                   ),
@@ -547,8 +547,8 @@ class _FormGrupoState extends State<_FormGrupo> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 520,
         constraints: BoxConstraints(
+          maxWidth: 520,
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: Column(
@@ -627,7 +627,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Día de reunión',
-                            style: TextStyle(color: kGrey, fontSize: 13),
+                            style: TextStyle(color: kGrey, fontSize: 14),
                           ),
                           style: const TextStyle(color: kWhite, fontSize: 14),
                           onChanged: (v) => setState(() => _diaSemana = v),
@@ -664,7 +664,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Asignar líder',
-                            style: TextStyle(color: kGrey, fontSize: 13),
+                            style: TextStyle(color: kGrey, fontSize: 14),
                           ),
                           style: const TextStyle(color: kWhite, fontSize: 14),
                           onChanged: (v) => setState(() => _idLider = v),
@@ -723,7 +723,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                         ),
                         child: Text(
                           _error!,
-                          style: const TextStyle(color: kDanger, fontSize: 13),
+                          style: const TextStyle(color: kDanger, fontSize: 14),
                         ),
                       ),
                     ],
@@ -799,7 +799,7 @@ class _FormGrupoState extends State<_FormGrupo> {
         style: const TextStyle(color: kWhite, fontSize: 14),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: kGrey, fontSize: 12),
+          labelStyle: const TextStyle(color: kGrey, fontSize: 14),
           prefixIcon: Icon(icon, color: kGrey, size: 16),
           filled: true,
           fillColor: kBgCard,
@@ -901,8 +901,8 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
       backgroundColor: kBgMid,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
-        width: 480,
         constraints: BoxConstraints(
+          maxWidth: 480,
           maxHeight: MediaQuery.of(context).size.height * 0.8,
         ),
         padding: const EdgeInsets.all(24),
@@ -945,9 +945,9 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
                         dropdownColor: kBgCard,
                         hint: const Text(
                           'Agregar miembro...',
-                          style: TextStyle(color: kGrey, fontSize: 13),
+                          style: TextStyle(color: kGrey, fontSize: 14),
                         ),
-                        style: const TextStyle(color: kWhite, fontSize: 13),
+                        style: const TextStyle(color: kWhite, fontSize: 14),
                         onChanged: (v) => setState(() => _miembroAAgregar = v),
                         items: _disponibles
                             .map(
@@ -983,7 +983,7 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
             const SizedBox(height: 16),
             Text(
               '${_miembrosGrupo.length} miembro${_miembrosGrupo.length != 1 ? 's' : ''}',
-              style: const TextStyle(color: kGrey, fontSize: 12),
+              style: const TextStyle(color: kGrey, fontSize: 14),
             ),
             const SizedBox(height: 8),
             if (_cargando)
@@ -1015,7 +1015,7 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
                               (m['nombre'] ?? 'M')[0].toUpperCase(),
                               style: const TextStyle(
                                 color: _kColor,
-                                fontSize: 12,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -1025,7 +1025,7 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
                               m['nombre'] ?? '',
                               style: const TextStyle(
                                 color: kWhite,
-                                fontSize: 13,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -1059,7 +1059,7 @@ class _DialogConfirm extends StatelessWidget {
     backgroundColor: kBgMid,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     child: Container(
-      width: 360,
+      constraints: const BoxConstraints(maxWidth: 360),
       padding: const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1074,7 +1074,7 @@ class _DialogConfirm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 13)),
+          Text(mensaje, style: const TextStyle(color: kGrey, fontSize: 14)),
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

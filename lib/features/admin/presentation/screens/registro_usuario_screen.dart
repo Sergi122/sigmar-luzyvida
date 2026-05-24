@@ -140,7 +140,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Container(
-            width: 460,
+            constraints: const BoxConstraints(maxWidth: 460),
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: kBgCard,
@@ -201,7 +201,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                       dropdownColor: kBgMid,
                       hint: const Text(
                         'Vincular con miembro (opcional)',
-                        style: TextStyle(color: kGrey, fontSize: 13),
+                        style: TextStyle(color: kGrey, fontSize: 14),
                       ),
                       style: const TextStyle(color: kWhite, fontSize: 14),
                       onChanged: (v) => setState(() => _miembroId = v),
@@ -260,7 +260,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     'La contraseña se cambia desde el panel de Supabase.',
-                    style: TextStyle(color: kGrey, fontSize: 11),
+                    style: TextStyle(color: kGrey, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
                 ],
