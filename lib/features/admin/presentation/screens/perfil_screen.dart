@@ -727,14 +727,14 @@ class _FormEditar extends StatelessWidget {
   }) => TextField(
     controller: ctrl,
     keyboardType: tipo,
-    style: const TextStyle(color: kWhite, fontSize: 14),
+    style: const TextStyle(color: kWhite, fontSize: 16),
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: kGrey, fontSize: 12),
-      prefixIcon: Icon(icon, color: kGrey, size: 16),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: Icon(icon, color: kGrey, size: 20),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),

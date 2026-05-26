@@ -342,14 +342,14 @@ class _Buscador extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     onChanged: onChanged,
-    style: const TextStyle(color: kWhite, fontSize: 14),
+    style: const TextStyle(color: kWhite, fontSize: 16),
     decoration: InputDecoration(
       hintText: 'Buscar por nombre o carnet...',
-      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-      prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: const Icon(Icons.search, color: kGrey, size: 22),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -383,7 +383,7 @@ class _FiltroEstado extends StatelessWidget {
       child: DropdownButton<String>(
         value: valor,
         dropdownColor: kBgCard,
-        style: const TextStyle(color: kWhite, fontSize: 14),
+        style: const TextStyle(color: kWhite, fontSize: 16),
         onChanged: (v) => onChanged(v!),
         items: const [
           DropdownMenuItem(value: 'todos', child: Text('Todos')),
@@ -1005,16 +1005,16 @@ class _FormMiembroState extends State<_FormMiembro> {
   }) => TextField(
     controller: ctrl,
     obscureText: !ver,
-    style: const TextStyle(color: kWhite, fontSize: 14),
+    style: const TextStyle(color: kWhite, fontSize: 16),
     decoration: InputDecoration(
       labelText: label,
       hintText: hint,
-      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-      labelStyle: const TextStyle(color: kGrey, fontSize: 14),
-      prefixIcon: const Icon(Icons.lock_outline, color: kGrey, size: 16),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: const Icon(Icons.lock_outline, color: kGrey, size: 20),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -1031,7 +1031,7 @@ class _FormMiembroState extends State<_FormMiembro> {
         icon: Icon(
           ver ? Icons.visibility_off : Icons.visibility,
           color: kGrey,
-          size: 18,
+          size: 22,
         ),
         onPressed: onToggle,
       ),
@@ -1202,7 +1202,7 @@ class _FormMiembroState extends State<_FormMiembro> {
                           value: _estado,
                           isExpanded: true,
                           dropdownColor: kBgCard,
-                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           onChanged: (v) => setState(() => _estado = v!),
                           items: const [
                             DropdownMenuItem(
@@ -1291,9 +1291,9 @@ class _FormMiembroState extends State<_FormMiembro> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Seleccionar rol...',
-                            style: TextStyle(color: kGrey, fontSize: 14),
+                            style: TextStyle(color: kGrey, fontSize: 16),
                           ),
-                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           onChanged: (v) =>
                               setState(() => _rolSeleccionado = v),
                           items: const [
@@ -1556,14 +1556,14 @@ class _Campo extends StatelessWidget {
   Widget build(BuildContext context) => TextField(
     controller: ctrl,
     keyboardType: tipo,
-    style: const TextStyle(color: kWhite, fontSize: 14),
+    style: const TextStyle(color: kWhite, fontSize: 16),
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: kGrey, fontSize: 14),
-      prefixIcon: Icon(icono, color: kGrey, size: 16),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: Icon(icono, color: kGrey, size: 20),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -1596,7 +1596,7 @@ class _Sw extends StatelessWidget {
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: kGrey, fontSize: 14)),
+        Text(label, style: const TextStyle(color: kGrey, fontSize: 16)),
         Switch(
           value: valor,
           onChanged: onChanged,

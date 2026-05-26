@@ -426,10 +426,10 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                         dropdownColor: kBgCard,
                         underline: const SizedBox(),
                         isExpanded: true,
-                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        style: const TextStyle(color: kWhite, fontSize: 16),
                         hint: const Text(
                           'Seleccionar grupo',
-                          style: TextStyle(color: kGrey),
+                          style: TextStyle(color: kGrey, fontSize: 16),
                         ),
                         items: _grupos
                             .map(
@@ -456,7 +456,7 @@ class _PastorAsistenciaScreenState extends State<PastorAsistenciaScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
-                          vertical: 12,
+                          vertical: 16,
                         ),
                         decoration: BoxDecoration(
                           color: kBgCard,

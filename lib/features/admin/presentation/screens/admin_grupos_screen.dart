@@ -196,16 +196,16 @@ class _AdminGruposScreenState extends State<AdminGruposScreen> {
                 _busqueda = v;
                 _filtrar();
               }),
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: InputDecoration(
                 hintText: 'Buscar grupo por nombre...',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-                prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+                prefixIcon: const Icon(Icons.search, color: kGrey, size: 22),
                 filled: true,
                 fillColor: kBgCard,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 16,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -627,9 +627,9 @@ class _FormGrupoState extends State<_FormGrupo> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Día de reunión',
-                            style: TextStyle(color: kGrey, fontSize: 14),
+                            style: TextStyle(color: kGrey, fontSize: 16),
                           ),
-                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           onChanged: (v) => setState(() => _diaSemana = v),
                           items: _diasSemana
                               .map(
@@ -664,9 +664,9 @@ class _FormGrupoState extends State<_FormGrupo> {
                           dropdownColor: kBgCard,
                           hint: const Text(
                             'Asignar líder',
-                            style: TextStyle(color: kGrey, fontSize: 14),
+                            style: TextStyle(color: kGrey, fontSize: 16),
                           ),
-                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           onChanged: (v) => setState(() => _idLider = v),
                           items: _miembros
                               .map(
@@ -695,7 +695,7 @@ class _FormGrupoState extends State<_FormGrupo> {
                           value: _estado,
                           isExpanded: true,
                           dropdownColor: kBgCard,
-                          style: const TextStyle(color: kWhite, fontSize: 14),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           onChanged: (v) => setState(() => _estado = v!),
                           items: const [
                             DropdownMenuItem(
@@ -796,16 +796,16 @@ class _FormGrupoState extends State<_FormGrupo> {
   Widget _campo(String label, TextEditingController ctrl, IconData icon) =>
       TextField(
         controller: ctrl,
-        style: const TextStyle(color: kWhite, fontSize: 14),
+        style: const TextStyle(color: kWhite, fontSize: 16),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: kGrey, fontSize: 14),
-          prefixIcon: Icon(icon, color: kGrey, size: 16),
+          labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+          prefixIcon: Icon(icon, color: kGrey, size: 20),
           filled: true,
           fillColor: kBgCard,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 12,
+            horizontal: 14,
+            vertical: 16,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -945,9 +945,9 @@ class _DialogMiembrosGrupoState extends State<_DialogMiembrosGrupo> {
                         dropdownColor: kBgCard,
                         hint: const Text(
                           'Agregar miembro...',
-                          style: TextStyle(color: kGrey, fontSize: 14),
+                          style: TextStyle(color: kGrey, fontSize: 16),
                         ),
-                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        style: const TextStyle(color: kWhite, fontSize: 16),
                         onChanged: (v) => setState(() => _miembroAAgregar = v),
                         items: _disponibles
                             .map(

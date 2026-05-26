@@ -138,7 +138,7 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
                     _busqueda = v;
                     _filtrar();
                   }),
-                  style: const TextStyle(color: kWhite, fontSize: 14),
+                  style: const TextStyle(color: kWhite, fontSize: 16),
                   decoration: _inputDecoration('Buscar por nombre o carnet...'),
                 ),
                 const SizedBox(height: 10),
@@ -172,7 +172,7 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
                           _busqueda = v;
                           _filtrar();
                         }),
-                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        style: const TextStyle(color: kWhite, fontSize: 16),
                         decoration: _inputDecoration(
                           'Buscar por nombre o carnet...',
                         ),
@@ -244,11 +244,11 @@ class _PastorMiembrosScreenState extends State<PastorMiembrosScreen> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: kGrey),
-      prefixIcon: const Icon(Icons.search, color: kGrey),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: const Icon(Icons.search, color: kGrey, size: 22),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),

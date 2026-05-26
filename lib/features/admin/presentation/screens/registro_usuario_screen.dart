@@ -201,9 +201,9 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                       dropdownColor: kBgMid,
                       hint: const Text(
                         'Vincular con miembro (opcional)',
-                        style: TextStyle(color: kGrey, fontSize: 14),
+                        style: TextStyle(color: kGrey, fontSize: 16),
                       ),
-                      style: const TextStyle(color: kWhite, fontSize: 14),
+                      style: const TextStyle(color: kWhite, fontSize: 16),
                       onChanged: (v) => setState(() => _miembroId = v),
                       items: [
                         const DropdownMenuItem<int>(
@@ -232,7 +232,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                 TextField(
                   controller: _emailCtrl,
                   enabled: !_esEdicion,
-                  style: const TextStyle(color: kWhite),
+                  style: const TextStyle(color: kWhite, fontSize: 16),
                   decoration: _deco('Email', Icons.email_outlined),
                 ),
                 const SizedBox(height: 16),
@@ -242,7 +242,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   TextField(
                     controller: _passCtrl,
                     obscureText: !_verPass,
-                    style: const TextStyle(color: kWhite),
+                    style: const TextStyle(color: kWhite, fontSize: 16),
                     decoration: _deco('Contraseña', Icons.lock_outline)
                         .copyWith(
                           suffixIcon: IconButton(
@@ -260,7 +260,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   const SizedBox(height: 8),
                   const Text(
                     'La contraseña se cambia desde el panel de Supabase.',
-                    style: TextStyle(color: kGrey, fontSize: 14),
+                    style: TextStyle(color: kGrey, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -282,7 +282,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                         'Seleccionar rol...',
                         style: TextStyle(color: kGrey),
                       ),
-                      style: const TextStyle(color: kWhite, fontSize: 14),
+                      style: const TextStyle(color: kWhite, fontSize: 16),
                       onChanged: (v) => setState(() => _rolSeleccionado = v),
                       items: const [
                         DropdownMenuItem(
@@ -369,10 +369,11 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
 
   InputDecoration _deco(String label, IconData icon) => InputDecoration(
     labelText: label,
-    labelStyle: const TextStyle(color: kGrey),
-    prefixIcon: Icon(icon, color: kGrey),
+    labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+    prefixIcon: Icon(icon, color: kGrey, size: 22),
     filled: true,
     fillColor: kBgMid,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(color: kDivider),

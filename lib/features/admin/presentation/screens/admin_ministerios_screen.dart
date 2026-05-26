@@ -180,16 +180,16 @@ class _AdminMinisteriosScreenState extends State<AdminMinisteriosScreen> {
             // ── Buscador ─────────────────────────────────────────────
             TextField(
               onChanged: (v) => setState(() => _busqueda = v),
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: InputDecoration(
                 hintText: 'Buscar ministerio...',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-                prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+                prefixIcon: const Icon(Icons.search, color: kGrey, size: 22),
                 filled: true,
                 fillColor: kBgCard,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 16,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -592,7 +592,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
             const SizedBox(height: 8),
             TextField(
               controller: _nombreCtrl,
-              style: const TextStyle(color: kWhite),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _deco('Nombre del ministerio', Icons.church_outlined),
             ),
             const SizedBox(height: 16),
@@ -604,7 +604,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
             const SizedBox(height: 8),
             TextField(
               controller: _descCtrl,
-              style: const TextStyle(color: kWhite),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               maxLines: 3,
               decoration: _deco(
                 'Descripción (opcional)',
@@ -630,7 +630,7 @@ class _FormMinisterioState extends State<_FormMinisterio> {
                   value: _estado,
                   isExpanded: true,
                   dropdownColor: kBgCard,
-                  style: const TextStyle(color: kWhite, fontSize: 14),
+                  style: const TextStyle(color: kWhite, fontSize: 16),
                   onChanged: (v) => setState(() => _estado = v!),
                   items: const [
                     DropdownMenuItem(value: 'activo', child: Text('Activo')),
@@ -721,10 +721,11 @@ class _FormMinisterioState extends State<_FormMinisterio> {
 
   InputDecoration _deco(String hint, IconData icon) => InputDecoration(
     hintText: hint,
-    hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-    prefixIcon: Icon(icon, color: kGrey),
+    hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+    prefixIcon: Icon(icon, color: kGrey, size: 22),
     filled: true,
     fillColor: kBgCard,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(color: kDivider),
@@ -969,12 +970,12 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                         'Seleccionar miembro',
                                         style: TextStyle(
                                           color: kGrey,
-                                          fontSize: 14,
+                                          fontSize: 16,
                                         ),
                                       ),
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 14,
+                                        fontSize: 16,
                                       ),
                                       onChanged: (v) => setState(
                                         () => _miembroSeleccionado = v,
@@ -1013,7 +1014,7 @@ class _GestionMiembrosState extends State<_GestionMiembros> {
                                       dropdownColor: kBgMid,
                                       style: const TextStyle(
                                         color: kWhite,
-                                        fontSize: 14,
+                                        fontSize: 16,
                                       ),
                                       onChanged: (v) =>
                                           setState(() => _rolSeleccionado = v!),

@@ -268,16 +268,16 @@ class _MiembroInscripcionScreenState extends State<MiembroInscripcionScreen> {
             if (_filtro == 'disponibles') ...[
               TextField(
                 onChanged: (v) => setState(() => _busqueda = v),
-                style: const TextStyle(color: kWhite, fontSize: 14),
+                style: const TextStyle(color: kWhite, fontSize: 16),
                 decoration: InputDecoration(
                   hintText: 'Buscar curso...',
-                  hintStyle: const TextStyle(color: kGrey, fontSize: 13),
-                  prefixIcon: const Icon(Icons.search, color: kGrey, size: 18),
+                  hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+                  prefixIcon: const Icon(Icons.search, color: kGrey, size: 22),
                   filled: true,
                   fillColor: kBgCard,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 12,
+                    vertical: 16,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),

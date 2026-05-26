@@ -474,14 +474,14 @@ class _CampoBusqueda extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     onChanged: onChanged,
-    style: const TextStyle(color: kWhite, fontSize: 14),
+    style: const TextStyle(color: kWhite, fontSize: 16),
     decoration: InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-      prefixIcon: Icon(icono, color: kGrey, size: 18),
+      hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: Icon(icono, color: kGrey, size: 22),
       filled: true,
       fillColor: kBgCard,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: kDivider),
@@ -821,7 +821,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
             TextField(
               controller: _busquedaCtrl,
               onChanged: _buscar,
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _decoInput(
                 hint: 'Buscar miembro...',
                 icono: Icons.person_search,
@@ -857,7 +857,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                           ),
                           title: Text(
                             m['nombre'] as String,
-                            style: const TextStyle(color: kWhite, fontSize: 14),
+                            style: const TextStyle(color: kWhite, fontSize: 16),
                           ),
                           onTap: () => setState(() {
                             _miembroSel = m;
@@ -885,7 +885,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        style: const TextStyle(color: kWhite, fontSize: 16),
                         decoration: _decoInput(
                           hint: '0.00',
                           icono: Icons.monetization_on_outlined,
@@ -904,7 +904,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
                       const SizedBox(height: 8),
                       TextField(
                         controller: _fechaCtrl,
-                        style: const TextStyle(color: kWhite, fontSize: 14),
+                        style: const TextStyle(color: kWhite, fontSize: 16),
                         decoration: _decoInput(
                           hint: 'AAAA-MM-DD',
                           icono: Icons.calendar_today_outlined,
@@ -921,7 +921,7 @@ class _FormDiezmoState extends State<_FormDiezmo> {
             // Observación
             TextField(
               controller: _obsCtrl,
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _decoInput(
                 hint: 'Observación (opcional)',
                 icono: Icons.notes,
@@ -1042,7 +1042,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
                   value: _tipo,
                   isExpanded: true,
                   dropdownColor: kBgCard,
-                  style: const TextStyle(color: kWhite, fontSize: 14),
+                  style: const TextStyle(color: kWhite, fontSize: 16),
                   onChanged: (v) => setState(() => _tipo = v!),
                   items: const [
                     DropdownMenuItem(value: 'general', child: Text('General')),
@@ -1069,7 +1069,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _decoInput(
                 hint: '0.00',
                 label: 'Monto (Bs.)',
@@ -1080,7 +1080,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
             const SizedBox(height: 12),
             TextField(
               controller: _fechaCtrl,
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _decoInput(
                 hint: 'AAAA-MM-DD',
                 label: 'Fecha',
@@ -1091,7 +1091,7 @@ class _FormOfrendaState extends State<_FormOfrenda> {
             const SizedBox(height: 12),
             TextField(
               controller: _descCtrl,
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: _decoInput(
                 hint: 'Descripción',
                 label: 'Descripción (opcional)',
@@ -1321,13 +1321,13 @@ InputDecoration _decoInput({
 }) => InputDecoration(
   hintText: hint,
   labelText: label,
-  hintStyle: const TextStyle(color: kGrey, fontSize: 14),
-  labelStyle: const TextStyle(color: kGrey, fontSize: 14),
-  prefixIcon: Icon(icono, color: kGrey, size: 18),
+  hintStyle: const TextStyle(color: kGrey, fontSize: 16),
+  labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+  prefixIcon: Icon(icono, color: kGrey, size: 22),
   suffixIcon: sufijo,
   filled: true,
   fillColor: kBgCard,
-  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(8),
     borderSide: const BorderSide(color: kDivider),

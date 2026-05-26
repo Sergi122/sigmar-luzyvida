@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          'Accede al sistema SIGMAR',
+                          'Ingresando al Sistema de Gestión SIGMAR',
                           style: TextStyle(color: kGrey),
                         ),
                         const SizedBox(height: 30),
@@ -176,7 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         /// EMAIL
                         TextField(
                           controller: _emailCtrl,
-                          style: const TextStyle(color: kWhite),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           decoration: _deco(
                             'Correo electrónico',
                             Icons.email_outlined,
@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextField(
                           controller: _passCtrl,
                           obscureText: !_verPass,
-                          style: const TextStyle(color: kWhite),
+                          style: const TextStyle(color: kWhite, fontSize: 16),
                           decoration: _deco('Contraseña', Icons.lock_outline)
                               .copyWith(
                                 suffixIcon: GestureDetector(
@@ -224,7 +224,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: kGold,
                               foregroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             child: _cargando
                                 ? const CircularProgressIndicator(
@@ -269,10 +270,11 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _deco(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: kGrey),
-      prefixIcon: Icon(icon, color: kGrey),
+      labelStyle: const TextStyle(color: kGrey, fontSize: 16),
+      prefixIcon: Icon(icon, color: kGrey, size: 22),
       filled: true,
       fillColor: kBgCard,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
     );
   }

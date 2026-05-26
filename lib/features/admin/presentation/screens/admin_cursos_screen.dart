@@ -255,20 +255,20 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                   flex: 3,
                   child: TextField(
                     onChanged: (v) => setState(() => _busqueda = v),
-                    style: const TextStyle(color: kWhite, fontSize: 14),
+                    style: const TextStyle(color: kWhite, fontSize: 16),
                     decoration: InputDecoration(
                       hintText: 'Buscar curso...',
-                      hintStyle: const TextStyle(color: kGrey, fontSize: 14),
+                      hintStyle: const TextStyle(color: kGrey, fontSize: 16),
                       prefixIcon: const Icon(
                         Icons.search,
                         color: kGrey,
-                        size: 18,
+                        size: 22,
                       ),
                       filled: true,
                       fillColor: kBgCard,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 12,
+                        vertical: 16,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -297,7 +297,7 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                     child: DropdownButton<String>(
                       value: _filtroEstado,
                       dropdownColor: kBgCard,
-                      style: const TextStyle(color: kWhite, fontSize: 14),
+                      style: const TextStyle(color: kWhite, fontSize: 16),
                       onChanged: (v) =>
                           setState(() => _filtroEstado = v ?? 'todos'),
                       items: const [
@@ -1292,15 +1292,15 @@ class _DialogNombrePeriodoState extends State<_DialogNombrePeriodo> {
             TextField(
               controller: _ctrl,
               autofocus: true,
-              style: const TextStyle(color: kWhite, fontSize: 14),
+              style: const TextStyle(color: kWhite, fontSize: 16),
               decoration: InputDecoration(
                 hintText: 'ej: Enero–Marzo 2026',
-                hintStyle: const TextStyle(color: kGrey, fontSize: 14),
+                hintStyle: const TextStyle(color: kGrey, fontSize: 16),
                 filled: true,
                 fillColor: kBgCard,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 14,
-                  vertical: 12,
+                  vertical: 16,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
