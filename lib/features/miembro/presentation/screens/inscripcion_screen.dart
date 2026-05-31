@@ -35,49 +35,58 @@ class _MiembroInscripcionScreenState extends State<MiembroInscripcionScreen> {
   Future<void> _cargar() async {
     if (!mounted) return;
     setState(() => _cargando = true);
-    try {
-      final miembroId = AppSession.miembroId;
-      if (miembroId == null) {
-        setState(() => _cargando = false);
-        return;
-      }
 
-      final cursosData = await _sb
-          .from('cursos')
-          .select('''
-            *,
-            miembros(nombre),
-            curso_requisitos!curso_requisitos_id_curso_fkey(
-              id_curso_prerequisito,
-              requiere_bautismo,
-              requiere_encuentro
-            )
-          ''')
-          .eq('estado', 'activo')
-          .order('nombre');
-
-      final inscripcionesData = await _sb
-          .from('inscripciones')
-          .select('''
-            *,
-            cursos(id, nombre),
-            periodos_curso(nombre)
-          ''')
-          .eq('id_miembro', miembroId)
-          .order('created_at', ascending: false);
-
-      if (mounted) {
-        setState(() {
-          _cursos = List<Map<String, dynamic>>.from(cursosData);
-          _misInscripciones = List<Map<String, dynamic>>.from(
-            inscripcionesData,
-          );
-          _cargando = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error cargando: $e');
+    final miembroId = AppSession.miembroId;
+    if (miembroId == null) {
       if (mounted) setState(() => _cargando = false);
+      return;
+    }
+
+    List<Map<String, dynamic>> cursosLoaded = [];
+    List<Map<String, dynamic>> inscripcionesLoaded = [];
+
+    try {
+      cursosLoaded = List<Map<String, dynamic>>.from(
+        await _sb
+            .from('cursos')
+            .select('''
+              *,
+              miembros(nombre),
+              curso_requisitos!curso_requisitos_id_curso_fkey(
+                id_curso_prerequisito,
+                requiere_bautismo,
+                requiere_encuentro
+              )
+            ''')
+            .eq('estado', 'activo')
+            .order('nombre'),
+      );
+    } catch (e) {
+      debugPrint('Error cargando cursos: $e');
+    }
+
+    try {
+      inscripcionesLoaded = List<Map<String, dynamic>>.from(
+        await _sb
+            .from('inscripciones')
+            .select('''
+              *,
+              cursos(id, nombre),
+              periodos_curso(nombre)
+            ''')
+            .eq('id_miembro', miembroId)
+            .order('created_at', ascending: false),
+      );
+    } catch (e) {
+      debugPrint('Error cargando inscripciones: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _cursos = cursosLoaded;
+        _misInscripciones = inscripcionesLoaded;
+        _cargando = false;
+      });
     }
   }
 

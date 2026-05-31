@@ -5,6 +5,7 @@ import '../../../../core/session.dart';
 import '../../../../shared/widgets/dashboard_shell.dart';
 
 export 'inscripcion_screen.dart';
+export 'miembro_aportes_screen.dart';
 
 class MiembroDashboardScreen extends StatelessWidget {
   const MiembroDashboardScreen({super.key});
@@ -68,10 +69,10 @@ class MiembroDashboardScreen extends StatelessWidget {
                 ? Column(
                     children: [
                       _buildQuickCard(
-                        icon: Icons.home,
-                        label: 'Inicio',
-                        description: 'Página principal de miembro',
-                        onTap: () {},
+                        icon: Icons.volunteer_activism,
+                        label: 'Mis Aportes',
+                        description: 'Historial de tus diezmos',
+                        onTap: () => Navigator.pushNamed(context, '/miembro/aportes'),
                         color: kColor,
                       ),
                       const SizedBox(height: 16),
@@ -96,10 +97,10 @@ class MiembroDashboardScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _buildQuickCard(
-                          icon: Icons.home,
-                          label: 'Inicio',
-                          description: 'Página principal de miembro',
-                          onTap: () {},
+                          icon: Icons.volunteer_activism,
+                          label: 'Mis Aportes',
+                          description: 'Historial de tus diezmos',
+                          onTap: () => Navigator.pushNamed(context, '/miembro/aportes'),
                           color: kColor,
                         ),
                       ),

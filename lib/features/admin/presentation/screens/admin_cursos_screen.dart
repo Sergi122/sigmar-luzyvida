@@ -110,6 +110,12 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
           .isFilter('periodo_id', null);
 
       final total = (inscritos as List).length;
+
+      if (total == 0) {
+        _msg('No hay inscritos activos en este período. Primero inscribe miembros al curso.', error: true);
+        return;
+      }
+
       final completados = inscritos
           .where((i) => i['estado'] == 'completado')
           .length;
@@ -302,14 +308,9 @@ class _AdminCursosScreenState extends State<AdminCursosScreen> {
                           setState(() => _filtroEstado = v ?? 'todos'),
                       items: const [
                         DropdownMenuItem(value: 'todos', child: Text('Todos')),
-                        DropdownMenuItem(
-                          value: 'activo',
-                          child: Text('Activos'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'inactivo',
-                          child: Text('Inactivos'),
-                        ),
+                        DropdownMenuItem(value: 'activo', child: Text('Activos')),
+                        DropdownMenuItem(value: 'inactivo', child: Text('Inactivos')),
+                        DropdownMenuItem(value: 'finalizado', child: Text('Finalizados')),
                       ],
                     ),
                   ),
@@ -1855,11 +1856,13 @@ class _FormCursoState extends State<_FormCurso> {
       _guardando = true;
       _error = null;
     });
+    final horaStr = _horaCtrl.text.trim();
+    final aulaStr = _aulaCtrl.text.trim();
     final datos = {
       'nombre': _nombreCtrl.text.trim(),
-      'aula': _aulaCtrl.text.trim(),
+      'aula': aulaStr.isEmpty ? null : aulaStr,
       'horas': int.tryParse(_horasCtrl.text.trim()),
-      'hora': _horaCtrl.text.trim(),
+      'hora': horaStr.isEmpty ? null : horaStr,
       'dia_semana': _diaSemana,
       'id_guia': _idGuia,
       'estado': _estado,
@@ -2067,14 +2070,9 @@ class _FormCursoState extends State<_FormCurso> {
                       value: _estado,
                       onChanged: (v) => setState(() => _estado = v as String),
                       items: const [
-                        DropdownMenuItem(
-                          value: 'activo',
-                          child: Text('Activo'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'inactivo',
-                          child: Text('Inactivo'),
-                        ),
+                        DropdownMenuItem(value: 'activo', child: Text('Activo')),
+                        DropdownMenuItem(value: 'inactivo', child: Text('Inactivo')),
+                        DropdownMenuItem(value: 'finalizado', child: Text('Finalizado')),
                       ],
                     ),
 
